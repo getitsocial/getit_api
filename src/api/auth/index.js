@@ -1,6 +1,6 @@
 import { Router } from 'restify-router'
-import { authenticate } from './controller'
-import { masterman } from '@/services/guard'
+import { authenticate, providerAuthenticate } from './controller'
+import { masterman } from '~/services/guard'
 
 // import { model, modelProjection } from './model'
 
@@ -25,6 +25,17 @@ const router = new Router()
  */
 router.post('', masterman(), authenticate)
 
+/**
+ * @api {post} /auth/:provider Authenticate with external provider
+ * @apiName AuthenticateFacebook
+ * @apiGroup Auth
+ * @apiParam {String} access_token Facebook user accessToken.
+ * @apiSuccess (Success 201) {String} token User `token` to be passed to other requests.
+ * @apiSuccess (Success 201) {Object} user Current user's data.
+ * @apiError 401 Invalid credentials.
+ */
+router.post('/:provider',
+    providerAuthenticate)
 
 export default router
 

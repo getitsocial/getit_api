@@ -4,10 +4,12 @@ import mongooseKeywords from 'mongoose-keywords'
 import mongoose, { Schema } from 'mongoose'
 import { isEmail } from 'validator'
 import { BadRequestError } from 'restify-errors'
-
-import { hashPassword, passwordValidator } from '@/utils'
-
-const roles = ['user', 'admin']
+import { serverConfig } from '~/config'
+import { hashPassword, passwordValidator } from '~/utils'
+// import { sendDynamicMail } from '~/services/sendgrid'
+// let { emailTemplates } = serverConfig
+// 
+const roles = ['user', 'admin', 'buyer', 'retailer', 'distributor']
 
 const userSchema = new Schema({
     email: {
@@ -43,11 +45,12 @@ const userSchema = new Schema({
         type: String,
         trim: true
     },
-    shops: [{ 
-        type: Schema.Types.ObjectId, 
-        ref: 'Shop',
-        required: true
-    }]
+    userSettings: {
+        hideWelcomePopup: {
+            type: Boolean,
+            default: false
+        }
+    },
 }, {
     timestamps: true,
     toJSON: {
@@ -87,9 +90,10 @@ userSchema.pre('save', async function (next) {
 
 })
 
+
 export const modelProjection = function(req, item = this, cb) {
     let view = {}
-    const fields = ['_id', 'name', 'email', 'picture', 'role']
+    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt']
 
     /*
      * If user logged or have speicific role.
@@ -115,21 +119,29 @@ export const modelProjection = function(req, item = this, cb) {
 
 userSchema.statics = {
     roles,
-    createFromService ({ service, id, email, name, picture }) {
-        return this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] }).then((user) => {
-            if (user) {
-                user.services[service] = id
-                user.name = name
-                user.picture = picture
-                return user.save()
-            } else {
-                const password = randtoken.generate(32, 'aA1!&bB2§/cC3$(dD4%)')
-                return this.create({ services: { [service]: id }, email, password, name, picture }).then(user => {
-                    // TODO: Send welcome Mail
-                    return user
-                })
-            }
-        })
+    async createFromService ({ service, id, email, name, picture }) {
+        const user = await this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] })
+        if (user) {
+            user.services[service] = id
+            user.name = name
+            user.picture = picture
+            return user.save()
+        } else {
+            const password = randtoken.generate(32, 'aA1!&bB2§/cC3$(dD4%)')
+            const newUser =  this.create({ services: { [service]: id }, email, password, name, picture })
+
+            /**
+             *   Send welcome Mail
+             *   await sendDynamicMail({ toEmail: email,
+             *       templateId: emailTemplates.welcome,
+             *       dynamic_template_data: {
+             *           username: name
+             *       }
+             *   })
+             */
+
+            return newUser
+        }
     }
 }
 

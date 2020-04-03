@@ -5,6 +5,7 @@ import shop from './shop'
 import order from './order'
 import category from './category'
 import article from './article'
+import passwordReset from './password-reset'
 import auth from './auth'
 
 const router = new Router()
@@ -38,6 +39,7 @@ router.add('/shops', shop)
 router.add('/orders', order)
 router.add('/categories', category)
 router.add('/articles', article)
+router.add('/password-resets', passwordReset)
 router.add('/users', user)
 router.add('/auth', auth)
 

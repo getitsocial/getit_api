@@ -1,8 +1,8 @@
 import restify from 'restify'
 import { Router } from 'restify-router'
-import { connect } from '@/services/mongoose'
-import { serverConfig, dbConfig } from '@/config' 
-import routes from '@/api'
+import { connect } from '~/services/mongoose'
+import { serverConfig, dbConfig } from '~/config' 
+import routes from '~/api'
 
 const router = new Router()
 const server = restify.createServer(serverConfig.server)

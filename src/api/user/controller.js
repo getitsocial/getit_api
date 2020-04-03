@@ -1,18 +1,50 @@
 import { BadRequestError } from 'restify-errors'
 import { merge } from 'lodash'
+import { sendDynamicMail } from '~/services/sendgrid'
+import { serverConfig } from '~/config'
 import model from './model'
+
+// let { emailTemplates } = serverConfig
+
+export const getMe = async({ user }, res, next) => {
+    try {
+
+        if(!user) {
+            return next(new BadRequestError('cannot find user'))
+        }
+        // Find user
+        let result = await model.findById(user._id)
+
+        // Send response 
+        res.send(201, result)
+
+    } catch (error) {
+        /* istanbul ignore next */ 
+        return next(new BadRequestError(error))
+    }
+}
 
 export const create = async({ body }, res, next) => {
     // Pass values
-    const { email, password } = body
+    let { email, password, name } = body
     
     try {
 
         // Validate request body
-        await model.validate({ email, password })
+        await model.validate({ email, password, name })
         
         // Create object
-        const data = await model.create({ email, password })
+        const data = await model.create({ email, password, name })
+
+        /**
+             *   Send welcome Mail
+             *   await sendDynamicMail({ toEmail: email,
+             *       templateId: emailTemplates.welcome,
+             *       dynamic_template_data: {
+             *           username: name
+             *       }
+             *   })
+             */
 
         // Send response 
         res.send(201, data.modelProjection())
@@ -25,12 +57,12 @@ export const create = async({ body }, res, next) => {
 
 export const update = async({ user, params, body }, res, next) => {
     // Pass values
-    const { name, picture, email } = body
+    let { name, picture, email, userSettings, role } = body
     
     try {
 
         // Find User
-        const result = await model.findById(params.id === 'me' ? user._id : params.id)
+        let result = await model.findById(params.id === 'me' ? user._id : params.id)
 
         const isAdmin = user.role === 'admin'
         const isSelfUpdate = params.id === 'me' ? true : (result._id.equals(user._id))
@@ -42,7 +74,7 @@ export const update = async({ user, params, body }, res, next) => {
         }
 
         // Save user
-        const data = await merge(result, { name, picture, email }).save()
+        const data = await merge(result, { name, picture, email, userSettings, role }).save()
         
         // Send response 
         res.send(201, data.modelProjection())
@@ -56,11 +88,11 @@ export const update = async({ user, params, body }, res, next) => {
 
 export const updatePassword = async ({ body , params, user }, res, next) => {
     // Pass values
-    const { password } = body
+    let { password } = body
     
     try {
         // Find User
-        const result = await model.findById(params.id === 'me' ? user._id : params.id)
+        let result = await model.findById(params.id === 'me' ? user._id : params.id)
 
         // Check permissions
         if (!result._id.equals(user._id)) {

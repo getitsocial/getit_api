@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { requireProcessEnv, extractToken } from '@/utils'
+import { requireProcessEnv, extractToken } from '~/utils'
 
 export const serverConfig = {
     endpoint: '/api',
@@ -18,7 +18,13 @@ export const serverConfig = {
         secret: requireProcessEnv('JWT_SECRET'),
         credentialsRequired: false,
         getToken: (req) => extractToken(req)
-    }
+    },
+    sendgridKey: requireProcessEnv('SENDGRID_KEY'),
+    emailTemplates: {
+        welcome: 'd-82227eb5eef242feb590e844a333b8c4',
+        forgot: 'd-141a773f01d04265b3299be27b8d52f5'
+    },
+    defaultEmail: 'no-reply@tutels.com'
 }
 
 export const dbConfig = {
@@ -37,4 +43,3 @@ export const restConfig = {
      */
     pageSize: 50
 }
-

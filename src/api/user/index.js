@@ -1,10 +1,10 @@
 import restifyMongoose from 'restify-mongoose'
 import { Router } from 'restify-router'
-import { restConfig } from '@/config'
-import { doorman, masterman } from '@/services/guard'
-import { validateUserBeforeCreate } from '@/utils'
+import { restConfig } from '~/config'
+import { doorman, masterman } from '~/services/guard'
+import { validateUserBeforeCreate } from '~/utils'
 import model, { modelProjection } from './model'
-import { create, update, updatePassword } from './controller'
+import { getMe, create, update, updatePassword } from './controller'
 
 const config = {
 
@@ -98,9 +98,7 @@ router.get('',
  * @apiParam {String} admintoken Admin token.
  * @apiSuccess {Object} user User's data.
  */
-router.get('/me', doorman(['user', 'admin']), 
-    async(req, res) => 
-        res.json(req.user))
+router.get('/me', doorman(['user', 'admin']), getMe)
 
 /**
  * @api {get} /users/:id Retrieve user
