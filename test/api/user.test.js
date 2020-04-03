@@ -1,10 +1,10 @@
 import crypto from 'crypto'
 import request from 'supertest'
 import { isJWT } from 'validator'
-import server from '@/server'
-import { serverConfig } from '@/config'
-import { sign } from '@/services/guard'
-import Model from '@/api/user/model'
+import server from '~/server'
+import { serverConfig } from '~/config'
+import { sign } from '~/services/guard'
+import Model from '~/api/user/model'
 
 let adminUser, 
     defaultUser,
