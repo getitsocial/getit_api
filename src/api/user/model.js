@@ -4,12 +4,12 @@ import mongooseKeywords from 'mongoose-keywords'
 import mongoose, { Schema } from 'mongoose'
 import { isEmail } from 'validator'
 import { BadRequestError } from 'restify-errors'
-import { serverConfig } from '~/config'
+// import { serverConfig } from '~/config'
 import { hashPassword, passwordValidator } from '~/utils'
 // import { sendDynamicMail } from '~/services/sendgrid'
 // let { emailTemplates } = serverConfig
 // 
-const roles = ['user', 'admin', 'buyer', 'retailer', 'distributor']
+const roles = ['user', 'admin']
 
 const userSchema = new Schema({
     email: {
@@ -45,12 +45,11 @@ const userSchema = new Schema({
         type: String,
         trim: true
     },
-    userSettings: {
-        hideWelcomePopup: {
-            type: Boolean,
-            default: false
-        }
-    },
+    shops: [{ 
+        type: Schema.Types.ObjectId, 
+        ref: 'Shop',
+        required: true
+    }]
 }, {
     timestamps: true,
     toJSON: {

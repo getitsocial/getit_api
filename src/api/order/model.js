@@ -3,17 +3,17 @@ import mongoose, { Schema } from 'mongoose'
 const orderSchema = new Schema({
     shop: { 
         type: Schema.Types.ObjectId, 
-        ref: 'shops',
+        ref: 'Shop',
         required: true
     },
     user: { 
         type: Schema.Types.ObjectId, 
-        ref: 'users',
+        ref: 'User',
         required: true
     },
     items: [{ 
         type: Schema.Types.ObjectId, 
-        ref: 'articles',
+        ref: 'Article',
         required: true
     }],
     status: { 
