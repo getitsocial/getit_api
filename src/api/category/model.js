@@ -19,7 +19,7 @@ const categorySchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'content']
+    let fields = ['id', 'name', 'author']
 
     /*
     if (req.user) {

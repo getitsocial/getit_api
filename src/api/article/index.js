@@ -1,7 +1,8 @@
-import restifyMongoose from 'restify-mongoose'
+import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
+import { addAuthor } from '~/services/modelModifier'
 import { deleteAll } from './controller'
 import model, { modelProjection } from './model'
 
@@ -14,7 +15,7 @@ const config = {
      *
      * Multiple referenced documents can be populated by using a comma-delimited list of the desired fields in any of the three methods above.
      */
-    // populate: 'author,contributors'
+    populate: { path: 'author', select: 'name picture' },
     
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
@@ -24,7 +25,7 @@ const config = {
     /**
      * Sort parameters are passed by query string parameter sort.
      */
-    // sort: '-createdAt'
+    sort: 'name',
 
     /**
      * Requests that return multiple items in query will be paginated to 100 items by default. You can set the pageSize (number min=1) by adding it to the options.
@@ -74,7 +75,7 @@ const endpoint = restifyMongoose(model, Object.assign(restConfig, config))
  * @apiSuccess {Object[]} articles List of articles.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('', endpoint.query())
+router.get('', doorman(['user', 'admin']), endpoint.query())
 
 /**
  * @api {get} /articles/:id Retrieve article
@@ -84,7 +85,7 @@ router.get('', endpoint.query())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */
-router.get('/:id', endpoint.detail())
+router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
 
 /**
  * @api {post} /articles Create article
@@ -96,7 +97,7 @@ router.get('/:id', endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */
-router.post('', endpoint.insert())
+router.post('', [doorman(['user']), addAuthor()], endpoint.insert())
 
 /**
  * @api {patch} /articles/:id Update article

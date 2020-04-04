@@ -1,7 +1,8 @@
-import restifyMongoose from 'restify-mongoose'
+import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
+import { addAuthor } from '~/services/modelModifier'
 import { deleteAll } from './controller'
 import model, { modelProjection } from './model'
 
@@ -14,8 +15,8 @@ const config = {
      *
      * Multiple referenced documents can be populated by using a comma-delimited list of the desired fields in any of the three methods above.
      */
-    // populate: 'author,contributors'
-    
+    populate: { path: 'author', select: 'name picture' },
+
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
      */
@@ -24,12 +25,12 @@ const config = {
     /**
      * Sort parameters are passed by query string parameter sort.
      */
-    // sort: '-createdAt'
+    sort: 'name',
 
     /**
      * Requests that return multiple items in query will be paginated to 100 items by default. You can set the pageSize (number min=1) by adding it to the options.
      */
-    // pageSize: 50,
+    pageSize: 50,
     
     /**
      * The output format can be changed to a more compatible one with the json-api standard to use the API with frameworks like Ember.
@@ -48,7 +49,7 @@ const config = {
      * To select only title and date the fields of a notes resource append the __select__ query parameter to the URL:
      * http://localhost:3000/categories?select=content,createdAt
      */
-    // select: '_id'
+    //select: '_id',
     
     /**
      * Projection functions are specified in the options for the resitfy-mongoose contructor, the query function, or the detail function.
@@ -74,7 +75,7 @@ const endpoint = restifyMongoose(model, Object.assign(restConfig, config))
  * @apiSuccess {Object[]} categories List of categories.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('', endpoint.query())
+router.get('', doorman(['user', 'admin']), endpoint.query())
 
 /**
  * @api {get} /categories/:id Retrieve category
@@ -84,7 +85,7 @@ router.get('', endpoint.query())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
  */
-router.get('/:id', endpoint.detail())
+router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
 
 /**
  * @api {post} /categories Create category
@@ -96,7 +97,7 @@ router.get('/:id', endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
  */
-router.post('', endpoint.insert())
+router.post('', [doorman(['user']), addAuthor()], endpoint.insert())
 
 /**
  * @api {patch} /categories/:id Update category

@@ -1,4 +1,4 @@
-import restifyMongoose from 'restify-mongoose'
+import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
