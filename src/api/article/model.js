@@ -4,8 +4,8 @@ const articleSchema = new Schema({
     name: { type: String, required: true },
     stock: { type: Number, required: true },
     price: { type: Number, required: true },
-    size: { type: String, required: true },
-    currency: { type: String, required: true },
+    size: { type: String, required: false },
+    currency: { type: String, required: false },
     description: { type: String, required: false },
     picture: {},
     category: { 
