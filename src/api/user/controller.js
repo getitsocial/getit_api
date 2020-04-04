@@ -1,8 +1,9 @@
 import { BadRequestError } from 'restify-errors'
 import { merge } from 'lodash'
-import { sendDynamicMail } from '~/services/sendgrid'
-import { serverConfig } from '~/config'
+// import { sendDynamicMail } from '~/services/sendgrid'
+// import { serverConfig } from '~/config'
 import model from './model'
+import shopModel from '~/api/shop/model'
 
 // let { emailTemplates } = serverConfig
 
@@ -85,7 +86,6 @@ export const update = async({ user, params, body }, res, next) => {
     }
 }
 
-
 export const updatePassword = async ({ body , params, user }, res, next) => {
     // Pass values
     let { password } = body
@@ -107,6 +107,41 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
         
         // Send response 
         res.send(201, data.modelProjection())
+
+    } catch(error) {
+        /* istanbul ignore next */ 
+        return next(new BadRequestError(error))
+    }
+}
+
+export const changeShop = async({ user, params }, res, next) => {
+    let { role, shops } = user
+    try {
+
+        // Find Shop
+        let shop = await shopModel.findById(params.id)
+
+        // Check permissions
+        // there could be problems comparing objects with strings
+        const isAdmin = role === 'admin'
+        const usersShops = shops.includes(params.id)
+
+        // Check permissions
+        if (!usersShops && !isAdmin) {
+            /* istanbul ignore next */ 
+            return next(new BadRequestError('You can\'t change the shop'))
+        }
+
+        // Move the shop to the first array
+        // https://stackoverflow.com/a/45516114
+        shops = shops.filter(s => s !== shop)
+        shops.unshift(shop)
+
+        // Save user
+        await merge(user, { shops }).save()
+        
+        // Send response 
+        res.send(201, shop)
 
     } catch(error) {
         /* istanbul ignore next */ 

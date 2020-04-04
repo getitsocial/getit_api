@@ -4,7 +4,7 @@ import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
 import { validateUserBeforeCreate } from '~/utils'
 import model, { modelProjection } from './model'
-import { getMe, create, update, updatePassword } from './controller'
+import { changeShop, getMe, create, update, updatePassword } from './controller'
 
 const config = {
 
@@ -167,6 +167,21 @@ router.patch('/:id',
 router.patch('/:id/password',
     doorman(['user', 'admin']),
     updatePassword)
+
+/**
+ * @api {patch} /shop/:id Change users shop
+ * @apiName ChangeShop
+ * @apiGroup User
+ * @apiParam {String} token User token.
+ * @apiParam {String} admintoken Admin token.
+ * @apiSuccess (Success 201) {Object} shop Shop id.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 401 Current user access only.
+ * @apiError 404 Shop not found.
+ */
+router.patch('/shop/:id',
+    doorman(['user', 'admin']),
+    changeShop)
 
 
 /**

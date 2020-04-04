@@ -10,11 +10,18 @@ const errorHandler = (next) =>
     next(new BadRequestError('invalid email or password'))
 
 const signHandler = async (user, res) => {
-    let token = await sign(user), 
-        { _id, role } = await decode(token)
+    /**
+     * Todo: Put shop into token
+     * take the shop array and select the first object. the first object is the active shop
+     */
+    let shop = user.shops[0] || null
+
+    // Sign Token
+    let token = await sign(user)
+    let { _id, role } = await decode(token)
 
     // Send response
-    res.send({ _id, role, token })
+    res.send({ _id, role, token, shop })
 }
 
 export const authenticate = async({ body }, res, next) => {
