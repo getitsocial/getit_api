@@ -20,7 +20,7 @@ const config = {
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
      */
-    // filter: ((req) => new Object({author: req._id}))
+    filter: ((req) => new Object({category: req.params._id})),
     
     /**
      * Sort parameters are passed by query string parameter sort.
@@ -30,7 +30,7 @@ const config = {
     /**
      * Requests that return multiple items in query will be paginated to 100 items by default. You can set the pageSize (number min=1) by adding it to the options.
      */
-    // pageSize: 50,
+    pageSize: 50,
     
     /**
      * The output format can be changed to a more compatible one with the json-api standard to use the API with frameworks like Ember.
