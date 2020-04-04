@@ -17,7 +17,7 @@ export const getMe = async({ user }, res, next) => {
         let result = await model.findById(user._id)
 
         // Send response 
-        res.send(201, result)
+        res.send(200, result)
 
     } catch (error) {
         /* istanbul ignore next */ 
