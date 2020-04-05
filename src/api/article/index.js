@@ -20,7 +20,7 @@ const config = {
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
      */
-    filter: ((req) => new Object({category: req.query.id})),
+    filter: ((req) => new Object({category: req.query.categoryId})),
     
     /**
      * Sort parameters are passed by query string parameter sort.
