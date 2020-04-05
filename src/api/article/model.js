@@ -26,7 +26,7 @@ const articleSchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price']
+    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category']
 
     /*
     if (req.user) {

@@ -20,7 +20,7 @@ const config = {
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
      */
-    filter: ((req) => new Object({category: req.query.categoryId})),
+    // filter: ((req) => new Object({category: req.query.categoryId})),
     
     /**
      * Sort parameters are passed by query string parameter sort.
@@ -31,6 +31,9 @@ const config = {
      * Requests that return multiple items in query will be paginated to 100 items by default. You can set the pageSize (number min=1) by adding it to the options.
      */
     pageSize: 50,
+
+    // Todo: whitelist query params
+    // whitelistQuery: ['categoryId'],
     
     /**
      * The output format can be changed to a more compatible one with the json-api standard to use the API with frameworks like Ember.
@@ -75,7 +78,7 @@ const endpoint = restifyMongoose(model, Object.assign(restConfig, config))
  * @apiSuccess {Object[]} articles List of articles.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('', doorman(['user', 'admin']), endpoint.query())
+router.get('',  doorman(['user', 'admin']), endpoint.query({filter: ((req) => new Object({category: req.query.categoryId}))}))
 
 /**
  * @api {get} /articles/:id Retrieve article

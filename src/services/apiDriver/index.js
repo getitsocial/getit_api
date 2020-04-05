@@ -3,12 +3,11 @@
  * https://github.com/saintedlama/restify-mongoose
  */
 
-const async = require('async')
-const restifyErrors = require('restify-errors')
-
-const util = require('util')
-const url = require('url')
-const EventEmitter = require('events').EventEmitter
+import async from 'async'
+import restifyErrors from 'restify-errors'
+import util from 'util'
+import url from 'url'
+import { EventEmitter } from 'events'
 
 const restifyError = function (err) {
 
@@ -223,6 +222,15 @@ const applySort = function (query, options, req) {
     }
 }
 
+const applyFilter = function (query, options, req) {
+    const filter = req.query.filter || options.filter
+    if (filter) {
+        query = query.where(options.filter(req))
+    }
+}
+
+
+
 const Resource = function (Model, options) {
     EventEmitter.call(this)
     this.Model = Model
@@ -257,6 +265,8 @@ Resource.prototype.query = function (options) {
     options.populate = options.populate || this.options.populate
     options.select = options.select || this.options.select
     options.sort = options.sort || this.options.sort
+    options.filter = options.filter || this.options.filter
+    // options.whitelistQuery = options.whitelistQuery || this.options.whitelistQuery
 
     return function (req, res, next) {
         let query = self.Model.find({})
@@ -275,6 +285,7 @@ Resource.prototype.query = function (options) {
         applySelect(query, options, req)
         applyPopulate(query, options, req)
         applySort(query, options, req)
+        applyFilter(query, options, req)
 
         if (self.options.filter) {
             query = query.where(self.options.filter(req, res))
@@ -455,7 +466,6 @@ Resource.prototype.serve = function (path, server, options) {
     }
 
     const closedPath = path[path.length - 1] === '/' ? path : path + '/'
-
     server.get(
         path,
         handlerChain(this.query(), options.before, options.after)
