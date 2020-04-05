@@ -6,8 +6,8 @@ import { serverConfig } from '~/config'
 
 export const roles = ['user', 'admin']
 
-export const sign = async ({ _id, role }) => 
-    jwt.sign({_id, role}, serverConfig?.jwt?.secret, {
+export const sign = async ({ _id, role, shops }) => 
+    jwt.sign({_id, role, shops}, serverConfig?.jwt?.secret, {
         expiresIn: '8d'
     })
 

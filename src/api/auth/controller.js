@@ -1,3 +1,4 @@
+import { filter } from 'lodash'
 import { BadRequestError } from 'restify-errors'
 import model from '~/api/user/model'
 import { sign, decode } from '~/services/guard'
@@ -14,14 +15,15 @@ const signHandler = async (user, res) => {
      * Todo: Put shop into token
      * take the shop array and select the first object. the first object is the active shop
      */
-    let shop = user.shops[0] || null
 
+    user.shops = filter(user.shops, (o) => !o.active )
+    
     // Sign Token
     let token = await sign(user)
-    let { _id, role } = await decode(token)
+    let { _id, role, shops } = await decode(token)
 
     // Send response
-    res.send({ _id, role, token, shop })
+    res.send({ _id, role, token, shops })
 }
 
 export const authenticate = async({ body }, res, next) => {

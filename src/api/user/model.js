@@ -45,10 +45,15 @@ const userSchema = new Schema({
         type: String,
         trim: true
     },
-    shops: [{ 
-        type: Schema.Types.ObjectId, 
-        ref: 'Shop',
-        required: true
+    shops: [{
+        id: { 
+            type: Schema.Types.ObjectId, 
+            ref: 'Shop'
+        },
+        active: {
+            type: Boolean,
+            default: false
+        }
     }]
 }, {
     timestamps: true,
