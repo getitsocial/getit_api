@@ -266,7 +266,6 @@ Resource.prototype.query = function (options) {
     options.select = options.select || this.options.select
     options.sort = options.sort || this.options.sort
     options.filter = options.filter || this.options.filter
-    // options.whitelistQuery = options.whitelistQuery || this.options.whitelistQuery
 
     return function (req, res, next) {
         let query = self.Model.find({})

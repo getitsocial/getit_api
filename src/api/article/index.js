@@ -15,7 +15,7 @@ const config = {
      *
      * Multiple referenced documents can be populated by using a comma-delimited list of the desired fields in any of the three methods above.
      */
-    populate: { path: 'author', select: 'name picture' },
+    populate: [{ path: 'author', select: 'name picture' }, { path: 'category', select: 'name' }],
     
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
@@ -32,9 +32,6 @@ const config = {
      */
     pageSize: 50,
 
-    // Todo: whitelist query params
-    // whitelistQuery: ['categoryId'],
-    
     /**
      * The output format can be changed to a more compatible one with the json-api standard to use the API with frameworks like Ember.
      */
