@@ -19,9 +19,6 @@ const categorySchema = new Schema({
 
 categorySchema.pre('remove', function(callback) {
     // Remove all the docs that refers
-    console.log('remove')
-    console.log(this)
-    console.log(this._id)
     this.model('Article').remove({ category: this._id }, callback)
 })
 
