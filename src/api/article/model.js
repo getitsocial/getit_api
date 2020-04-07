@@ -1,12 +1,12 @@
 import mongoose, { Schema } from 'mongoose'
 
 const articleSchema = new Schema({
-    name: { type: String, required: true },
-    stock: { type: Number, required: true },
-    price: { type: Number, required: true },
+    name: { type: String, required: true, maxlength: 100 },
+    stock: { type: Number, required: true, min: 0 },
+    price: { type: Number, required: true, min: 0, max: 5000 },
     size: { type: String, required: false },
-    currency: { type: String, required: false },
-    description: { type: String, required: false },
+    currency: { type: String, required: false, enum: ['Euro', '€'] },
+    description: { type: String, required: false, maxlength: 2000 },
     picture: {},
     category: { 
         type: Schema.Types.ObjectId, 

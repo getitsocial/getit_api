@@ -22,7 +22,7 @@ const orderSchema = new Schema({
         enum: ['canceled', 'done', 'open', 'shipped', 'pending'],
         default: 'pending'
     },
-    note: { type: String, required: true }
+    note: { type: String, required: false }
 }, {
     timestamps: true,
     toJSON: {

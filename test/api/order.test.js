@@ -27,7 +27,7 @@ beforeEach(async (done) => {
     // Shop
     defaultShop = await Shop.create({ name: 'shopname', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: defaultUser._id })
     defaultCategory = await Category.create({ name: 'things'} )
-    defaultArticle = await Article.create({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'btc', category: defaultCategory._id })
+    defaultArticle = await Article.create({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'Euro', category: defaultCategory._id })
     
     
     // Create object

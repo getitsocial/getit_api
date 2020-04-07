@@ -17,7 +17,7 @@ let dataObject,
 beforeEach(async (done) => {
     // Create object
     defaultCategory = await Category.create({ name: 'things'} )
-    dataObject = await Model.create({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'btc', category: defaultCategory._id })
+    dataObject = await Model.create({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'Euro', category: defaultCategory._id })
     
     // Create user
     const adminUser = new User({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
@@ -67,7 +67,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'btc', category: defaultCategory._id })
+            .send({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'Euro', category: defaultCategory._id })
         
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')

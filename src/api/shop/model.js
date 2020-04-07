@@ -1,11 +1,12 @@
 import mongoose, { Schema } from 'mongoose'
+import { isEmail } from 'validator'
 
 const shopSchema = new Schema({
     name: { type: String, required: true },
     category: { type: String, required: true },
     contact: {
         tel: { type: Number, required: true },
-        email: { type: String, required: true },
+        email: { type: String, required: true, validate: isEmail },
         address: {
             city: { type: String, required: true },
             street: { type: String, required: true },

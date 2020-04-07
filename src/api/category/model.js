@@ -3,7 +3,7 @@ import mongoose, { Schema } from 'mongoose'
 const categorySchema = new Schema({
     name: { type: String, required: true },
     shop: { 
-        type: Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId,
         ref: 'Shop'
     },    
     author: { 
