@@ -285,13 +285,12 @@ Resource.prototype.query = function (options) {
         applyPopulate(query, options, req)
         applySort(query, options, req)
         applyFilter(query, options, req)
-        
+
         if (self.options.filter) {
             query = query.where(self.options.filter(req, res))
             countQuery = countQuery.where(self.options.filter(req, res))
         }
 
-        console.log(options.filter)
         if (options.filter) {
             query = query.where(options.filter(req, res))
             countQuery = countQuery.where(options.filter(req, res))
