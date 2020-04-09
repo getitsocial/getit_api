@@ -27,7 +27,8 @@ beforeAll(async () => {
     const mongoUri = await mongoServer.getConnectionString()
     await mongoose.connect(mongoUri, {
         useNewUrlParser: true, 
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        useCreateIndex: true
     }, (err) => {
         if (err) console.error(err)
     })

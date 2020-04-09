@@ -16,6 +16,10 @@ const articleSchema = new Schema({
     author: { 
         type: Schema.Types.ObjectId, 
         ref: 'User'
+    },
+    published: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true,
@@ -26,7 +30,7 @@ const articleSchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category']
+    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category', 'published']
 
     /*
     if (req.user) {
