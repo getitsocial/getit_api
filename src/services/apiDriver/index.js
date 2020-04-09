@@ -281,6 +281,18 @@ Resource.prototype.query = function (options) {
             }
         }
 
+        // Search
+        if (req.query.search) {
+            const searchObject = { name: { $regex: req.query.search, $options: 'i' } }
+            try {
+                query = query.where(searchObject)
+                countQuery = countQuery.where(searchObject)
+            } catch (err) {
+                console.log(err)
+                return res.send(400, { message: 'Query is not a valid', errors: err })
+            }
+        }
+
         applySelect(query, options, req)
         applyPopulate(query, options, req)
         applySort(query, options, req)
