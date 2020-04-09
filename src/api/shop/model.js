@@ -41,4 +41,6 @@ export const modelProjection = function(req, item, cb) {
     cb(null, view)
 }
 
+shopSchema.index({'$**': 'text'})
+
 export default mongoose.model('Shop', shopSchema)

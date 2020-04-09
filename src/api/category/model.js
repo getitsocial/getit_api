@@ -37,4 +37,6 @@ export const modelProjection = function(req, item, cb) {
     cb(null, view)
 }
 
+categorySchema.index({'$**': 'text'})
+
 export default mongoose.model('Category', categorySchema)

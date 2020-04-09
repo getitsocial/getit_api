@@ -1,6 +1,5 @@
 import crypto from 'crypto'
 import randtoken from 'rand-token'
-import mongooseKeywords from 'mongoose-keywords'
 import mongoose, { Schema } from 'mongoose'
 import { isEmail } from 'validator'
 import { BadRequestError } from 'restify-errors'
@@ -153,6 +152,6 @@ userSchema.methods = {
     modelProjection
 }
 
-userSchema.plugin(mongooseKeywords, { paths: ['email', 'name'] })
+userSchema.index({'$**': 'text'})
 
 export default mongoose.model('User', userSchema)

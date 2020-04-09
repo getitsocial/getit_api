@@ -52,7 +52,6 @@
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "mongoose": "^5.9.7",
-    "mongoose-keywords": "^0.4.0",
     "rand-token": "^1.0.1",
     "request": "^2.88.2",
     "request-promise": "^4.2.5",

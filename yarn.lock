@@ -5069,7 +5069,7 @@ lodash.unescape@4.0.1:
   resolved "https://registry.yarnpkg.com/lodash.unescape/-/lodash.unescape-4.0.1.tgz#bf2249886ce514cda112fae9218cdc065211fc9c"
   integrity sha1-vyJJiGzlFM2hEvrpIYzcBlIR/Jw=
 
-lodash@^4.11.2, lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@~4.17.15:
+lodash@^4.17.11, lodash@^4.17.13, lodash@^4.17.14, lodash@^4.17.15, lodash@~4.17.15:
   version "4.17.15"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
@@ -5418,13 +5418,6 @@ mongodb@3.5.5, mongodb@^3.5.4:
     safe-buffer "^5.1.2"
   optionalDependencies:
     saslprep "^1.0.0"
-
-mongoose-keywords@^0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/mongoose-keywords/-/mongoose-keywords-0.4.0.tgz#5b5309a9d6d2902a354e2fb36d126e0821ce9766"
-  integrity sha512-9wms3ZC14qPoc07SYlB1yQSL+TAA4yvsWCy/ZLAjovB9LXc/lBDAlp16kr7WBNasyBcT4Xe9DJQnh3YctMJbVw==
-  dependencies:
-    lodash "^4.11.2"
 
 mongoose-legacy-pluralize@1.0.2:
   version "1.0.2"

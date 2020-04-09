@@ -45,4 +45,6 @@ export const modelProjection = function(req, item, cb) {
     cb(null, view)
 }
 
+orderSchema.index({'$**': 'text'})
+
 export default mongoose.model('Order', orderSchema)
