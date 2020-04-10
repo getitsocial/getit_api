@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 
 const articleSchema = new Schema({
     name: { type: String, required: true, maxlength: 100 },
-    stock: { type: Number, required: true, min: 0 },
+    stock: { type: Number, required: true, min: -1 },
     price: { type: Number, required: true, min: 0, max: 5000 },
     size: { type: String, required: false },
     currency: { type: String, required: false, enum: ['Euro', '€'] },
@@ -30,7 +30,7 @@ const articleSchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category', 'published']
+    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category', 'published', 'haveStock']
 
     /*
     if (req.user) {
@@ -42,6 +42,11 @@ export const modelProjection = function(req, item, cb) {
 
     cb(null, view)
 }
+
+articleSchema.virtual('haveStock').
+    get(function() { 
+        return !(this.stock === -1)
+    })
 
 articleSchema.index({'$**': 'text'})
 
