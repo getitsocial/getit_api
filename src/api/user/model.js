@@ -25,6 +25,18 @@ const userSchema = new Schema({
         validate: passwordValidator,
         minlength: 6
     },
+    birthday: { 
+        day: {
+            type: Date
+        },
+        age: {
+            type: Number
+        },
+        isToday: {
+            type: Boolean,
+            default: false
+        }
+    },
     name: {
         type: String,
         index: true,
@@ -44,6 +56,7 @@ const userSchema = new Schema({
         type: String,
         trim: true
     },
+    description: { type: String, required: false, maxlength: 2000 },
     shops: [{
         id: { 
             type: Schema.Types.ObjectId, 
@@ -96,7 +109,7 @@ userSchema.pre('save', async function (next) {
 
 export const modelProjection = function(req, item = this, cb) {
     let view = {}
-    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt']
+    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'description']
 
     /*
      * If user logged or have speicific role.

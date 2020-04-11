@@ -58,7 +58,7 @@ export const create = async({ body }, res, next) => {
 
 export const update = async({ user, params, body }, res, next) => {
     // Pass values
-    let { name, picture, email, userSettings, role } = body
+    let { name, picture, email, description, userSettings, role } = body
     
     try {
 
@@ -75,7 +75,7 @@ export const update = async({ user, params, body }, res, next) => {
         }
 
         // Save user
-        const data = await merge(result, { name, picture, email, userSettings, role }).save()
+        const data = await merge(result, { name, picture, email, description, userSettings, role }).save()
         
         // Send response 
         res.send(201, data.modelProjection())
