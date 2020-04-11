@@ -44,6 +44,11 @@ const userSchema = new Schema({
         type: String,
         trim: true
     },
+    location: {
+        type: String,
+        trim: true
+    },
+    description: { type: String, required: false, maxlength: 2000 },
     shops: [{
         type: Schema.Types.ObjectId, 
         ref: 'Shop'
@@ -90,7 +95,7 @@ userSchema.pre('save', async function (next) {
 
 export const modelProjection = function(req, item = this, cb) {
     let view = {}
-    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'shops']
+    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'shops', 'location', 'description']
 
     /*
      * If user logged or have speicific role.
