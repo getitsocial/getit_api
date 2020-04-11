@@ -7,6 +7,7 @@ import category from './category'
 import article from './article'
 import passwordReset from './password-reset'
 import auth from './auth'
+import maps from './maps'
 
 const router = new Router()
 
@@ -42,6 +43,7 @@ router.add('/articles', article)
 router.add('/password-resets', passwordReset)
 router.add('/users', user)
 router.add('/auth', auth)
+router.add('/maps', maps)
 
 
 export default router
