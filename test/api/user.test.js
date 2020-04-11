@@ -5,9 +5,12 @@ import server from '~/server'
 import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
 import Model from '~/api/user/model'
+import Shop from '~/api/shop/model'
 
 let adminUser, 
     defaultUser,
+    shop,
+    shop1,
     adminToken,
     defaultToken,
     apiEndpoint = 'users'
@@ -15,7 +18,10 @@ let adminUser,
 beforeEach(async (done) => {
     // Create user
     adminUser = await Model.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
-    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    shop = await Shop.create({ name: 'shopname', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: adminUser._id })
+    shop1 = await Shop.create({ name: 'shop1', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: adminUser._id })
+
+    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', shops: [ shop._id, shop1._id ] })
     
     adminUser.role = 'admin'
     adminUser = await adminUser.save()
@@ -214,6 +220,48 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect('services' in body).toBe(false)
         expect(body.role).toEqual('user')
         expect(body.name).toEqual('Maximilian')
+    })
+
+    test(`PATCH /${apiEndpoint}/:id/shop/ 201 - Update user shop`, async () => {
+        const { status, body } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
+            .send({ token: defaultToken, shop: shop1._id })
+
+        expect(status).toBe(201)
+        expect(typeof body).toEqual('object')
+        expect(body.shops[0]).toEqual(shop1._id.toString())
+    })
+    test(`PATCH /${apiEndpoint}/:id/shop/ 400 - Update user shop wrong shopid`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
+            .send({ token: defaultToken, shop: 123 })
+
+        expect(status).toBe(400)
+    })
+    test(`PATCH /${apiEndpoint}/:id/shop/ 401 - Update user shop wrong token`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
+            .send({ token: 'wrongtoken', shop: shop1._id })
+
+        expect(status).toBe(401)
+    })
+    
+    test(`PATCH /${apiEndpoint}/:id/shop/ 201 - Update user shop admin`, async () => {
+        const { status, body } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
+            .send({ token: adminToken, shop: shop1._id })
+
+        expect(status).toBe(201)
+        expect(typeof body).toEqual('object')
+        expect(body.shops[0]).toEqual(shop1._id.toString())
+    })
+
+    test(`PATCH /${apiEndpoint}/:id/shop/ 201 - Update wrong user shop`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}/shops`)
+            .send({ token: defaultToken, shop: shop1._id })
+
+        expect(status).toBe(400)
     })
 })
 

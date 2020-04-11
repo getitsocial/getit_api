@@ -3,7 +3,6 @@ import { merge } from 'lodash'
 // import { sendDynamicMail } from '~/services/sendgrid'
 // import { serverConfig } from '~/config'
 import model from './model'
-import shopModel from '~/api/shop/model'
 
 // let { emailTemplates } = serverConfig
 
@@ -27,15 +26,15 @@ export const getMe = async({ user }, res, next) => {
 
 export const create = async({ body }, res, next) => {
     // Pass values
-    let { email, password, name } = body
+    let { email, password, name, shops } = body
     
     try {
 
         // Validate request body
-        await model.validate({ email, password, name })
+        await model.validate({ email, password, name, shops })
         
         // Create object
-        const data = await model.create({ email, password, name })
+        const data = await model.create({ email, password, name, shops })
 
         /**
              *   Send welcome Mail
@@ -114,36 +113,36 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
     }
 }
 
-export const changeShop = async({ user, params }, res, next) => {
-    let { role, shops } = user
+export const changeShop = async({ user, params, body }, res, next) => {
+    const { role } = user
+    const { shop } = body
     try {
-
-        // Find Shop
-        let shop = await shopModel.findById(params.id)
+        
+        const user = await model.findById(params.id)
+        let shops = user.shops
 
         // Check permissions
         // there could be problems comparing objects with strings
         const isAdmin = role === 'admin'
-        const usersShops = shops.includes(params.id)
+
+        const isValidShop = shops.includes(shop)
 
         // Check permissions
-        if (!usersShops && !isAdmin) {
+        if (!isValidShop && !isAdmin) {
             /* istanbul ignore next */ 
             return next(new BadRequestError('You can\'t change the shop'))
         }
-
-        // Move the shop to the first array
-        // https://stackoverflow.com/a/45516114
-        shops = shops.filter(s => s !== shop)
-        shops.unshift(shop)
-
+        // sort 
+        shops = [shop, ...shops.filter(id => id.toString() !== shop)]
+        
         // Save user
-        await merge(user, { shops }).save()
+        await user.set({ shops }).save()
         
         // Send response 
-        res.send(201, shop)
+        res.send(201, user.modelProjection())
 
     } catch(error) {
+        console.log(error)
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }
