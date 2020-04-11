@@ -16,7 +16,7 @@ export const getMe = async({ user }, res, next) => {
         let result = await model.findById(user._id)
 
         // Send response 
-        res.send(200, result)
+        res.send(200, result.modelProjection())
 
     } catch (error) {
         /* istanbul ignore next */ 
