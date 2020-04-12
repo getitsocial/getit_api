@@ -20,7 +20,8 @@ const articleSchema = new Schema({
     published: {
         type: Boolean,
         default: true
-    }
+    },
+    tax: { type: Number, default: 19 },
 }, {
     timestamps: true,
     toJSON: {
@@ -30,7 +31,7 @@ const articleSchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category', 'published', 'haveStock']
+    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax']
 
     /*
     if (req.user) {
