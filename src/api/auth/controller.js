@@ -1,7 +1,6 @@
-import { filter } from 'lodash'
 import { BadRequestError } from 'restify-errors'
 import model from '~/api/user/model'
-import { sign, decode } from '~/services/guard'
+import { sign, decode, destroy } from '~/services/guard'
 import { comparePassword, providerAuth } from '~/utils'
 
 /**
@@ -58,8 +57,7 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
         // Get user from external provider
         const providerUser = await providerAuth[provider](token)
         const user = await model.createFromService(providerUser)
-        console.log(providerUser)
-        console.log(user)
+       
         // Sign in user
         await signHandler(user, res)
         
@@ -67,4 +65,9 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
         return next(new BadRequestError(error))
     }
 
+}
+
+export const logout = async(req, res) => {
+    await destroy(req)
+    res.send('success')
 }
