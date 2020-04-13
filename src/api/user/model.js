@@ -45,8 +45,7 @@ const userSchema = new Schema({
         trim: true
     },
     location: {
-        type: String,
-        trim: true
+        type: Object
     },
     description: { type: String, required: false, maxlength: 2000 },
     shops: [{
