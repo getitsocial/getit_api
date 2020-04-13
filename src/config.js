@@ -35,6 +35,11 @@ export const dbConfig = {
         useCreateIndex: true
     }
 }
+
+export const dbIndex = {
+    url: process.env.REDIS_URL
+}
+
 export const restConfig = {
     /**
      * You can customize global rest configurations here

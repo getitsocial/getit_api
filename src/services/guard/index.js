@@ -1,13 +1,12 @@
 import jwt from 'jsonwebtoken'
+import redis from 'redis'
+import  { default as JWTR }  from 'jwt-redis'
 import rJWT from 'restify-jwt-community'
 import { UnauthorizedError } from 'restify-errors'
 import { extractToken } from '~/utils'
 import { serverConfig } from '~/config'
 
-const redis = require('redis')
-const JWTR =  require('jwt-redis').default
-
-const redisClient = redis.createClient()
+const redisClient = redis.createClient(serverConfig?.dbIndex)
 const jwtr = new JWTR(redisClient)
 
 // Get JWT Secret
