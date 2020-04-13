@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 
 const articleSchema = new Schema({
     name: { type: String, required: true, maxlength: 100 },
+    articleNumber: { type: String, required: false, maxlength: 25 },
     stock: { type: Number, required: true, min: -1 },
     price: { type: Number, required: true, min: 0, max: 5000 },
     size: { type: String, required: false },
@@ -31,7 +32,7 @@ const articleSchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'author', 'name', 'size', 'stock', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax']
+    let fields = ['id', 'author', 'name', 'size', 'stock', 'articleNumber', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax']
 
     /*
     if (req.user) {
