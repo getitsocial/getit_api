@@ -21,10 +21,10 @@ export const serverConfig = {
     },
     sendgridKey: requireProcessEnv('SENDGRID_KEY'),
     emailTemplates: {
-        welcome: 'd-82227eb5eef242feb590e844a333b8c4',
+        welcome: 'd-e77bbfffbb884f9e82b21ccaa664d867',
         forgot: 'd-141a773f01d04265b3299be27b8d52f5'
     },
-    defaultEmail: 'no-reply@tutels.com'
+    defaultEmail: 'no-reply@getit.social'
 }
 
 export const dbConfig = {

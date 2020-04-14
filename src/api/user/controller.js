@@ -1,10 +1,10 @@
 import { BadRequestError } from 'restify-errors'
 import { merge } from 'lodash'
-// import { sendDynamicMail } from '~/services/sendgrid'
-// import { serverConfig } from '~/config'
+import { sendDynamicMail } from '~/services/sendgrid'
+import { serverConfig } from '~/config'
 import model from './model'
 
-// let { emailTemplates } = serverConfig
+let { emailTemplates } = serverConfig
 
 export const getMe = async({ user }, res, next) => {
     try {
@@ -36,15 +36,15 @@ export const create = async({ body }, res, next) => {
         // Create object
         const data = await model.create({ email, password, name, shops })
 
-        /**
-             *   Send welcome Mail
-             *   await sendDynamicMail({ toEmail: email,
-             *       templateId: emailTemplates.welcome,
-             *       dynamic_template_data: {
-             *           username: name
-             *       }
-             *   })
-             */
+        
+        // Send welcome Mail
+        await sendDynamicMail({ toEmail: email,
+            templateId: emailTemplates.welcome,
+            dynamic_template_data: {
+                username: name
+            }
+        })
+             
 
         // Send response 
         res.send(201, data.modelProjection())
