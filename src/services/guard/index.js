@@ -6,7 +6,7 @@ import { UnauthorizedError } from 'restify-errors'
 import { extractToken } from '~/utils'
 import { serverConfig, dbIndex } from '~/config'
 
-const redisClient = redis.createClient(dbIndex)
+export const redisClient = redis.createClient(dbIndex)
 const jwtr = new JWTR(redisClient)
 
 // Get JWT Secret
