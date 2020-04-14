@@ -73,6 +73,11 @@ export const update = async({ user, params, body }, res, next) => {
             return next(new BadRequestError('You can\'t change other user\'s data'))
         }
 
+
+        // For merge nested Objects 
+        result.markModified('location')
+
+
         // Save user
         const data = await merge(result, { name, picture, email, description, userSettings, location, role }).save()
         
