@@ -61,8 +61,9 @@ const userSchema = new Schema({
 
 userSchema.path('email').set(function (email) {
     if (!this.picture || this.picture.indexOf('https://gravatar.com') === 0) {
-        const hash = crypto.createHash('md5').update(email).digest('hex')
-        this.picture = `https://gravatar.com/avatar/${hash}?d=identicon`
+        // const hash = crypto.createHash('md5').update(email).digest('hex')
+        // this.picture = `https://gravatar.com/avatar/${hash}?d=identicon`
+        this.picture = `https://api.adorable.io/avatars/285/${email}.png`
     }
 
     if (!this.name) {
@@ -73,8 +74,9 @@ userSchema.path('email').set(function (email) {
 })
 
 userSchema.post('save', function (error, document, next) {
-    next( error.code === 11000 
-        ?   BadRequestError('This email already exist')
+    console.log(error?.code)
+    next( error?.code === 11000 
+        ?   'Diese E-Mail Adresse existiert bereits.'
         :   error)
 })
 

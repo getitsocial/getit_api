@@ -7,7 +7,7 @@ import { comparePassword, providerAuth } from '~/utils'
  * @throws {BadRequestError} 400 Error - invalid email or password
  */
 const errorHandler = (next) => 
-    next(new BadRequestError('invalid email or password'))
+    next(new BadRequestError('E-Mail ode Passwort falsch.'))
 
 const signHandler = async (user, res) => {
 

@@ -50,6 +50,7 @@ export const create = async({ body }, res, next) => {
         res.send(201, data.modelProjection())
 
     } catch (error) {
+        console.log(error)
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }
