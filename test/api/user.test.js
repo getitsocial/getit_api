@@ -274,16 +274,12 @@ describe('set email', () => {
     })
 
     it('sets picture automatically', () => {
-        const hash = crypto.createHash('md5').update(adminUser.email).digest('hex')
-        
-        expect(adminUser.picture).toBe(`https://gravatar.com/avatar/${hash}?d=identicon`)
+        expect(adminUser.picture).toBe(`https://api.adorable.io/avatars/285/${adminUser.email}.png`)
     })
 
     it('changes picture when it is gravatar', () => {
         adminUser.email = 'b@b.com'
-        const hash = crypto.createHash('md5').update(adminUser.email).digest('hex')
-        
-        expect(adminUser.picture).toBe(`https://gravatar.com/avatar/${hash}?d=identicon`)
+        expect(adminUser.picture).toBe(`https://api.adorable.io/avatars/285/${adminUser.email}.png`)
     })
 
     it('does not change picture when it is already set and is not gravatar', () => {
