@@ -67,7 +67,11 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
 
 }
 
-export const logout = async(req, res) => {
-    await destroy(req)
-    res.send('success')
+export const logout = async(req, res, next) => {
+    try {
+        await destroy(req)
+        res.send('success')    
+    } catch (error) {
+        next(new BadRequestError('Logout was unsuccessful'))
+    }
 }
