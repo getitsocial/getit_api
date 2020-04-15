@@ -7,6 +7,7 @@ export const addAuthor = () =>
         if(!body)
             next(new BadRequestError())
         body.author = user
+        body.user = user
         next()
     })
     

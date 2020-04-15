@@ -60,14 +60,12 @@ const userSchema = new Schema({
 })
 
 userSchema.path('email').set(function (email) {
-    if (!this.picture || this.picture.indexOf('https://api.adorable.io') === 0) {
+    if (!this.picture || this.picture.indexOf('https://api.adorable.io') === 0) 
         this.picture = `https://api.adorable.io/avatars/285/${email}.png`
-    }
 
-    if (!this.name) {
+    if (!this.name)
         this.name = email.replace(/^(.+)@.+$/, '$1')
-    }
-
+    
     return email
 })
 
@@ -88,6 +86,14 @@ userSchema.pre('save', async function (next) {
         next(error)
     }
 
+})
+
+userSchema.pre('save', function (next) {
+    console.log(this.isModified('picture'))
+    console.log(this.picture)
+    if (this.isModified('picture') && !this.picture) 
+        this.picture = `https://api.adorable.io/avatars/285/${this.email}.png`
+    next()
 })
 
 

@@ -1,24 +1,41 @@
 import mongoose, { Schema } from 'mongoose'
-import { isEmail } from 'validator'
 
 const shopSchema = new Schema({
     name: { type: String, required: true },
-    category: { type: String, required: true },
     contact: {
-        tel: { type: Number, required: true },
-        email: { type: String, required: true, validate: isEmail },
-        address: {
-            city: { type: String, required: true },
-            street: { type: String, required: true },
-            zip: { type: Number, required: true },
-            number: { type: String, required: true },
-        }
+        phone: { type: String, required: true },
+    },
+    address: {
+        label: { type: String, required: true },
+        city: { type: String, required: true },
+        country: { type: String, required: true },
+        county: { type: String, required: true },
+        district: { type: String, required: true },
+        houseNumber: { type: String, required: false },
+        locationId: { type: String, required: true },
+        state: { type: String, required: true },
+        street: { type: String, required: true },
+        postalCode: { type: Number, required: true },
+    },
+    companyType: {
+        type: String,
+        required: true,
+        enum: ['SS','EU','PG','GN','GP','AG']
+    },
+    logo: { type: String, required: false },
+    logoId: { type: String, required: false },
+    picture: { type: String, required: false },
+    pictureId: { type: String, required: false },
+    size: {
+        type: Number,
+        required: true
     },
     user: { 
         type: Schema.Types.ObjectId, 
         ref: 'User',
         required: true
-    }
+    },
+    description: { type: String, required: false },
 }, {
     timestamps: true,
     toJSON: {
