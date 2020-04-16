@@ -1,13 +1,14 @@
 import request from 'supertest'
 import { isJWT } from 'validator'
-import server from '~/server'
-import { serverConfig } from '~/config'
 import Model from '~/api/shop/model'
-import { sign } from '~/services/guard'
 import User from '~/api/user/model'
+import { serverConfig } from '~/config'
+import server from '~/server'
+import { sign } from '~/services/guard'
 
 
 let dataObject, 
+    adminUser,
     adminToken,
     defaultUser,
     defaultToken,
@@ -16,11 +17,11 @@ let dataObject,
 beforeEach(async (done) => {
     
     // Create user
-    const adminUser = new User({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-    defaultUser = new User({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
    
     // Create object
-    dataObject = await Model.create({ name: 'shopname', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: defaultUser._id })
+    dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
     
     // Sign in user
     adminToken = await sign(adminUser)
@@ -67,8 +68,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     test(`POST /${apiEndpoint} 201`, async () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ name: 'shopname', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: defaultUser._id })
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
         
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
