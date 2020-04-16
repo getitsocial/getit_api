@@ -3,7 +3,7 @@ import { merge } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
 import model from './model'
-import { sign, destroyJTI } from '~/services/guard'
+import { refreshToken } from '~/services/guard'
 
 let { emailTemplates } = serverConfig
 
@@ -139,15 +139,16 @@ export const changeShop = async({ user, params, body }, res, next) => {
             /* istanbul ignore next */ 
             return next(new BadRequestError('You can\'t change the shop'))
         }
+        
         // sort 
         shops = [shop, ...shops.filter(id => id.toString() !== shop)]
         
         // Save user
         await user.set({ shops }).save()
-        // destroy old token
-        await destroyJTI(jti)
-        // sign new token
-        const token = await sign({_id: user._id, role, shops })
+        
+        // destroy old jti and sign new token
+        const token = await refreshToken(jti, { _id: user._id, role, shops })
+        
         // Send response 
         res.send(201, { token, shop: shops[0] })
 

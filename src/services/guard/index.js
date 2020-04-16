@@ -29,18 +29,22 @@ export const sign = async ({ _id, role, shops }) =>
         expiresIn: '8d'
     })
 
-export const decode = async (token) => 
-    jwt.decode(token)
+export const decode = async (token) => jwt.decode(token)
+
+// remove jti from redis
+export const destroyJti = async (jti) => jwtr.destroy(jti, secret)
 
 // Destroy token from index
 export const destroy = async (req) => {
     const { jti } = await decode(extractToken(req))
-    await destroyJTI(jti)
+    await destroyJti(jti)
 }
 
-export const destroyJTI = async (jti) => {
-    await jwtr.destroy(jti, secret)
-}
+// destroy jti and return new user token
+export const refreshToken = async (jti, user) => {
+    await destroyJti(jti)
+    return await sign(user)
+} 
 
 export const doorman = (passedRoles) =>  
     [

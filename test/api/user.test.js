@@ -239,13 +239,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + token)
         expect(statusCode).toBe(200)
 
-        
+        // make sure that old token is not working
         const res = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
             .send({ token: defaultToken, shop: shop1._id })
         expect(res.status).toBe(401)
 
-        // make sure that old token is not working
 
     })
     test(`PATCH /${apiEndpoint}/:id/shop/ 400 - Update user shop wrong shopid`, async () => {
