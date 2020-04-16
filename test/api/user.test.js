@@ -18,11 +18,12 @@ let adminUser,
 beforeEach(async (done) => {
     // Create user
     adminUser = await Model.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
-    shop = await Shop.create({ name: 'shopname', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: adminUser._id })
-    shop1 = await Shop.create({ name: 'shop1', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: adminUser._id })
+
+    shop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    shop1 = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
 
     defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', shops: [ shop._id, shop1._id ] })
-    
+
     adminUser.role = 'admin'
     adminUser = await adminUser.save()
 

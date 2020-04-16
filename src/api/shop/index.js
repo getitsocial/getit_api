@@ -97,7 +97,7 @@ router.get('/:id', endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Shop not found.
  */
-router.post('', [doorman(['user']), addAuthor()], endpoint.insert())
+router.post('', [doorman(['user', 'admin']), addAuthor()], endpoint.insert())
 
 /**
  * @api {patch} /shops/:id Update shop

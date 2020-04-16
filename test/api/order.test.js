@@ -25,7 +25,7 @@ beforeEach(async (done) => {
     defaultUser = new User({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     // Shop
-    defaultShop = await Shop.create({ name: 'shopname', category: 'clothing', contact: { tel: 12345, email: 'me@domain.de', address: { city: 'pfungstadt', street: 'my street', zip: 64319, number: 42 }}, user: defaultUser._id })
+    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
     defaultCategory = await Category.create({ name: 'things'} )
     defaultArticle = await Article.create({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'Euro', category: defaultCategory._id })
     

@@ -36,15 +36,13 @@ beforeAll(async () => {
 })
 
 afterAll(async (done) => {
-    mongoose.disconnect()
+    mongoose.connection.close()
     mongoServer.stop()
-    await new Promise((resolve) => redisClient.quit(() => resolve()))
-    // redis.quit() creates a thread to close the connection.
-    // We wait until all threads have been run once to ensure the connection closes.
-    // see: https://stackoverflow.com/q/10424524/
-    await new Promise(resolve => setImmediate(resolve))
-    done()
-})
+    redisClient.on('end', () => {
+        done()
+    })
+    redisClient.quit()
+})  
 
 afterEach(() => {
     const { collections } = mongoose.connection

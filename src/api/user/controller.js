@@ -147,7 +147,6 @@ export const changeShop = async({ user, params, body }, res, next) => {
         res.send(201, user.modelProjection())
 
     } catch(error) {
-        console.log(error)
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }

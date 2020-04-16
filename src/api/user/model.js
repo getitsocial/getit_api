@@ -89,8 +89,6 @@ userSchema.pre('save', async function (next) {
 })
 
 userSchema.pre('save', function (next) {
-    console.log(this.isModified('picture'))
-    console.log(this.picture)
     if (this.isModified('picture') && !this.picture) 
         this.picture = `https://api.adorable.io/avatars/285/${this.email}.png`
     next()
