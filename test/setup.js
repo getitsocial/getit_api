@@ -35,9 +35,12 @@ beforeAll(async () => {
     })
 })
 
-afterAll(() => {
+afterAll(async (done) => {
     mongoose.connection.close()
     mongoServer.stop()
+    redisClient.on('end', () => {
+        done()
+    })
     redisClient.quit()
 })  
 
