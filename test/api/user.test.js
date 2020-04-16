@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import request from 'supertest'
 import { isJWT } from 'validator'
 import server from '~/server'
@@ -230,7 +229,24 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
-        expect(body.shops[0]).toEqual(shop1._id.toString())
+        expect(body.shop).toEqual(shop1._id.toString())
+        const { token } = body
+
+
+        // make sure that new token is working
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/me`)
+            .set('Authorization', 'Bearer ' + token)
+        expect(statusCode).toBe(200)
+
+        
+        const res = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
+            .send({ token: defaultToken, shop: shop1._id })
+        expect(res.status).toBe(401)
+
+        // make sure that old token is not working
+
     })
     test(`PATCH /${apiEndpoint}/:id/shop/ 400 - Update user shop wrong shopid`, async () => {
         const { status } = await request(server)
@@ -254,7 +270,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
-        expect(body.shops[0]).toEqual(shop1._id.toString())
+        expect(body.shop).toEqual(shop1._id.toString())
     })
 
     test(`PATCH /${apiEndpoint}/:id/shop/ 201 - Update wrong user shop`, async () => {

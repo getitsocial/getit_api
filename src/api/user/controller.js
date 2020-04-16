@@ -3,6 +3,7 @@ import { merge } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
 import model from './model'
+import { sign, destroyJTI } from '~/services/guard'
 
 let { emailTemplates } = serverConfig
 
@@ -119,8 +120,9 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
 }
 
 export const changeShop = async({ user, params, body }, res, next) => {
-    const { role } = user
+    const { role, jti } = user
     const { shop } = body
+
     try {
         
         const user = await model.findById(params.id)
@@ -142,9 +144,12 @@ export const changeShop = async({ user, params, body }, res, next) => {
         
         // Save user
         await user.set({ shops }).save()
-        
+        // destroy old token
+        await destroyJTI(jti)
+        // sign new token
+        const token = await sign({_id: user._id, role, shops })
         // Send response 
-        res.send(201, user.modelProjection())
+        res.send(201, { token, shop: shops[0] })
 
     } catch(error) {
         /* istanbul ignore next */ 

@@ -42,7 +42,7 @@ afterAll(async (done) => {
         done()
     })
     redisClient.quit()
-})  
+})
 
 afterEach(() => {
     const { collections } = mongoose.connection

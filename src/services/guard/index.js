@@ -35,6 +35,10 @@ export const decode = async (token) =>
 // Destroy token from index
 export const destroy = async (req) => {
     const { jti } = await decode(extractToken(req))
+    await destroyJTI(jti)
+}
+
+export const destroyJTI = async (jti) => {
     await jwtr.destroy(jti, secret)
 }
 
