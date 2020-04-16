@@ -22,10 +22,8 @@ const shopSchema = new Schema({
         required: true,
         enum: ['SS','EU','PG','GN','GP','AG']
     },
-    logo: { type: String, required: false },
-    logoId: { type: String, required: false },
-    picture: { type: String, required: false },
-    pictureId: { type: String, required: false },
+    logo: { type: Object, required: false },
+    picture: { type: Object, required: false },
     size: {
         type: Number,
         required: true
