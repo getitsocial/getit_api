@@ -288,7 +288,6 @@ Resource.prototype.query = function (options) {
                 query = query.where(searchObject)
                 countQuery = countQuery.where(searchObject)
             } catch (err) {
-                console.log(err)
                 return res.send(400, { message: 'Query is not a valid', errors: err })
             }
         }
