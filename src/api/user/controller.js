@@ -3,7 +3,6 @@ import { merge } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
 import model from './model'
-import { refreshToken } from '~/services/guard'
 
 let { emailTemplates } = serverConfig
 
@@ -13,9 +12,8 @@ export const getMe = async({ user }, res, next) => {
         if(!user) {
             return next(new BadRequestError('cannot find user'))
         }
-        // Find user
-        let result = await model.findById(user._id)
-
+        // Find user and there shops
+        let result = await model.findById(user._id).populate('shop')
         // Send response 
         res.send(200, result.modelProjection())
 
@@ -119,41 +117,4 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
     }
 }
 
-export const changeShop = async({ user, params, body }, res, next) => {
-    const { role, jti } = user
-    const { shop } = body
 
-    try {
-        
-        const user = await model.findById(params.id)
-        let shops = user.shops
-
-        // Check permissions
-        // there could be problems comparing objects with strings
-        const isAdmin = role === 'admin'
-
-        const isValidShop = shops.includes(shop)
-
-        // Check permissions
-        if (!isValidShop && !isAdmin) {
-            /* istanbul ignore next */ 
-            return next(new BadRequestError('You can\'t change the shop'))
-        }
-        
-        // sort 
-        shops = [shop, ...shops.filter(id => id.toString() !== shop)]
-        
-        // Save user
-        await user.set({ shops }).save()
-        
-        // destroy old jti and sign new token
-        const token = await refreshToken(jti, { _id: user._id, role, shops })
-        
-        // Send response 
-        res.send(201, { token, shop: shops[0] })
-
-    } catch(error) {
-        /* istanbul ignore next */ 
-        return next(new BadRequestError(error))
-    }
-}

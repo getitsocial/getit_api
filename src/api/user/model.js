@@ -1,13 +1,11 @@
-import crypto from 'crypto'
 import randtoken from 'rand-token'
 import mongoose, { Schema } from 'mongoose'
 import { isEmail } from 'validator'
-import { BadRequestError } from 'restify-errors'
 // import { serverConfig } from '~/config'
 import { hashPassword, passwordValidator } from '~/utils'
 // import { sendDynamicMail } from '~/services/sendgrid'
 // let { emailTemplates } = serverConfig
-// 
+
 const roles = ['user', 'admin']
 
 const userSchema = new Schema({
@@ -48,13 +46,12 @@ const userSchema = new Schema({
         type: Object
     },
     description: { type: String, required: false, maxlength: 2000 },
-    shops: [{
-        type: Schema.Types.ObjectId, 
-        ref: 'Shop'
-    }]
 }, {
     timestamps: true,
     toJSON: {
+        virtuals: true
+    },
+    toObject: {
         virtuals: true
     }
 })
@@ -94,10 +91,26 @@ userSchema.pre('save', function (next) {
     next()
 })
 
+userSchema.virtual('shop',{
+    ref: 'Shop',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true,
+    //match: { isActive: true }
+
+})
+
+const autoPopulateShop = function(next) {
+    this.populate('shop')
+    next()
+}
+
+userSchema.pre('findOne', autoPopulateShop)
+userSchema.pre('find', autoPopulateShop)
 
 export const modelProjection = function(req, item = this, cb) {
     let view = {}
-    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'shops', 'location', 'description']
+    let fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'shop', 'location', 'description']
 
     /*
      * If user logged or have speicific role.

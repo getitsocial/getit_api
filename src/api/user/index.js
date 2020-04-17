@@ -4,7 +4,7 @@ import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
 import { validateUserBeforeCreate } from '~/utils'
 import model, { modelProjection } from './model'
-import { changeShop, getMe, create, update, updatePassword, deleteUser } from './controller'
+import { getMe, create, update, updatePassword } from './controller'
 
 const config = {
 
@@ -16,7 +16,7 @@ const config = {
      * Multiple referenced documents can be populated by using a comma-delimited list of the desired fields in any of the three methods above.
      * */
 
-    // populate: 'author,contributors'
+    populate: 'shop',
     
     /*
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
@@ -167,22 +167,6 @@ router.patch('/:id',
 router.patch('/:id/password',
     doorman(['user', 'admin']),
     updatePassword)
-
-/**
- * @api {patch} /users/:id/shop Change users shop
- * @apiName ChangeShop
- * @apiGroup User
- * @apiParam {String} token User token.
- * @apiParam {String} shopid Shopid that should be made active.
- * @apiParam {String} admintoken Admin token.
- * @apiSuccess (Success 201) {Object} shop Shop array.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError 401 Current user access only.
- * @apiError 404 Shop not found.
- */
-router.patch('/:id/shops',
-    doorman(['user', 'admin']),
-    changeShop)
 
 
 /**

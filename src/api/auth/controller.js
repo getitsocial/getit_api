@@ -2,6 +2,7 @@ import { BadRequestError } from 'restify-errors'
 import model from '~/api/user/model'
 import { sign, decode, destroy } from '~/services/guard'
 import { comparePassword, providerAuth } from '~/utils'
+import { refreshToken } from '~/services/guard'
 
 /**
  * @throws {BadRequestError} 400 Error - invalid email or password
@@ -10,16 +11,11 @@ const errorHandler = (next) =>
     next(new BadRequestError('E-Mail oder Passwort falsch.'))
 
 const signHandler = async (user, res) => {
-
-    user.shop = user.shops[0] // first shop is active shop
-    delete user.shops
-
     // Sign Token
     let token = await sign(user)
-    let { _id, role, shop } = await decode(token)
-
+    let { _id, role } = await decode(token)
     // Send response
-    res.send({ _id, role, token, shop })
+    res.send({ _id, role, token, shop: user.shop })
 }
 
 export const authenticate = async({ body }, res, next) => {
@@ -65,6 +61,17 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
         return next(new BadRequestError(error))
     }
 
+}
+
+export const refreshUserToken = async({ user }, res) => {
+    const { jti, _id } = user
+    let newUser = await model.findById(_id)
+    // destroy old jti and sign new token
+    const token = await refreshToken(jti, newUser)
+    const { role, shop } = await decode(token)
+
+    // Send response 
+    res.send({ _id, role, token, shop })
 }
 
 export const logout = async(req, res, next) => {

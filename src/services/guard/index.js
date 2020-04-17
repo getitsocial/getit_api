@@ -24,10 +24,11 @@ const isRevokedCallback = async (req, res, done) => {
 // Define user roles
 export const roles = ['user', 'admin']
 
-export const sign = async ({ _id, role, shops }) => 
-    jwtr.sign({_id, role, shops}, secret, {
+export const sign = async ({ _id, role, shop }) =>  
+    jwtr.sign({_id, role, shop: shop ? shop._id: null}, secret, {
         expiresIn: '8d'
     })
+
 
 export const decode = async (token) => jwt.decode(token)
 
