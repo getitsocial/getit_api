@@ -34,6 +34,14 @@ const shopSchema = new Schema({
         required: true
     },
     description: { type: String, required: false },
+    published: {
+        type: Boolean,
+        default: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 }, {
     timestamps: true,
     toJSON: {

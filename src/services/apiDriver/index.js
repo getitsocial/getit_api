@@ -337,6 +337,7 @@ Resource.prototype.detail = function (options) {
     options.modelName = options.modelName || this.options.modelName
     options.populate = options.populate || this.options.populate
     options.select = options.select || this.options.select
+    options.filter = options.filter || this.options.filter
 
     return function (req, res, next) {
         const find = {}

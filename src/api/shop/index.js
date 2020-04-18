@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { deleteAll } from './controller'
+import { deleteAll, activeShop } from './controller'
 import { addAuthor } from '~/services/modelModifier'
 import model, { modelProjection } from './model'
 
@@ -86,6 +86,16 @@ router.get('', endpoint.query())
  * @apiError 404 Shop not found.
  */
 router.get('/:id', endpoint.detail())
+
+/**
+ * @api {get} /shops/sctive Retrieve shop
+ * @apiName RetrieveShop
+ * @apiGroup Shop
+ * @apiSuccess {Object} shop Shop's data.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 404 Shop not found.
+ */
+router.get('/active', [doorman(['user', 'admin'])], activeShop)
 
 /**
  * @api {post} /shops Create shop
