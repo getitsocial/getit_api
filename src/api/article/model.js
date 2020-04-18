@@ -18,6 +18,10 @@ const articleSchema = new Schema({
         type: Schema.Types.ObjectId, 
         ref: 'User'
     },
+    shop: { 
+        type: Schema.Types.ObjectId, 
+        ref: 'Shop'
+    },
     published: {
         type: Boolean,
         default: true

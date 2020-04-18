@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { addAuthor } from '~/services/modelModifier'
+import { addAuthor, addShop } from '~/services/modelModifier'
 import { deleteAll } from './controller'
 import model, { modelProjection } from './model'
 
@@ -20,7 +20,7 @@ const config = {
     /**
      * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
      */
-    // filter: ((req) => new Object({category: req.query.categoryId})),
+    filter: ((req) => new Object({shop: req.user?.shop})),
     
     /**
      * Sort parameters are passed by query string parameter sort.
@@ -97,7 +97,7 @@ router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */
-router.post('', [doorman(['user']), addAuthor()], endpoint.insert())
+router.post('', [doorman(['user']), addAuthor(), addShop()], endpoint.insert())
 
 /**
  * @api {patch} /articles/:id Update article
