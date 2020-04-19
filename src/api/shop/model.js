@@ -68,7 +68,7 @@ const shopSchema = new Schema({
 
 export const modelProjection = function(req, item, cb) {
     let view = {}
-    let fields = ['id', 'content']
+    let fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description']
 
     /*
     if (req.user) {
