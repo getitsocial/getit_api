@@ -14,7 +14,6 @@ export const addAuthor = () =>
 
 export const addShop = () => 
     (({ user, body }, res, next) => {
-        console.log(user)
         const {shop} = user
         console.log(shop)
         if(!user || !user.shop)

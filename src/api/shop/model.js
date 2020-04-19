@@ -1,9 +1,26 @@
 import mongoose, { Schema } from 'mongoose'
+import slugify from 'slugify'
 
 const shopSchema = new Schema({
-    name: { type: String, required: true },
+    name: { 
+        type: String, 
+        required: true,
+        unique: true
+    },
     contact: {
-        phone: { type: String, required: true },
+        phone: { 
+            type: String, 
+            required: true 
+        },
+    },
+    shopId: { 
+        type: String,
+        unique: true,
+        default: function() {
+            return slugify(this.name, {
+                lower: true,
+            })
+        },
     },
     address: {
         label: { type: String, required: true },

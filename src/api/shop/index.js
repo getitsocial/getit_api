@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { deleteAll, activeShop } from './controller'
+import { deleteAll, activeShop, checkName } from './controller'
 import { addAuthor } from '~/services/modelModifier'
 import model, { modelProjection } from './model'
 
@@ -77,6 +77,12 @@ const endpoint = restifyMongoose(model, Object.assign(restConfig, config))
  */
 router.get('', endpoint.query())
 
+
+/**
+ * TODO: Document this
+ */
+router.post('/checkName', [doorman(['user', 'admin'])], checkName)
+
 /**
  * @api {get} /shops/:id Retrieve shop
  * @apiName RetrieveShop
@@ -95,7 +101,7 @@ router.get('/:id', endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Shop not found.
  */
-router.get('/active', [doorman(['user', 'admin'])], activeShop)
+router.get('/active', doorman(['user', 'admin']), activeShop)
 
 /**
  * @api {post} /shops Create shop
@@ -118,6 +124,8 @@ router.post('', [doorman(['user', 'admin']), addAuthor()], endpoint.insert())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Shop not found.
  */  
+
+// TODO: Bug, cannot update if doorman active
 router.patch('/:id', endpoint.update())
 
 /**

@@ -97,7 +97,7 @@ router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */
-router.post('', [doorman(['user']), addAuthor(), addShop()], endpoint.insert())
+router.post('', [doorman(['user', 'admin']), addAuthor(), addShop()], endpoint.insert())
 
 /**
  * @api {patch} /articles/:id Update article
@@ -108,7 +108,7 @@ router.post('', [doorman(['user']), addAuthor(), addShop()], endpoint.insert())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */  
-router.patch('/:id', endpoint.update())
+router.patch('/:id', doorman(['user', 'admin']), endpoint.update())
 
 /**
  * @api {delete} /articles/:id Delete article
@@ -117,7 +117,7 @@ router.patch('/:id', endpoint.update())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Article not found.
  */
-router.del('/:id', endpoint.remove())
+router.del('/:id', doorman(['user', 'admin']), endpoint.remove())
 
 /**
  * @api {delete} /articles/all Delete all articles
