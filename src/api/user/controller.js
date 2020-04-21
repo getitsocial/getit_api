@@ -1,19 +1,20 @@
-import { BadRequestError } from 'restify-errors'
+import { BadRequestError, UnauthorizedError } from 'restify-errors'
 import { merge } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
 import model from './model'
 
-let { emailTemplates } = serverConfig
+const { emailTemplates } = serverConfig
 
 export const getMe = async({ user }, res, next) => {
     try {
 
-        if(!user) {
+        if(!user)
             return next(new BadRequestError('cannot find user'))
-        }
-        // Find user and there shops
-        let result = await model.findById(user._id).populate('shop')
+
+        // Find user
+        const result = await model.findById(user._id)
+        
         // Send response 
         res.send(200, result.modelProjection())
 
@@ -25,15 +26,15 @@ export const getMe = async({ user }, res, next) => {
 
 export const create = async({ body }, res, next) => {
     // Pass values
-    let { email, password, name, shops } = body
+    const { email, password, name } = body
     
     try {
 
         // Validate request body
-        await model.validate({ email, password, name, shops })
+        await model.validate({ email, password, name })
         
         // Create object
-        const data = await model.create({ email, password, name, shops })
+        const data = await model.create({ email, password, name })
 
         
         // Send welcome Mail
@@ -56,26 +57,22 @@ export const create = async({ body }, res, next) => {
 
 export const update = async({ user, params, body }, res, next) => {
     // Pass values
-    let { name, picture, email, description, userSettings, location, role } = body
+    const { name, picture, email, description, userSettings, location, role } = body
     
     try {
 
         // Find User
-        let result = await model.findById(params.id === 'me' ? user._id : params.id)
+        const result = await model.findById(params.id === 'me' ? user._id : params.id)
 
         const isAdmin = user.role === 'admin'
         const isSelfUpdate = params.id === 'me' ? true : (result._id.equals(user._id))
 
         // Check permissions
-        if (!isSelfUpdate && !isAdmin) {
-            /* istanbul ignore next */ 
+        if (!isSelfUpdate && !isAdmin)
             return next(new BadRequestError('You can\'t change other user\'s data'))
-        }
-
 
         // For merge nested Objects 
         result.markModified('location')
-
 
         // Save user
         const data = await merge(result, { name, picture, email, description, userSettings, location, role }).save()
@@ -91,19 +88,15 @@ export const update = async({ user, params, body }, res, next) => {
 
 export const updatePassword = async ({ body , params, user }, res, next) => {
     // Pass values
-    let { password } = body
+    const { password } = body
     
     try {
         // Find User
-        let result = await model.findById(params.id === 'me' ? user._id : params.id)
+        const result = await model.findById(params.id === 'me' ? user._id : params.id)
 
         // Check permissions
-        if (!result._id.equals(user._id)) {
-            /* istanbul ignore next */ 
-            return next(new BadRequestError('You can\'t change other user\'s password'))
-        }
-
-        // result.password = password
+        if (!result._id.equals(user._id)) 
+            return next(new UnauthorizedError('You can\'t change other user\'s password'))
         
         // Save user
         const data = await result.set({ password }).save()
@@ -118,3 +111,27 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
 }
 
 
+
+export const deleteUser = async({ user, params }, res, next) => {
+    
+    try {
+
+        const isAdmin = user.role === 'admin'
+
+        const isSelfUpdate = params.id === 'me' ? true : (params.id === user._id)
+
+        // Check permissions
+        if (!isSelfUpdate && !isAdmin)
+            return next(new UnauthorizedError('You can\'t delete other users'))
+
+
+        await model.findByIdAndDelete(params.id === 'me' ? user._id : params.id)
+        
+        // Send response 
+        res.send(204)
+
+    } catch (error) {
+        /* istanbul ignore next */ 
+        return next(new BadRequestError(error))
+    }
+}

@@ -8,8 +8,6 @@ import Shop from '~/api/shop/model'
 
 let adminUser, 
     defaultUser,
-    shop,
-    shop1,
     adminToken,
     defaultToken,
     apiEndpoint = 'users'
@@ -17,11 +15,7 @@ let adminUser,
 beforeEach(async (done) => {
     // Create user
     adminUser = await Model.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
-
-    shop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
-    shop1 = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
-
-    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', shops: [ shop._id, shop1._id ] })
+    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     adminUser.role = 'admin'
     adminUser = await adminUser.save()
@@ -221,7 +215,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.role).toEqual('user')
         expect(body.name).toEqual('Maximilian')
     })
-
+    // TODO: needs to be adapted to the new shop flow 
+    /*  
     test(`PATCH /${apiEndpoint}/:id/shop/ 201 - Update user shop`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
@@ -244,9 +239,9 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
             .send({ token: defaultToken, shop: shop1._id })
         expect(res.status).toBe(401)
-
-
     })
+
+ 
     test(`PATCH /${apiEndpoint}/:id/shop/ 400 - Update user shop wrong shopid`, async () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
@@ -279,6 +274,49 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(400)
     })
+    */
+
+
+    test(`DELETE ${serverConfig.endpoint}/users/me 204`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/me`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+    
+        expect(statusCode).toBe(204)
+    })
+
+
+    test(`DELETE ${serverConfig.endpoint}/users/me 401`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/me`)
+      
+        expect(statusCode).toBe(401)
+    })
+
+    test(`DELETE ${serverConfig.endpoint}/users/:id 204 admin`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+    
+        expect(statusCode).toBe(204)
+    })
+
+    test(`DELETE ${serverConfig.endpoint}/users/:id 204 self-update`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+    
+        expect(statusCode).toBe(204)
+    })
+
+    test(`DELETE ${serverConfig.endpoint}/users/:id 401 cant delete other user`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        expect(statusCode).toBe(401)
+    })
+
+
 })
 
 describe('set email', () => {
