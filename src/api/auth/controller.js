@@ -12,27 +12,27 @@ const errorHandler = (next) =>
 
 const signHandler = async (user, res) => {
     // Sign Token
-    let token = await sign(user)
-    let { _id, role } = await decode(token)
+    const token = await sign(user)
+    const { _id, role } = await decode(token)
     // Send response
     res.send({ _id, role, token, shop: user.shop })
 }
 
 export const authenticate = async({ body }, res, next) => {
     // Pass values
-    let { email, password } = body
+    const { email, password } = body
     
     try {
         // Validate request body
         await model.validate({ email, password })
         
         // Find user
-        let user = await model.findOne({ email })
+        const user = await model.findOne({ email })
         if(!user) 
             return errorHandler(next)
         
         // Compare password
-        let comparedPassword = await comparePassword(password, user.password)
+        const comparedPassword = await comparePassword(password, user.password)
         if(!comparedPassword) 
             return errorHandler(next)
 
@@ -46,8 +46,8 @@ export const authenticate = async({ body }, res, next) => {
 
 export const providerAuthenticate = async({ body, params }, res, next) => {
     // Pass values
-    let { provider } = params, 
-        { token } = body
+    const { provider } = params
+    const { token } = body
 
     try {
         // Get user from external provider
@@ -64,8 +64,10 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
 }
 
 export const refreshUserToken = async({ user }, res) => {
+    
     const { jti, _id } = user
-    let newUser = await model.findById(_id)
+    const newUser = await model.findById(_id)
+    
     // destroy old jti and sign new token
     const token = await refreshToken(jti, newUser)
     const { role, shop } = await decode(token)
