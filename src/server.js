@@ -13,6 +13,7 @@ const processMode =  process.env.NODE_ENV
  * configure i18n
  */
 i18n.configure(i18nConfig);
+server.use(i18n.init);
 
 /**
  * Server dependencies
@@ -22,7 +23,6 @@ server.use(restify.plugins.acceptParser(server.acceptable))
 server.use(restify.plugins.bodyParser({mapParams: true, mapFiles: true, requestBodyOnGet: false}))
 server.use(restify.plugins.queryParser())
 server.use(restify.plugins.gzipResponse())
-server.use(i18n.init);
 
 /**
  * Import all routes
