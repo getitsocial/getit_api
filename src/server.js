@@ -1,12 +1,18 @@
 import restify from 'restify'
 import { Router } from 'restify-router'
 import { connect } from '~/services/mongoose'
-import { serverConfig, dbConfig } from '~/config' 
+import { serverConfig, dbConfig, i18nConfig } from '~/config' 
 import routes from '~/api'
+import i18n from 'i18n'
 
 const router = new Router()
 const server = restify.createServer(serverConfig.server)
 const processMode =  process.env.NODE_ENV
+
+/**
+ * configure i18n
+ */
+i18n.configure(i18nConfig);
 
 /**
  * Server dependencies
@@ -16,6 +22,7 @@ server.use(restify.plugins.acceptParser(server.acceptable))
 server.use(restify.plugins.bodyParser({mapParams: true, mapFiles: true, requestBodyOnGet: false}))
 server.use(restify.plugins.queryParser())
 server.use(restify.plugins.gzipResponse())
+server.use(i18n.init);
 
 /**
  * Import all routes
@@ -24,7 +31,7 @@ router.add(serverConfig?.endpoint, routes)
 
 /* istanbul ignore next */ 
 router.get('/', (req, res, next) => {
-    res.send(`Hello ${server.name}!`)
+    res.send(`${res.__('hello')} ${server.name}!`)
     next()
 })
 

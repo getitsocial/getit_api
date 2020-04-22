@@ -48,3 +48,9 @@ export const restConfig = {
      */
     pageSize: 50
 }
+
+export const i18nConfig = {
+    locales: ['en', 'de'],
+    directory: './locales',
+    defaultLocale: 'en',
+}
