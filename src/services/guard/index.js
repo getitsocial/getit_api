@@ -24,11 +24,7 @@ const isRevokedCallback = async (req, res, done) => {
 // Define user roles
 export const roles = ['user', 'admin']
 
-export const sign = async ({ _id, role, shop }) =>  
-    jwtr.sign({_id, role, shop: shop ? shop._id: null}, secret, {
-        expiresIn: '8d'
-    })
-
+export const sign = async ({ _id, role }) =>  jwtr.sign({ _id, role }, secret, { expiresIn: '8d' })
 
 export const decode = async (token) => jwt.decode(token)
 
@@ -40,12 +36,6 @@ export const destroy = async (req) => {
     const { jti } = await decode(extractToken(req))
     await destroyJti(jti)
 }
-
-// destroy jti and return new user token
-export const refreshToken = async (jti, user) => {
-    await destroyJti(jti)
-    return await sign(user)
-} 
 
 export const doorman = (passedRoles) =>  
     [

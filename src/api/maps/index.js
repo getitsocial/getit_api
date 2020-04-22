@@ -1,9 +1,9 @@
 import { Router } from 'restify-router'
-import { doorman } from '~/services/guard'
 import { search } from './controller'
 
 const router = new Router()
 
+// TODO: Implement controller && secure endpoints 
 
 /**
  * Serve resources with fine grained mapping control

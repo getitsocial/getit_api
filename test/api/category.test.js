@@ -5,20 +5,26 @@ import { serverConfig } from '~/config'
 import Model from '~/api/category/model'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
-
+import Shop from '~/api/shop/model'
 
 let dataObject, 
     adminToken,
+    defaultShop, 
+    defaultUser,
     defaultToken,
     apiEndpoint = 'categories'
 
 beforeEach(async (done) => {
-    // Create object
-    dataObject = await Model.create({ name: 'test' })
-    
+
     // Create user
     const adminUser = new User({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-    const defaultUser = new User({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    defaultUser = new User({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+
+    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+
+    // Create object
+    dataObject = await Model.create({ name: 'test_category', shop: defaultShop._id, author: defaultUser._id })
+    
     
     // Sign in user
     adminToken = await sign(adminUser)
@@ -69,7 +75,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({name: 'hello world'})
+            .send({ name: 'hello world', shop: defaultShop._id, author: defaultUser._id })
         
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')

@@ -1,4 +1,4 @@
-import { BadRequestError, UnauthorizedError } from 'restify-errors'
+import { BadRequestError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import { merge } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
@@ -27,7 +27,7 @@ export const getMe = async({ user }, res, next) => {
 export const create = async({ body }, res, next) => {
     // Pass values
     const { email, password, name } = body
-    
+
     try {
 
         // Validate request body
@@ -128,6 +128,63 @@ export const deleteUser = async({ user, params }, res, next) => {
         await model.findByIdAndDelete(params.id === 'me' ? user._id : params.id)
         
         // Send response 
+        res.send(204)
+
+    } catch (error) {
+        /* istanbul ignore next */ 
+        return next(new BadRequestError(error))
+    }
+}
+
+
+export const getActiveShop = async({ user, params }, res, next) => {
+    
+    try {
+
+        const isAdmin = user.role === 'admin'
+
+        const isSelfUpdate = params.id === 'me' ? true : (params.id === user._id)
+
+        // Check permissions
+        if (!isSelfUpdate && !isAdmin)
+            return next(new UnauthorizedError('You can\'t get the active shop of other users'))
+
+
+        const { activeShop } = await model.findById(params.id === 'me' ? user._id : params.id).populate('activeShop')
+        if (!activeShop) 
+            return next(new NotFoundError('no active shop specified'))
+
+        res.send(200, activeShop)
+
+    } catch (error) {
+        /* istanbul ignore next */ 
+        return next(new BadRequestError(error))
+    }
+}
+
+
+export const setActiveShop = async({ user, params, body }, res, next) => {
+    
+    const { shopId } = body
+
+    try {
+
+        const isAdmin = user.role === 'admin'
+
+        const isSelfUpdate = params.id === 'me' ? true : (params.id === user._id)
+
+        // Check permissions
+        if (!isSelfUpdate && !isAdmin)
+            return next(new UnauthorizedError('You can\'t delete other users'))
+
+
+        const dbUser = await model.findById(params.id === 'me' ? user._id : params.id)
+        
+        if (!dbUser.shops.includes(shopId)) 
+            return next(new BadRequestError('not a valid shop'))
+
+        dbUser.set('activeShop', shopId)
+
         res.send(204)
 
     } catch (error) {

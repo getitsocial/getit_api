@@ -42,10 +42,22 @@ const userSchema = new Schema({
         type: String,
         trim: true
     },
+    shops: [{ 
+        type: Schema.Types.ObjectId, 
+        ref: 'Shop',
+    }],
+    activeShop: {
+        type: Schema.Types.ObjectId,
+        ref: 'Shop'
+    },
     location: {
         type: Object
     },
-    description: { type: String, required: false, maxlength: 2000 },
+    description: {
+        type: String,
+        required: false,
+        maxlength: 2000
+    },
 }, {
     timestamps: true,
     toJSON: {
@@ -100,13 +112,10 @@ export const modelProjection = function(req, item = this, cb) {
     const fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'location', 'description']
 
     fields.forEach((field) => { view[field] = item[field] })
-
-    /* 
-     * If the projection calls from a array, you have a cb. Else return view
-     */
     
     if(!cb)
         return view
+
     cb(null, view)
     
 }

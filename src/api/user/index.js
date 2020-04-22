@@ -4,7 +4,7 @@ import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
 import { validateUserBeforeCreate } from '~/utils'
 import model, { modelProjection } from './model'
-import { getMe, create, update, updatePassword, deleteUser } from './controller'
+import { getMe, create, update, updatePassword, deleteUser, getActiveShop, setActiveShop } from './controller'
 
 const config = {
     populate: 'shop',
@@ -13,8 +13,9 @@ const config = {
 }
 
 const router = new Router()
-const endpoint = restifyMongoose(model, Object.assign(restConfig, config))
+const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
 
+// TODO: Implement controller && secure endpoints
 
 /*
  * Serve resources with fine grained mapping control
@@ -57,6 +58,37 @@ router.get('/me', doorman(['user', 'admin']), getMe)
  */
 router.get('/:id', 
     endpoint.detail())
+
+
+/**
+ * @api {get} /users/:id/shops/active Retrieve active shop 
+ * @apiName RetrieveShop
+ * @apiGroup User
+ * @apiPermission user
+ * @apiSuccess {Object} user User's active shop.
+ * @apiError 404 User not found.
+ */
+router.get('/:id/shops/active', doorman(['user', 'admin']), getActiveShop)
+
+
+/**
+ * @api {patch} /users/:id Update users active shop
+ * @apiName UpdateUserActiveShop
+ * @apiGroup User
+ * @apiPermission user
+ * @apiParam {String} token User token.
+ * @apiParam {String} admintoken User token.
+ * @apiParam {String} [name] User's new active shop.
+ * @apiSuccess {Object} 204
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 401 Current user or admin access only.
+ * @apiError 404 User not found.
+ */ 
+router.patch('/:id/shops/active', 
+    doorman(['user', 'admin']), 
+    setActiveShop)
+
+
 
 /**
  * @api {post} /users Create user

@@ -1,4 +1,3 @@
-// import { BadRequestError } from 'restify-errors'
 import Order from './model'
 
 export const deleteAll = async(req, res) => {
