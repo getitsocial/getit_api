@@ -14,7 +14,6 @@ const signHandler = async (user, res) => {
     // Sign Token
     const token = await sign(user)
     const { _id, role } = await decode(token)
-
     // Send response
     res.send({ _id, role, token })
 }
