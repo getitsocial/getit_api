@@ -54,7 +54,6 @@ export const create = async({ body }, res, next) => {
          * TODO: Account creation unclear for the user.
          * Particularly if we send a validation email here.
          */
-        console.log(error)
         return next(new BadRequestError(res.__('email_error')))
     }
 }
