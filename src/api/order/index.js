@@ -28,7 +28,8 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiSuccess {Object[]} orders List of orders.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('', endpoint.query())
+router.get('', 
+    endpoint.query())
 
 /**
  * @api {get} /orders/:id Retrieve order
@@ -38,7 +39,8 @@ router.get('', endpoint.query())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Order not found.
  */
-router.get('/:id', endpoint.detail())
+router.get('/:id', 
+    endpoint.detail())
 
 /**
  * @api {post} /orders Create order
@@ -50,7 +52,8 @@ router.get('/:id', endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Order not found.
  */
-router.post('', endpoint.insert())
+router.post('', 
+    endpoint.insert())
 
 /**
  * @api {patch} /orders/:id Update order
@@ -61,7 +64,8 @@ router.post('', endpoint.insert())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Order not found.
  */  
-router.patch('/:id', endpoint.update())
+router.patch('/:id', 
+    endpoint.update())
 
 /**
  * @api {delete} /orders/:id Delete order
@@ -70,7 +74,8 @@ router.patch('/:id', endpoint.update())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Order not found.
  */
-router.del('/:id', endpoint.remove())
+router.del('/:id', 
+    endpoint.remove())
 
 /**
  * @api {delete} /orders/all Delete all orders
@@ -81,7 +86,9 @@ router.del('/:id', endpoint.remove())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 401 admin access only.
  */
-router.del('/all', doorman(['admin']), deleteAll)
+router.del('/all', 
+    doorman(['admin']), 
+    deleteAll)
 
 
 /**

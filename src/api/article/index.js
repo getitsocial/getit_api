@@ -32,7 +32,9 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiSuccess {Object[]} articles List of articles.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('',  doorman(['user', 'admin']), endpoint.query({ filter: ((req) => new Object({ category: req.query.categoryId }))}))
+router.get('',  
+    doorman(['user', 'admin']), 
+    endpoint.query({ filter: ((req) => new Object({ category: req.query.categoryId }))}))
 
 /**
  * @api {get} /articles/:id Retrieve article
@@ -42,7 +44,9 @@ router.get('',  doorman(['user', 'admin']), endpoint.query({ filter: ((req) => n
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */
-router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
+router.get('/:id', 
+    doorman(['user', 'admin']), 
+    endpoint.detail())
 
 /**
  * @api {post} /articles Create article
@@ -54,7 +58,9 @@ router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */
-router.post('', [doorman(['user', 'admin']), addAuthor()], endpoint.insert())
+router.post('', 
+    [doorman(['user', 'admin']), addAuthor()], 
+    endpoint.insert())
 
 /**
  * @api {patch} /articles/:id Update article
@@ -65,7 +71,9 @@ router.post('', [doorman(['user', 'admin']), addAuthor()], endpoint.insert())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  */  
-router.patch('/:id', doorman(['user', 'admin']), endpoint.update())
+router.patch('/:id', 
+    doorman(['user', 'admin']), 
+    endpoint.update())
 
 /**
  * @api {delete} /articles/:id Delete article
@@ -74,7 +82,9 @@ router.patch('/:id', doorman(['user', 'admin']), endpoint.update())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Article not found.
  */
-router.del('/:id', doorman(['user', 'admin']), endpoint.remove())
+router.del('/:id', 
+    doorman(['user', 'admin']), 
+    endpoint.remove())
 
 /**
  * @api {delete} /articles/all Delete all articles
@@ -85,7 +95,9 @@ router.del('/:id', doorman(['user', 'admin']), endpoint.remove())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 401 admin access only.
  */
-router.del('/all', doorman(['admin']), deleteAll)
+router.del('/all', 
+    doorman(['admin']), 
+    deleteAll)
 
 
 /**

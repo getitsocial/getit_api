@@ -10,16 +10,15 @@ const router = new Router()
  */
 
 /**
- * @api {get} /search Retrieve s
- * @apiName RetrieveArticles
- * @apiGroup Article
+ * @api {get} /geocode Places suggestions
+ * @apiName RetrievePlaceSuggestions
+ * @apiGroup Maps
  * @apiUse listParams
- * @apiHeader {Number} x-total-count Articles count.
- * @apiSuccess {Object[]} articles List of articles.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 // doorman(['user', 'admin']),
-router.get('/geocode', search)
+router.get('/geocode', 
+    search)
 
 /**
  * Export this function

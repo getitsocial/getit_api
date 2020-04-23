@@ -21,7 +21,9 @@ const router = new Router()
  * @apiError 404 User not found.
  * @apiError 401 Master access only.
  */
-router.post('', masterman(), authenticate)
+router.post('', 
+    masterman(), 
+    authenticate)
 
 /**
  * @api {post} /auth/:provider Authenticate with external provider
@@ -32,7 +34,8 @@ router.post('', masterman(), authenticate)
  * @apiSuccess (Success 201) {Object} user Current user's data.
  * @apiError 401 Invalid credentials.
  */
-router.post('/:provider', providerAuthenticate)
+router.post('/:provider', 
+    providerAuthenticate)
 
 /**
  * @api {post} /auth/logout logout current user
@@ -40,7 +43,9 @@ router.post('/:provider', providerAuthenticate)
  * @apiGroup Auth
  * @apiError 401 Invalid credentials.
  */
-router.post('/logout', doorman(['user', 'admin']), logout)
+router.post('/logout', 
+    doorman(['user', 'admin']), 
+    logout)
 
 export default router
 

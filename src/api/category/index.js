@@ -32,7 +32,9 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiSuccess {Object[]} categories List of categories.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('', doorman(['user', 'admin']), endpoint.query())
+router.get('', 
+    doorman(['user', 'admin']), 
+    endpoint.query())
 
 /**
  * @api {get} /categories/:id Retrieve category
@@ -42,7 +44,9 @@ router.get('', doorman(['user', 'admin']), endpoint.query())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
  */
-router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
+router.get('/:id', 
+    doorman(['user', 'admin']), 
+    endpoint.detail())
 
 /**
  * @api {post} /categories Create category
@@ -54,7 +58,9 @@ router.get('/:id', doorman(['user', 'admin']), endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
  */
-router.post('', [doorman(['user']), addAuthor()], endpoint.insert())
+router.post('', 
+    [doorman(['user']), addAuthor()], 
+    endpoint.insert())
 
 /**
  * @api {patch} /categories/:id Update category
@@ -65,7 +71,8 @@ router.post('', [doorman(['user']), addAuthor()], endpoint.insert())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
  */  
-router.patch('/:id', endpoint.update())
+router.patch('/:id', 
+    endpoint.update())
 
 /**
  * @api {delete} /categories/:id Delete category
@@ -74,7 +81,8 @@ router.patch('/:id', endpoint.update())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Category not found.
  */
-router.del('/:id', endpoint.remove())
+router.del('/:id', 
+    endpoint.remove())
 
 /**
  * @api {delete} /categories/all Delete all categories
@@ -85,7 +93,9 @@ router.del('/:id', endpoint.remove())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 401 admin access only.
  */
-router.del('/all', doorman(['admin']), deleteAll)
+router.del('/all', 
+    doorman(['admin']), 
+    deleteAll)
 
 
 /**

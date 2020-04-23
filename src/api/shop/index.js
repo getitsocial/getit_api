@@ -29,13 +29,16 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiSuccess {Object[]} shops List of shops.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.get('', endpoint.query())
+router.get('', 
+    endpoint.query())
 
 
 /**
  * TODO: Document this
  */
-router.post('/checkName', [doorman(['user', 'admin'])], checkName)
+router.post('/checkName', 
+    [doorman(['user', 'admin'])], 
+    checkName)
 
 /**
  * @api {get} /shops/:id Retrieve shop
@@ -45,7 +48,8 @@ router.post('/checkName', [doorman(['user', 'admin'])], checkName)
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Shop not found.
  */
-router.get('/:id', endpoint.detail())
+router.get('/:id', 
+    endpoint.detail())
 
 /**
  * @api {post} /shops Create shop
@@ -57,7 +61,10 @@ router.get('/:id', endpoint.detail())
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Shop not found.
  */
-router.post('', [doorman(['user', 'admin']), addAuthor()], createShop)
+router.post('', 
+    [doorman(['user', 'admin']), 
+        addAuthor()], 
+    createShop)
 
 /**
  * @api {patch} /shops/:id Update shop
@@ -70,7 +77,9 @@ router.post('', [doorman(['user', 'admin']), addAuthor()], createShop)
  */  
 
 // TODO: Bug, cannot update if doorman active
-router.patch('/:id', doorman(['user', 'admin']), endpoint.update())
+router.patch('/:id', 
+    doorman(['user', 'admin']), 
+    endpoint.update())
 
 /**
  * @api {delete} /shops/:id Delete shop
@@ -79,7 +88,9 @@ router.patch('/:id', doorman(['user', 'admin']), endpoint.update())
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Shop not found.
  */
-router.del('/:id', doorman(['user', 'admin']), deleteShop)
+router.del('/:id', 
+    doorman(['user', 'admin']), 
+    deleteShop)
 
 
 /**
