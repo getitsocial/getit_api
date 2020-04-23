@@ -1,8 +1,6 @@
 import { Router } from 'restify-router'
-import { authenticate, providerAuthenticate, refreshUserToken, logout } from './controller'
+import { authenticate, providerAuthenticate, logout } from './controller'
 import { masterman, doorman } from '~/services/guard'
-
-// import { model, modelProjection } from './model'
 
 /**
  * Serve resources with fine grained mapping control
@@ -43,14 +41,6 @@ router.post('/:provider', providerAuthenticate)
  * @apiError 401 Invalid credentials.
  */
 router.post('/logout', doorman(['user', 'admin']), logout)
-
-/**
- * @api {post} /auth/refresh refresh current user's token
- * @apiName Refresh User Token
- * @apiGroup Auth
- * @apiError 401 Invalid credentials.
- */
-router.patch('/refresh', doorman(['user', 'admin']), refreshUserToken)
 
 export default router
 

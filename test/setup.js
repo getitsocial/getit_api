@@ -44,11 +44,11 @@ afterAll(async (done) => {
     redisClient.quit()
 })
 
-afterEach(() => {
+afterEach(async () => {
     const { collections } = mongoose.connection
     const promises = []
     Object.keys(collections).forEach((collection) => {
         promises.push(collections[collection].remove())
     })
-    return Promise.all(promises)
+    await Promise.all(promises)
 })

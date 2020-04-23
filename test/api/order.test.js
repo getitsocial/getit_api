@@ -11,6 +11,7 @@ import Category from '~/api/category/model'
 
 let dataObject, 
     adminToken,
+    adminUser,
     defaultUser,
     defaultShop,
     defaultCategory,
@@ -21,15 +22,14 @@ let dataObject,
 beforeEach(async (done) => {
 
     // Create user
-    const adminUser = new User({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-    defaultUser = new User({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     // Shop
-    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
-    defaultCategory = await Category.create({ name: 'things'} )
-    defaultArticle = await Article.create({ name: 'test', stock: 3, price: 4, size: 'big', currency: 'Euro', category: defaultCategory._id })
-    
-    
+    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    defaultCategory = await Category.create({ name: 'test_category', shop: defaultShop._id, author: defaultUser._id })
+    defaultArticle = await Article.create({ name: 'kebab', articleNumber: '12345', stock: 3, price: 4, size: 'thicc', currency: 'Euro', category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id})
+
     // Create object
     dataObject = await Model.create({ shop: defaultShop._id, user: defaultUser._id, items: [defaultArticle._id], status: 'open', note: 'kek' })
         
@@ -45,19 +45,7 @@ beforeEach(async (done) => {
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
 
-    test(`GET /${apiEndpoint} 200`, async () => {
-        const {statusCode, body} = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        const firstItem = body[0]
-        
-        expect(statusCode).toBe(200)
-        expect(Array.isArray(body)).toBe(true)
-        expect(firstItem.id).toBeTruthy()
-        expect(firstItem.updatedAt).toBeUndefined()
-    })
-
+   
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
@@ -79,7 +67,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ shop: defaultShop._id, user: defaultUser._id, items: [defaultArticle._id], status: 'open', note: 'kek'} )
+            .send({ shop: defaultShop._id, user: defaultUser._id, items: [defaultArticle._id], status: 'open', note: 'kek' })
         
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
@@ -145,6 +133,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(401)
     })
-    
+     
 
 })

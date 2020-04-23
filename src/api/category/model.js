@@ -4,11 +4,13 @@ const categorySchema = new Schema({
     name: { type: String, required: true },
     shop: { 
         type: Schema.Types.ObjectId,
-        ref: 'Shop'
+        ref: 'Shop',
+        required: true
     },    
     author: { 
         type: Schema.Types.ObjectId, 
-        ref: 'User'
+        ref: 'User',
+        required: true
     }
 }, {
     timestamps: true,
@@ -22,17 +24,15 @@ categorySchema.pre('remove', function(callback) {
     this.model('Article').remove({ category: this._id }, callback)
 })
 
-export const modelProjection = function(req, item, cb) {
-    let view = {}
-    let fields = ['id', 'name', 'author']
-
-    /*
-    if (req.user) {
-        fields = [...fields, 'createdAt']
-    }
-    */
+export const modelProjection = function(req, item = this, cb) {
+    
+    const view = {}
+    const fields = ['id', 'name', 'author']
 
     fields.forEach((field) => { view[field] = item[field] })
+
+    if(!cb)
+        return view
 
     cb(null, view)
 }

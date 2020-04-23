@@ -21,7 +21,7 @@ beforeEach(async (done) => {
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
    
     // Create object
-    dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
     
     // Sign in user
     adminToken = await sign(adminUser)
@@ -68,8 +68,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     test(`POST /${apiEndpoint} 201`, async () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
-            .set('Authorization', 'Bearer ' + adminToken)
-            .send({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ name: 'shopname_9', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
         
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
@@ -99,7 +99,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(status).toBe(200)
+        expect(status).toBe(204)
     })
 
     test(`DELETE /${apiEndpoint}/:id 404`, async () => {
@@ -107,34 +107,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(status).toBe(404)
+        expect(status).toBe(400)
     })
-
-    test(`DELETE /${apiEndpoint}/all 401`, async () => {
-        const { status, body, header } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(status).toBe(401)
-        expect(header['content-type']).toBe('application/json')
-        expect(body.code).toBe('Unauthorized')
-    })
-
-    test(`DELETE /${apiEndpoint}/all 200`, async () => {
-        const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + adminToken)
-
-        expect(status).toBe(200)
-    })
-
-    test(`DELETE /${apiEndpoint}/all 401`, async () => {
-        const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(status).toBe(401)
-    })
-    
 
 })

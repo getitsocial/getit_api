@@ -4,75 +4,23 @@ import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
 import { validateUserBeforeCreate } from '~/utils'
 import model, { modelProjection } from './model'
-import { getMe, create, update, updatePassword } from './controller'
+import { getMe, create, update, updatePassword, deleteUser, getActiveShop, setActiveShop } from './controller'
 
 const config = {
-
-    /*
-     * The returned results can use mongoose's "populate" query modifier to populated referenced documents within models.
-     * Referenced documents can be populated in three ways:
-     * Adding populate=[referenced_field] to the query string will populate the referenced_field, if it exists.
-     *
-     * Multiple referenced documents can be populated by using a comma-delimited list of the desired fields in any of the three methods above.
-     * */
-
     populate: 'shop',
-    
-    /*
-     * Results can be filtered with a function, which is set in the options object of the constructor or on the query and detail function.
-     * */
-
-    // filter: ((req) => new Object({author: req._id}))
-    
-    /*
-     * Sort parameters are passed by query string parameter sort.
-     * */
-    
-    // sort: '-createdAt'
-
-    /*
-     * Requests that return multiple items in query will be paginated to 100 items by default. You can set the pageSize (number min=1) by adding it to the options.
-     * */
-    
-    // pageSize: 50,
-    
-    /*
-     * The output format can be changed to a more compatible one with the json-api standard to use the API with frameworks like Ember.
-     * */
-
-    // outputFormat: 'json-api',
-    // modelName: 'data',
-    
-    /*
-     * these functions will now conduct searches with the field 'myField'. (defaults to '_id')
-     * */
-
-    // queryString: 'myField'
-    
-    /*
-     * To restrict selected columns you can pass a query string parameter __select__.
-     * Select fields can be separated by comma or space. They will be passed to http://mongoosejs.com/docs/api.html#query_Query-select
-     * To select only title and date the fields of a notes resource append the __select__ query parameter to the URL:
-     * http://localhost:3000/users?select=content,createdAt
-     * */
-
-    // select: '_id'
-    
-    /*
-     * Projection functions are specified in the options for the resitfy-mongoose contructor, the query function, or the detail function.
-     **/
-
     listProjection: modelProjection,
     detailProjection: modelProjection
 }
 
 const router = new Router()
-const endpoint = restifyMongoose(model, Object.assign(restConfig, config))
+const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
 
+// TODO: Implement controller && secure endpoints
 
 /*
  * Serve resources with fine grained mapping control
- * */
+ * 
+ */
 
 /**
  * @api {get} /users Retrieve users
@@ -110,6 +58,37 @@ router.get('/me', doorman(['user', 'admin']), getMe)
  */
 router.get('/:id', 
     endpoint.detail())
+
+
+/**
+ * @api {get} /users/:id/shops/active Retrieve active shop 
+ * @apiName RetrieveShop
+ * @apiGroup User
+ * @apiPermission user
+ * @apiSuccess {Object} user User's active shop.
+ * @apiError 404 User not found.
+ */
+router.get('/:id/shops/active', doorman(['user', 'admin']), getActiveShop)
+
+
+/**
+ * @api {patch} /users/:id Update users active shop
+ * @apiName UpdateUserActiveShop
+ * @apiGroup User
+ * @apiPermission user
+ * @apiParam {String} token User token.
+ * @apiParam {String} admintoken User token.
+ * @apiParam {String} [name] User's new active shop.
+ * @apiSuccess {Object} 204
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 401 Current user or admin access only.
+ * @apiError 404 User not found.
+ */ 
+router.patch('/:id/shops/active', 
+    doorman(['user', 'admin']), 
+    setActiveShop)
+
+
 
 /**
  * @api {post} /users Create user
@@ -177,7 +156,8 @@ router.patch('/:id/password',
  * @apiError 404 User not found.
  */
 router.del('/:id', 
-    endpoint.remove())
+    doorman(['user', 'admin']),
+    deleteUser)
 
 
 export default router

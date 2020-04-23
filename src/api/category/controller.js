@@ -1,4 +1,3 @@
-// import { BadRequestError } from 'restify-errors'
 import Category from './model'
 
 export const deleteAll = async(req, res) => {

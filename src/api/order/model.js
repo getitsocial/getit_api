@@ -30,18 +30,16 @@ const orderSchema = new Schema({
     }
 })
 
-export const modelProjection = function(req, item, cb) {
-    let view = {}
-    let fields = ['id', 'content']
+export const modelProjection = function(req, item = this, cb) {
 
-    /*
-    if (req.user) {
-        fields = [...fields, 'createdAt']
-    }
-    */
+    const view = {}
+    const fields = ['id', 'content']
 
     fields.forEach((field) => { view[field] = item[field] })
-
+    
+    if(!cb)
+        return view
+    
     cb(null, view)
 }
 

@@ -8,20 +8,20 @@ import Shop from '~/api/shop/model'
 
 let adminUser, 
     defaultUser,
-    shop,
-    shop1,
     adminToken,
     defaultToken,
+    shop,
+    shop1,
     apiEndpoint = 'users'
 
 beforeEach(async (done) => {
     // Create user
     adminUser = await Model.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    shop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
-    shop1 = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', user: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    shop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    shop1 = await Shop.create({ name: 'shopname_1', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
 
-    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', shops: [ shop._id, shop1._id ] })
+    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', activeShop: shop._id, shops: [shop._id, shop1._id] })
 
     adminUser.role = 'admin'
     adminUser = await adminUser.save()
@@ -74,6 +74,91 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body.role).toBe('string')
         expect(body.role).toBe('admin')
     })  
+    // Get active shop
+    test(`GET ${serverConfig.endpoint}/users/me/shops/active 200`, async () => {
+        const { body, statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/me/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        
+        expect(statusCode).toBe(200)
+        expect(body._id).toBe(shop._id.toString())
+    })
+
+    test(`GET ${serverConfig.endpoint}/users/:id/shops/active 200`, async () => {
+        const { body, statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        
+        expect(statusCode).toBe(200)
+        expect(body._id).toBe(shop._id.toString())
+    })  
+
+    test(`GET ${serverConfig.endpoint}/users/:id/shops/active 200 admin`, async () => {
+        const { body, statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + adminToken)
+        
+        expect(statusCode).toBe(200)
+        expect(body._id).toBe(shop._id.toString())
+    })  
+
+
+    test(`GET ${serverConfig.endpoint}/users/:id/shops/active 401`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        
+        expect(statusCode).toBe(401)
+    })  
+
+    // set active shop
+
+    test(`PATCH ${serverConfig.endpoint}/users/me/shops/active 204`, async () => {
+        const { statusCode } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/me/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ shopId: shop1._id })
+        
+        expect(statusCode).toBe(204)
+    })
+
+    test(`PATCH ${serverConfig.endpoint}/users/:id/shops/active 204`, async () => {
+        const { statusCode } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ shopId: shop1._id })
+        
+        expect(statusCode).toBe(204)
+    })  
+
+    test(`PATCH ${serverConfig.endpoint}/users/:id/shops/active 204 admin`, async () => {
+        const { statusCode } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ shopId: shop1._id })
+        
+        expect(statusCode).toBe(204)
+    })  
+
+
+    test(`PATCH ${serverConfig.endpoint}/users/:id/shops/active 401`, async () => {
+        const { statusCode } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ shopId: shop1._id })
+        
+        expect(statusCode).toBe(401)
+    })  
+
+    test(`PATCH ${serverConfig.endpoint}/users/:id/shops/active 400`, async () => {
+        const { statusCode } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ shopId: 123 })
+        
+        expect(statusCode).toBe(400)
+    })  
+
 
     test(`POST /${apiEndpoint} 401 - Create user with another roles`, async () => {
         const { status, body } = await request(server)
@@ -221,7 +306,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.role).toEqual('user')
         expect(body.name).toEqual('Maximilian')
     })
-
+    // TODO: needs to be adapted to the new shop flow 
+    /*  
     test(`PATCH /${apiEndpoint}/:id/shop/ 201 - Update user shop`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
@@ -244,9 +330,9 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
             .send({ token: defaultToken, shop: shop1._id })
         expect(res.status).toBe(401)
-
-
     })
+
+ 
     test(`PATCH /${apiEndpoint}/:id/shop/ 400 - Update user shop wrong shopid`, async () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops`)
@@ -279,6 +365,49 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(400)
     })
+    */
+
+
+    test(`DELETE ${serverConfig.endpoint}/users/me 204`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/me`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+    
+        expect(statusCode).toBe(204)
+    })
+
+
+    test(`DELETE ${serverConfig.endpoint}/users/me 401`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/me`)
+      
+        expect(statusCode).toBe(401)
+    })
+
+    test(`DELETE ${serverConfig.endpoint}/users/:id 204 admin`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+    
+        expect(statusCode).toBe(204)
+    })
+
+    test(`DELETE ${serverConfig.endpoint}/users/:id 204 self-update`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+    
+        expect(statusCode).toBe(204)
+    })
+
+    test(`DELETE ${serverConfig.endpoint}/users/:id 401 cant delete other user`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        expect(statusCode).toBe(401)
+    })
+
+
 })
 
 describe('set email', () => {

@@ -45,20 +45,16 @@ const shopSchema = new Schema({
         type: Number,
         required: true
     },
-    user: { 
-        type: Schema.Types.ObjectId, 
-        ref: 'User',
+    author: {
+        type: Schema.Types.ObjectId,
+        ref: 'User', 
         required: true
     },
     description: { type: String, required: false },
     published: {
         type: Boolean,
         default: true
-    },
-    isActive: {
-        type: Boolean,
-        default: true
-    },
+    }
 }, {
     timestamps: true,
     toJSON: {
@@ -66,19 +62,22 @@ const shopSchema = new Schema({
     }
 })
 
-export const modelProjection = function(req, item, cb) {
-    let view = {}
-    let fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description']
+export const modelProjection = function(req, item = this, cb) {    
 
-    /*
-    if (req.user) {
-        fields = [...fields, 'createdAt']
-    }
-    */
+    const view = {}
+    const fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description']
 
     fields.forEach((field) => { view[field] = item[field] })
 
+    if(!cb)
+        return view
+
     cb(null, view)
+
+}
+
+shopSchema.methods = {
+    modelProjection
 }
 
 shopSchema.index({'$**': 'text'})

@@ -9,22 +9,6 @@ export const addAuthor = () => (({ user, body }, res, next) => {
         next(new BadRequestError())
     
     body.author = user
-    body.user = user
-
-    next()
-})
     
-
-export const addShop = () => (({ user, body }, res, next) => {
-    const { shop } = user
-
-    if(!user || !user.shop)
-        next(new UnauthorizedError())
-    
-    if(!body)
-        next(new BadRequestError())
-    
-    body.shop = shop
-
     next()
 })
