@@ -48,7 +48,7 @@ afterEach(async () => {
     const { collections } = mongoose.connection
     const promises = []
     Object.keys(collections).forEach((collection) => {
-        promises.push(collections[collection].remove())
+        promises.push(collections[collection].deleteMany())
     })
     await Promise.all(promises)
 })

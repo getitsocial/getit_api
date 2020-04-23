@@ -450,7 +450,7 @@ Resource.prototype.remove = function () {
                 return next(new restifyErrors.ResourceNotFoundError(req.params.id))
             }
 
-            model.remove(function (err) {
+            model.deleteOne(function (err) {
                 if (err) {
                     return next(err)
                 }

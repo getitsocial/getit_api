@@ -8,6 +8,7 @@ import article from './article'
 import passwordReset from './password-reset'
 import auth from './auth'
 import maps from './maps'
+import media from './media'
 
 const router = new Router()
 
@@ -44,6 +45,7 @@ router.add('/password-resets', passwordReset)
 router.add('/users', user)
 router.add('/auth', auth)
 router.add('/maps', maps)
+router.add('/media', media)
 
 
 export default router

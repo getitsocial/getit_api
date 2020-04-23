@@ -1,4 +1,4 @@
-import restify from 'restify'
+import restify, { plugins } from 'restify'
 import { Router } from 'restify-router'
 import { connect } from '~/services/mongoose'
 import { serverConfig, dbConfig, i18nConfig } from '~/config' 
@@ -12,17 +12,17 @@ const processMode =  process.env.NODE_ENV
 /**
  * configure i18n
  */
-i18n.configure(i18nConfig);
-server.use(i18n.init);
+i18n.configure(i18nConfig)
+server.use(i18n.init)
 
 /**
  * Server dependencies
  */
-server.use(restify.plugins.throttle(serverConfig.throttle))
-server.use(restify.plugins.acceptParser(server.acceptable))
-server.use(restify.plugins.bodyParser({mapParams: true, mapFiles: true, requestBodyOnGet: false}))
-server.use(restify.plugins.queryParser())
-server.use(restify.plugins.gzipResponse())
+server.use(plugins.throttle(serverConfig.throttle))
+server.use(plugins.acceptParser(server.acceptable))
+server.use(plugins.bodyParser({mapParams: true, mapFiles: true, requestBodyOnGet: false}))
+server.use(plugins.queryParser())
+server.use(plugins.gzipResponse())
 
 /**
  * Import all routes

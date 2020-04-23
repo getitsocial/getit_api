@@ -21,7 +21,7 @@ const categorySchema = new Schema({
 
 categorySchema.pre('remove', function(callback) {
     // Remove all the docs that refers
-    this.model('Article').remove({ category: this._id }, callback)
+    this.model('Article').deleteMany({ category: this._id }, callback)
 })
 
 export const modelProjection = function(req, item = this, cb) {
