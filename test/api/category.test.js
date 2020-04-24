@@ -17,13 +17,16 @@ let dataObject,
 beforeEach(async (done) => {
 
     // Create user
-    const adminUser = new User({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-    defaultUser = new User({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    defaultUser =  await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
-
+    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
     // Create object
-    dataObject = await Model.create({ name: 'test_category', shop: defaultShop._id, author: defaultUser._id })
+    defaultUser.activeShop = defaultShop._id
+    defaultUser.shops.push(defaultShop._id)
+    await defaultUser.save()
+
+    dataObject = await Model.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     
     
     // Sign in user
@@ -49,13 +52,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body)).toBe(true)
         expect(typeof firstItem.name).toEqual('string')
         expect(firstItem.name).toEqual(dataObject.name)
-        expect(firstItem.id).toBeTruthy()
+        expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined()
     })
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject.id}`)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
         
         expect(status).toBe(200)
@@ -75,8 +78,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ name: 'hello world', shop: defaultShop._id, author: defaultUser._id })
-        
+            .send({ name: 'hello world', author: defaultUser._id })
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('hello world')
@@ -84,7 +86,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
         const { status, body } = await request(server)
-            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject.id}`)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'newname' })
         
@@ -104,7 +106,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     
     test(`DELETE /${apiEndpoint}/:id 200`, async () => {
         const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject.id}`)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(status).toBe(200)

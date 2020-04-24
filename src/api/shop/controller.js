@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError } from 'restify-errors'
 import slugify from 'slugify'
-
+import User from '~/api/user/model'
 import Shop from './model'
 
 export const deleteAll = async(req, res) => {
@@ -74,9 +74,16 @@ export const createShop = async({ body}, res, next) => {
 
         // Validate request body
         await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published })
-        
+
         // Create object
         const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, users: [author] })
+
+        const user = await User.findById(author._id)
+        if (!user.activeShop) { // first shop (onboarding)
+            user.activeShop = shop._id
+        }
+        user.shops.push(shop._id)
+        await user.save()
 
         // Send response 
         res.send(201, shop.modelProjection())
