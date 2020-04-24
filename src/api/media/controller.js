@@ -28,9 +28,9 @@ export const upload = async(req, res) => {
     
 }
 
-export const deleteOne = async ({ body: { imageId } }, res) => {
+export const deleteOne = async ({ body: { id } }, res) => {
     try {
-        await handler.v2.uploader.destroy(imageId)
+        await handler.v2.uploader.destroy(id)
         res.send()
     } catch (error) {
         return new BadRequestError(error)
