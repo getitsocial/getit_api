@@ -1,5 +1,9 @@
 import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
+import request from 'request-promise'
+import circleToPolygon from 'circle-to-polygon'
+
+const apiKey = process.env.HERE_API
 
 const shopSchema = new Schema({
     name: { 
@@ -54,6 +58,10 @@ const shopSchema = new Schema({
     published: {
         type: Boolean,
         default: true
+    },
+    displayPosition: {
+        latitude: { type: Number }, 
+        longitude: { type: Number },
     }
 }, {
     timestamps: true,
@@ -65,7 +73,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description']
+    const fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
 
     fields.forEach((field) => { view[field] = item[field] })
 
@@ -75,6 +83,29 @@ export const modelProjection = function(req, item = this, cb) {
     cb(null, view)
 
 }
+
+// Get coordinates if locationId changed
+shopSchema.pre('save', async function (next) {
+    if (!this.isModified('address.locationId')) next()
+    /* istanbul ignore next */
+    try {
+        // dont touch
+        const { response: { view: [ { result: [ { location: { displayPosition }}]}]}} = await request({ uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${this.address.locationId}&jsonattributes=1&gen=9&apiKey=${apiKey}`, json: true })
+        this.displayPosition = displayPosition
+        next()
+    } catch(error) {
+        next(error)
+    }
+})
+
+shopSchema.virtual('polygonCoordinates').get(function () {
+    try {
+        return circleToPolygon([this.displayPosition.longitude, this.displayPosition.latitude], 100, 32)
+    } catch (error) {
+        return  []
+    }
+})
+
 
 shopSchema.methods = {
     modelProjection

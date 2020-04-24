@@ -4,7 +4,7 @@ import { connect } from '~/services/mongoose'
 import { serverConfig, dbConfig, i18nConfig } from '~/config' 
 import routes from '~/api'
 import i18n from 'i18n'
-import { join } from 'path'
+
 
 const router = new Router()
 const server = restify.createServer(serverConfig.server)

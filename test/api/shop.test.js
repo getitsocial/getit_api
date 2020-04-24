@@ -21,7 +21,7 @@ beforeEach(async (done) => {
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
    
     // Create object
-    dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
     
     // Sign in user
     adminToken = await sign(adminUser)
@@ -55,6 +55,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
+        expect(typeof body.polygonCoordinates).toEqual('object')
+        expect(Array.isArray(body.polygonCoordinates.coordinates)).toBe(true)
     })
     
     test(`GET /${apiEndpoint}/:id 404`, async () => {
@@ -69,7 +71,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ name: 'shopname_9', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+            .send({ name: 'shopname_9', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'state', street: 'street', postalCode: 76135 } })
         
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
