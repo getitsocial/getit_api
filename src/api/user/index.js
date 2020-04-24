@@ -68,7 +68,9 @@ router.get('/:id',
  * @apiSuccess {Object} user User's active shop.
  * @apiError 404 User not found.
  */
-router.get('/:id/shops/active', doorman(['user', 'admin']), getActiveShop)
+router.get('/:id/shops/active', 
+    doorman(['user', 'admin']), 
+    getActiveShop)
 
 
 /**
