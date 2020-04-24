@@ -80,7 +80,7 @@ export const update = async({ user, params, body }, res, next) => {
             return next(new BadRequestError('You can\'t change other user\'s data'))
 
         // Check if picture is empty
-        if(isEmpty(picture)) {
+        if(isEmpty(picture) && picture !== undefined) {
             picture.url = '/api/static/placeholder.png'
             picture.id = 'placeholder/placeholder'
         }  
