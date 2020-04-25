@@ -30,7 +30,9 @@ export const upload = async(req, res) => {
 
 export const deleteOne = async ({ body: { id } }, res) => {
     try {
-        await handler.v2.uploader.destroy(id)
+        if(id && id !== 'placeholder') {
+            await handler.v2.uploader.destroy(id)
+        }
         res.send()
     } catch (error) {
         return new BadRequestError(error)

@@ -82,7 +82,7 @@ export const update = async({ user, params, body }, res, next) => {
         // Check if picture is empty
         if(isEmpty(picture) && picture !== undefined) {
             picture.url = '/api/static/placeholder.png'
-            picture.id = 'placeholder/placeholder'
+            picture.id = 'placeholder'
         }  
 
         // For merge nested Objects 
