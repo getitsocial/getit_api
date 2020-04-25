@@ -1,6 +1,6 @@
 import { Router } from 'restify-router'
 import { upload, deleteOne } from './controller'
-// import { doorman } from '~/services/guard'
+import { doorman } from '~/services/guard'
 
 /**
  * Serve resources with fine grained mapping control
@@ -18,9 +18,7 @@ const router = new Router()
  * @apiSuccess {Object} media data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.post('/:folder', 
-    upload)
-// doorman(['user', 'admin']),
+router.post('/:folder', doorman(['user', 'admin']),  upload)
 
 /**
  * @api {delete} /media Media Upload
@@ -30,7 +28,6 @@ router.post('/:folder',
  * @apiSuccess {Object} media data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.del('', 
-    deleteOne)
+router.del('', doorman(['admin']), deleteOne)
 
 export default router

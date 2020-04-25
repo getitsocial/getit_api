@@ -1,17 +1,26 @@
 import handler, { mediaSettings } from '~/services/mediaupload'
 import { BadRequestError } from 'restify-errors'
 
-export const upload = async(req, res) => {
-    if (!req.files) {
-        return new BadRequestError()
-    }
-    // Parse data
-    const { folder } = req.params
-    const { file } = req.files
+const allowedFolders = ['article', 'logo', 'user', 'shop']
+
+export const upload = async(req, res, next) => {
 
     if (!req.files) {
         return new BadRequestError()
     }
+
+    // Parse data
+    const { folder } = req.params
+    
+    if (!allowedFolders.includes(folder)) return next(new BadRequestError('invalid folder'))
+
+    const { file } = req.files
+    const settings = mediaSettings(folder)
+
+    if (process.env.NODE_ENV !== 'prod') {
+        delete settings.crop
+    }
+    
 
     try {
         const {
@@ -19,11 +28,11 @@ export const upload = async(req, res) => {
             etag,
             format,
             secure_url,
-        } = await handler.v2.uploader.upload(file.path, mediaSettings(folder))
+        } = await handler.v2.uploader.upload(file.path, settings)
         res.json({ id: public_id, etag, format, url: secure_url })
 
     } catch (error) {
-        return new BadRequestError(error)
+        return next(new BadRequestError(error))
     }
     
 }
