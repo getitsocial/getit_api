@@ -57,6 +57,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body).toEqual('object')
         expect(typeof body.polygonCoordinates).toEqual('object')
         expect(Array.isArray(body.polygonCoordinates.coordinates)).toBe(true)
+        expect(body.address.display).toEqual('Goethestrasse 26, 76135 Karlsruhe')
+
     })
     
     test(`GET /${apiEndpoint}/:id 404`, async () => {

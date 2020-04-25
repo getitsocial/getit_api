@@ -106,6 +106,10 @@ shopSchema.virtual('polygonCoordinates').get(function () {
     }
 })
 
+shopSchema.virtual('address.display').get(function () {
+    return `${this.address.street} ${this.address.houseNumber}, ${this.address.postalCode} ${this.address.city}`
+})
+
 
 shopSchema.methods = {
     modelProjection
