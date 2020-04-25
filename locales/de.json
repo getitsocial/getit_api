@@ -1,4 +1,8 @@
 {
-    "hello": "Hallo",
-    "email_error": "Es besteht aktuell ein Problem beim versenden von E-Mails"
+	"Validation failed: password: The password must contain at least: 1 uppercase letter, 1 lowercase letter, 1 number, and one special character (E.g. , . _ & ? etc)": "Das Kennwort muss mindestens enthalten: 1 Großbuchstabe, 1 Kleinbuchstabe, 1 Zahl, und ein Sonderzeichen  (z.B. , . _ & ? etc)",
+	"You can't get the active shop of other users": "Sie sind nicht bereichtigt, auf fremde Shops zuzugreifen",
+	"You can't delete other users": "Sie sind nicht berechtigt, fremde Benutzerkonten zu löschen",
+	"not a valid shop": "Ungültiger Shop",
+	"Validation failed: email: Path `email` is required., password: Path `password` is required.": "Validierung fehlgeschlagen. E-Mail und Kennwort werden benötigt.",
+	"wrong email or password": "E-Mail oder Kennwort falsch"
 }
