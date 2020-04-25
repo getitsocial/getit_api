@@ -430,7 +430,7 @@ describe('createFromService', () => {
             email: 'test@test.com',
             picture: {
                 url: '/api/static/placeholder.png',
-                id: 'placeholder/placeholder'
+                id: 'placeholder'
             }
         }
     })
