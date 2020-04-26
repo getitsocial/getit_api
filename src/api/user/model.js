@@ -105,7 +105,7 @@ userSchema.pre('save', async function (next) {
 export const modelProjection = function(req, item = this, cb) {
     
     const view = {}
-    const fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'location', 'description']
+    const fields = ['_id', 'name', 'email', 'picture', 'role', 'userSettings', 'createdAt', 'location', 'description', 'shops', 'activeShop']
 
     fields.forEach((field) => { view[field] = item[field] })
     
