@@ -2,11 +2,29 @@ import { BadRequestError } from 'restify-errors'
 import Category from './model'
 import User from '~/api/user/model'
 
-export const deleteAll = async(req, res) => {
-    await Category.deleteMany()
-    res.json('success')
+// Get Active shop
+const getActiveShop = async(user, next) => {
+    const { activeShop } = await User.findById(user._id)
+    if (!activeShop) return next(new BadRequestError('no active shop specified'))
+    return activeShop
 }
 
+export const getCategories = async({ user }, res, next) => {
+    try {
+        // Find active shop
+        const activeShop = await getActiveShop(user, next)
+
+        // Find objects
+        const categories = await Category.find({ shop: activeShop })
+
+        // Send response 
+        res.send(201, categories)
+    } catch(error) {
+        /* istanbul ignore next */ 
+        return next(new BadRequestError(error))
+    }
+
+}
 
 export const createCategory = async({ body }, res, next) => {
     // Pass values
@@ -15,9 +33,7 @@ export const createCategory = async({ body }, res, next) => {
     try {
 
         // Find active shop
-        const { activeShop } = await User.findById(author._id)
-
-        if (!activeShop) return next(new BadRequestError('no active shop specified'))
+        const activeShop = await getActiveShop(author, next)
 
         // Validate request body
         await Category.validate({ author: author._id, name, shop: activeShop })
@@ -32,5 +48,10 @@ export const createCategory = async({ body }, res, next) => {
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }
+}
+
+export const deleteAll = async(req, res) => {
+    await Category.deleteMany()
+    res.json('success')
 }
 

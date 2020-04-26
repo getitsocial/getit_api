@@ -24,6 +24,7 @@ categorySchema.pre('remove', function(callback) {
     this.model('Article').deleteMany({ category: this._id }, callback)
 })
 
+
 export const modelProjection = function(req, item = this, cb) {
     
     const view = {}

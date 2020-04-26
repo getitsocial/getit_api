@@ -16,6 +16,10 @@ const shopSchema = new Schema({
             type: String, 
             required: true 
         },
+        website: { 
+            type: String, 
+            required: false 
+        },
     },
     shopId: { 
         type: String,

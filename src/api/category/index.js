@@ -3,7 +3,7 @@ import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor } from '~/services/modelModifier'
-import { deleteAll, createCategory } from './controller'
+import { getCategories, deleteAll, createCategory } from './controller'
 import model, { modelProjection } from './model'
 
 const config = {
@@ -34,7 +34,7 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  */
 router.get('', 
     doorman(['user', 'admin']), 
-    endpoint.query())
+    getCategories)
 
 /**
  * @api {get} /categories/:id Retrieve category
