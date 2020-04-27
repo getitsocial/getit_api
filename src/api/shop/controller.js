@@ -50,11 +50,11 @@ export const deleteShop = async({ user, params }, res, next) => {
         const isSelfUpdate = author.equals(user._id)
 
         // Check permissions
-        if (!isSelfUpdate && !isAdmin)
+        if (!isSelfUpdate && !isAdmin) {
             return next(new UnauthorizedError('You can\'t delete other users'))
+        }
 
-
-        await Shop.findByIdAndDelete(id)
+        (await Shop.findByIdAndDelete(id)).removeUsers()
         
         // Send response 
         res.send(204)
@@ -79,6 +79,7 @@ export const createShop = async({ body}, res, next) => {
         const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, users: [author] })
 
         const user = await User.findById(author._id)
+        
         if (!user.activeShop) { // first shop (onboarding)
             user.activeShop = shop._id
         }

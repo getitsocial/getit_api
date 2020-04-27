@@ -23,6 +23,13 @@ beforeEach(async (done) => {
     // Create object
     dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
     
+    defaultUser.activeShop = dataObject._id
+    defaultUser.shops.push(dataObject._id)
+    defaultUser.save()
+
+    adminUser.shops.push(dataObject._id)
+    adminUser.save()
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -102,6 +109,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
+
+
+        
+        // Make sure that the shop got deleted in the shops array from our users
+        expect((await User.findById(defaultUser._id)).shops.includes(dataObject._id)).toBe(false)
+        expect((await User.findById(adminUser._id)).shops.includes(dataObject._id)).toBe(false)
 
         expect(status).toBe(204)
     })

@@ -79,7 +79,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { body, statusCode } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/me/shops/active`)
             .set('Authorization', 'Bearer ' + defaultToken)
-        
+        console.log(body)
         expect(statusCode).toBe(200)
         expect(body._id).toBe(shop._id.toString())
     })
