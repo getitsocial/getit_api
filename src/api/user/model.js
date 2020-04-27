@@ -42,9 +42,11 @@ const userSchema = new Schema({
     picture: {
         id: {
             type: String,
+            default: 'placeholder'
         },
         url: {
             type: String,
+            default: '/api/static/placeholder.png'
         },
     },
     shops: [{ 

@@ -32,14 +32,10 @@ export const create = async({ body }, res, next) => {
 
         // Validate request body
         await model.validate({ email, password, name })
-        
-        // Set default userpicture
-        const picture = {
-            url: '/api/static/placeholder.png',
-        }
+    
 
         // Create object
-        const data = await model.create({ email, password, name, picture })
+        const data = await model.create({ email, password, name })
 
         
         // Send welcome Mail

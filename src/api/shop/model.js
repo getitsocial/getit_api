@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
 import request from 'request-promise'
 import circleToPolygon from 'circle-to-polygon'
+import { isEmpty } from 'lodash' 
 
 const apiKey = process.env.HERE_API
 
@@ -47,8 +48,8 @@ const shopSchema = new Schema({
         required: true,
         enum: ['SS','EU','PG','GN','GP','AG']
     },
-    logo: { type: Object, required: false },
-    picture: { type: Object, required: false },
+    logo: {}, 
+    picture: {},
     size: {
         type: Number,
         required: true
@@ -96,6 +97,28 @@ shopSchema.pre('save', async function (next) {
         // dont touch
         const { response: { view: [ { result: [ { location: { displayPosition }}]}]}} = await request({ uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${this.address.locationId}&jsonattributes=1&gen=9&apiKey=${apiKey}`, json: true })
         this.displayPosition = displayPosition
+        next()
+    } catch(error) {
+        next(error)
+    }
+})
+
+shopSchema.pre('save', async function (next) {
+    /* istanbul ignore next */
+    try {
+        if(isEmpty(this.picture) || !this.picture) {
+            this.picture = {
+                url: '/api/static/placeholder-bg.png',
+                id: 'placeholder'
+            }
+        }
+
+        if(isEmpty(this.logo) || !this.logo) {
+            this.logo = {
+                url: '/api/static/placeholder.png',
+                id: 'placeholder'
+            }
+        }
         next()
     } catch(error) {
         next(error)

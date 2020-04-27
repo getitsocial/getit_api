@@ -28,6 +28,6 @@ router.post('/:folder', doorman(['user', 'admin']),  upload)
  * @apiSuccess {Object} media data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-router.del('', doorman(['admin']), deleteOne)
+router.del('', doorman(['user', 'admin']), deleteOne)
 
 export default router
