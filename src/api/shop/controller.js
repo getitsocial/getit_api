@@ -106,13 +106,10 @@ export const updateShop = async({ body, params }, res, next) => {
         await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published })
 
         // find object
-        const shop = await Shop.findById(id)
-
-        // Merge data
-        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published }).save()
+        const shop = await Shop.findOneAndUpdate({_id: id}, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published }, { new: true })
 
         // Send response 
-        res.send(201, data.modelProjection())
+        res.send(201, shop.modelProjection())
 
     } catch (error) {
         /* istanbul ignore next */ 

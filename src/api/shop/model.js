@@ -107,6 +107,7 @@ shopSchema.pre('save', async function (next) {
     /* istanbul ignore next */
     try {
         if(isEmpty(this.picture) || !this.picture) {
+            console.log('SET PIC')
             this.picture = {
                 url: '/api/static/placeholder-bg.png',
                 id: 'placeholder'
@@ -114,6 +115,7 @@ shopSchema.pre('save', async function (next) {
         }
 
         if(isEmpty(this.logo) || !this.logo) {
+            console.log('SET LOGO')
             this.logo = {
                 url: '/api/static/placeholder.png',
                 id: 'placeholder'
