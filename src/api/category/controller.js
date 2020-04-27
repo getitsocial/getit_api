@@ -16,9 +16,11 @@ export const getCategories = async({ user }, res, next) => {
 
         // Find objects
         const categories = await Category.find({ shop: activeShop })
+        const data = []
+        categories.forEach((category) => data.push(category.modelProjection()))
 
         // Send response 
-        res.send(201, categories)
+        res.send(200, data)
     } catch(error) {
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
