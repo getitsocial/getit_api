@@ -51,7 +51,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
-        expect(firstItem.id).toBeTruthy()
+        expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined()
     })
  
@@ -82,8 +82,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'shopname_9', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'state', street: 'street', postalCode: 76135 } })
         
+
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
+        expect((await User.findById(defaultUser._id)).activeShop.toString()).toBe(body._id)
+        expect((await User.findById(defaultUser._id)).shops.includes(body._id)).toBe(true)
+        
     })
     
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {

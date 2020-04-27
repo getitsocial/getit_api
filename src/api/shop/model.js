@@ -74,7 +74,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
+    const fields = ['_id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
 
     fields.forEach((field) => { view[field] = item[field] })
 

@@ -78,13 +78,7 @@ export const createShop = async({ body}, res, next) => {
         // Create object
         const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, users: [author] })
 
-        const user = await User.findById(author._id)
-        
-        if (!user.activeShop) { // first shop (onboarding)
-            user.activeShop = shop._id
-        }
-        user.shops.push(shop._id)
-        await user.save()
+        await User.updateOne({_id: author._id }, { activeShop: shop._id, '$push': { shops: shop._id }})
 
         // Send response 
         res.send(201, shop.modelProjection())
