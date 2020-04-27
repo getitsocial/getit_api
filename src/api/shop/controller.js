@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError } from 'restify-errors'
 import slugify from 'slugify'
-import { merge } from 'lodash'
+import { isEmpty } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
@@ -101,6 +101,16 @@ export const updateShop = async({ body, params }, res, next) => {
     const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published } = body
 
     try {
+        
+        if(isEmpty(picture) || !picture) {
+            picture.url = '/api/static/placeholder-bg.png'
+            picture.id = 'placeholder'
+        }
+
+        if(isEmpty(logo) || !logo) {
+            logo.url = '/api/static/placeholder.png'
+            logo.id ='placeholder'
+        }
 
         // Validate request body
         await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published })
