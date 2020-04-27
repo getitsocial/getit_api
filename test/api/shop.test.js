@@ -25,10 +25,10 @@ beforeEach(async (done) => {
     
     defaultUser.activeShop = dataObject._id
     defaultUser.shops.push(dataObject._id)
-    defaultUser.save()
+    await defaultUser.save()
 
     adminUser.shops.push(dataObject._id)
-    adminUser.save()
+    await adminUser.save()
 
     // Sign in user
     adminToken = await sign(adminUser)
