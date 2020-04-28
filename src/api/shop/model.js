@@ -49,8 +49,14 @@ const shopSchema = new Schema({
         required: true,
         enum: ['SS','EU','PG','GN','GP','AG']
     },
-    logo: {}, 
-    picture: {},
+    logo: {
+        url: { type: String, default: '/api/static/placeholder.png' },
+        id: { type: String, default: 'placeholder' }
+    },
+    picture: {
+        url: { type: String, default: '/api/static/placeholder-bg.png' },
+        id: { type: String, default: 'placeholder' }
+    },
     size: {
         type: Number,
         required: true
@@ -98,30 +104,6 @@ shopSchema.pre('save', async function (next) {
         // dont touch
         const { response: { view: [ { result: [ { location: { displayPosition }}]}]}} = await request({ uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${this.address.locationId}&jsonattributes=1&gen=9&apiKey=${apiKey}`, json: true })
         this.displayPosition = displayPosition
-        next()
-    } catch(error) {
-        next(error)
-    }
-})
-
-shopSchema.pre('save', async function (next) {
-    /* istanbul ignore next */
-    try {
-        if(isEmpty(this.picture) || !this.picture) {
-            console.log('SET PIC')
-            this.picture = {
-                url: '/api/static/placeholder-bg.png',
-                id: 'placeholder'
-            }
-        }
-
-        if(isEmpty(this.logo) || !this.logo) {
-            console.log('SET LOGO')
-            this.logo = {
-                url: '/api/static/placeholder.png',
-                id: 'placeholder'
-            }
-        }
         next()
     } catch(error) {
         next(error)

@@ -1,6 +1,6 @@
-import { BadRequestError, ConflictError, UnauthorizedError } from 'restify-errors'
+import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import slugify from 'slugify'
-import { isEmpty } from 'lodash' 
+import { isEmpty, merge } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
@@ -90,31 +90,41 @@ export const createShop = async({ body }, res, next) => {
     }
 }
 
-export const updateShop = async({ body, params }, res, next) => {
+export const updateShop = async({ body, params, user }, res, next) => {
     // Pass values
     const { id } = params
     const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published } = body
 
     try {
+
+        // find object
+        const shop = await Shop.findById(id)
+
+        if (!shop) {
+            return next(new NotFoundError('shop not found'))
+        } 
+
+        if (user.role !== 'admin' && !shop.author.equals(user._id)) {
+            return next(new UnauthorizedError('you are not the author of this shop'))
+        }
+
         
-        if(isEmpty(picture) || !picture) {
+        if (picture && !Object.keys(picture).length) {
             picture.url = '/api/static/placeholder-bg.png'
             picture.id = 'placeholder'
         }
-
-        if(isEmpty(logo) || !logo) {
+        
+        if (logo && !Object.keys(logo).length){
             logo.url = '/api/static/placeholder.png'
             logo.id ='placeholder'
         }
 
-        // Validate request body
-        await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published })
-
-        // find object
-        const shop = await Shop.findOneAndUpdate({_id: id}, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published }, { new: true })
+        
+        // merge and save
+        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published }).save()
 
         // Send response 
-        res.send(201, shop.modelProjection())
+        res.send(200, data.modelProjection())
 
     } catch (error) {
         /* istanbul ignore next */ 

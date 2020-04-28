@@ -7,7 +7,8 @@ import server from '~/server'
 import { sign } from '~/services/guard'
 
 
-let dataObject, 
+let dataObject,
+    dataObject1,
     adminUser,
     adminToken,
     defaultUser,
@@ -21,8 +22,9 @@ beforeEach(async (done) => {
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
    
     // Create object
-    dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
-    
+    dataObject = await Model.create({ name: 'shopname', size: 3, logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
+    dataObject1 = await Model.create({ name: 'shopname_1', size: 3, logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
+
     defaultUser.activeShop = dataObject._id
     defaultUser.shops.push(dataObject._id)
     await defaultUser.save()
@@ -94,17 +96,110 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { tel: 42}})
-        
+            .send({ contact: { phone: 42 }})
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
+        expect(body.contact.phone).toEqual('42')
+        // make sure that if logo is undefined we dont set the placeholder logo
+        expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
+    })
+
+    test(`PATCH /${apiEndpoint}/:id 200 admin patch`, async () => {
+        const { status, body } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ contact: { phone: 42 }})
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+        expect(body.contact.phone).toEqual('42')
+        // make sure that if logo is undefined we dont set the placeholder logo
+        expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
+    })
+
+
+    test(`PATCH /${apiEndpoint}/:id 200 Delete logo`, async () => {
+        const { body, status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ logo: {} })
+
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+        expect(body.logo.url).toEqual('/api/static/placeholder.png')
+        expect(body.logo.id).toEqual('placeholder')
+        
+        const shop = await Model.findById(dataObject._id) 
+        expect(shop.logo.url).toEqual('/api/static/placeholder.png')
+        expect(shop.logo.id).toEqual('placeholder')
+
+    })
+
+    test(`PATCH /${apiEndpoint}/:id 200 Set logo`, async () => {
+        const { body, status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ logo: { url: 'someotherurl' } })
+
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+        expect(body.logo.url).toEqual('someotherurl')
+        expect(body.logo.id).toEqual('placeholder')
+        
+        const shop = await Model.findById(dataObject._id) 
+        expect(shop.logo.url).toEqual('someotherurl')
+        expect(shop.logo.id).toEqual('placeholder')
+
+    })
+
+
+    test(`PATCH /${apiEndpoint}/:id 200 Delete picture`, async () => {
+        const { body, status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ picture: {} })
+
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+        expect(body.picture.url).toEqual('/api/static/placeholder-bg.png')
+        expect(body.picture.id).toEqual('placeholder')
+        
+        const shop = await Model.findById(dataObject._id) 
+        expect(shop.picture.url).toEqual('/api/static/placeholder-bg.png')
+        expect(shop.picture.id).toEqual('placeholder')
+
+    })
+
+    test(`PATCH /${apiEndpoint}/:id 200 Set picture`, async () => {
+        const { body, status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ picture: { url: 'someotherurl' } })
+
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+        expect(body.picture.url).toEqual('someotherurl')
+        expect(body.picture.id).toEqual('placeholder')
+        
+        const shop = await Model.findById(dataObject._id) 
+        expect(shop.picture.url).toEqual('someotherurl')
+        expect(shop.picture.id).toEqual('placeholder')
+
+    })
+
+    test(`PATCH /${apiEndpoint}/:id 401`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject1._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ contact: { phone: 42 }})
+        
+        expect(status).toBe(401)
     })
 
     test(`PATCH /${apiEndpoint}/:id 404`, async () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { tel: 42}})
+            .send({ contact: { phone: 42 }})
         
         expect(status).toBe(404)
     })
