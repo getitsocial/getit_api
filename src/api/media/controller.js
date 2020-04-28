@@ -6,7 +6,7 @@ const allowedFolders = ['article', 'logo', 'user', 'shop']
 export const upload = async(req, res, next) => {
 
     if (!req.files) {
-        return new BadRequestError()
+        return next(new BadRequestError('no images attached'))
     }
 
     // Parse data
@@ -15,6 +15,7 @@ export const upload = async(req, res, next) => {
     if (!allowedFolders.includes(folder)) return next(new BadRequestError('invalid folder'))
 
     const { file } = req.files
+
     const settings = mediaSettings(folder)
 
     if (process.env.NODE_ENV !== 'prod') {
@@ -35,15 +36,4 @@ export const upload = async(req, res, next) => {
         return next(new BadRequestError(error))
     }
     
-}
-
-export const deleteOne = async ({ body: { id } }, res) => {
-    try {
-        if(id && id !== 'placeholder') {
-            await handler.v2.uploader.destroy(id)
-        }
-        res.send()
-    } catch (error) {
-        return new BadRequestError(error)
-    }
 }
