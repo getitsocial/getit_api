@@ -29,11 +29,15 @@ export const getCategories = async({ user }, res, next) => {
                     as: 'article_count'
                 }
             },
-            { $addFields: { article_count: { $size: '$article_count' }}}
-        ])        
+            { $addFields: { article_count: { $size: '$article_count' }}},
+            { $project : { '_id': 1, 'name': 1, 'author': 1 }} // modelProjection won't work here...
+        ])
+
         // Send response 
         res.send(200, categories)
+
     } catch(error) {
+        console.log(error)
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }
