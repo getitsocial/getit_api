@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { addAuthor } from '~/services/modelModifier'
+import { addAuthor, addShop } from '~/services/modelModifier'
 import { deleteAll } from './controller'
 import model, { modelProjection } from './model'
 
@@ -59,7 +59,7 @@ router.get('/:id',
  * @apiError 404 Article not found.
  */
 router.post('', 
-    [doorman(['user', 'admin']), addAuthor()], 
+    [doorman(['user', 'admin']), addAuthor(), addShop()], 
     endpoint.insert())
 
 /**

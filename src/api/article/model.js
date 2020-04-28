@@ -32,8 +32,20 @@ const articleSchema = new Schema({
         enum: ['Euro', '€'] 
     },
     description: { 
-        type: String, required: false, maxlength: 2000 },
-    picture: {},
+        type: String, 
+        required: false, 
+        maxlength: 2000 
+    },
+    picture: {
+        url: {
+            type: String,
+            default: '/api/static/placeholder.png'
+        },
+        id: {
+            type: String,
+            default: 'placeholder'
+        },
+    },
     category: { 
         type: Schema.Types.ObjectId, 
         ref: 'Category',
@@ -53,7 +65,10 @@ const articleSchema = new Schema({
         type: Boolean,
         default: true
     },
-    tax: { type: Number, default: 19 },
+    tax: { 
+        type: Number, 
+        default: 19 
+    },
 }, {
     timestamps: true,
     toJSON: {
