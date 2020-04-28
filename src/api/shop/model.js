@@ -120,7 +120,6 @@ export const removeUsers = async function(item = this) {
 }
 
 
-
 shopSchema.virtual('polygonCoordinates').get(function () {
     try {
         return circleToPolygon([this.displayPosition.longitude, this.displayPosition.latitude], 100, 32)

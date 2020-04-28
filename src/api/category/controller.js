@@ -14,13 +14,25 @@ export const getCategories = async({ user }, res, next) => {
         // Find active shop
         const activeShop = await getActiveShop(user, next)
 
-        // Find objects
-        const categories = await Category.find({ shop: activeShop })
-        const data = []
-        categories.forEach((category) => data.push(category.modelProjection()))
-
+        // Find objects        
+        const categories = await Category.aggregate([
+            {   
+                $match: { 
+                    shop: activeShop 
+                }
+            },
+            {
+                $lookup: {
+                    from: 'articles',
+                    let: { category: '$_id' },
+                    pipeline: [{ $match: { $expr: { $eq: ['$$category', '$category'] } } }],
+                    as: 'article_count'
+                }
+            },
+            { $addFields: { article_count: { $size: '$article_count' }}}
+        ])        
         // Send response 
-        res.send(200, data)
+        res.send(200, categories)
     } catch(error) {
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
