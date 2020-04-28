@@ -1,0 +1,46 @@
+import request from 'supertest'
+import { isJWT } from 'validator'
+import server from '~/server'
+import { serverConfig } from '~/config'
+import { sign } from '~/services/guard'
+import User from '~/api/user/model'
+
+let defaultUser,
+    defaultToken,
+    apiEndpoint = 'maps'
+
+beforeEach(async (done) => {
+
+    // Create user
+    defaultUser =  await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+
+    // Sign in 
+    defaultToken = await sign(defaultUser)
+    expect(isJWT(defaultToken)).toBe(true)
+    
+    done()
+})
+
+describe(`Test /${apiEndpoint} endpoint:`, () => {
+
+    test(`GET /${apiEndpoint}/geocode 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/geocode?query=dummerstorfer+2`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(statusCode).toBe(200)
+        expect(typeof body).toEqual('object')
+        
+    })
+
+
+    test(`GET /${apiEndpoint} 401`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/geocode?query=dummerstorfer+2`)
+
+        expect(statusCode).toBe(401)
+        expect(typeof body).toEqual('object')
+        
+    })
+
+})
