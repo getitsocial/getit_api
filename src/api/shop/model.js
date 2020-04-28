@@ -3,6 +3,7 @@ import slugify from 'slugify'
 import request from 'request-promise'
 import circleToPolygon from 'circle-to-polygon'
 import { isEmpty } from 'lodash' 
+import User from '~/api/user/model'
 
 const apiKey = process.env.HERE_API
 
@@ -78,7 +79,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
+    const fields = ['_id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
 
     fields.forEach((field) => { view[field] = item[field] })
 
@@ -127,6 +128,17 @@ shopSchema.pre('save', async function (next) {
     }
 })
 
+export const removeUsers = async function(item = this) {    
+
+    const { _id } = item
+
+    await User.updateMany({ shops: _id }, {'$pull': { shops: _id }})
+    
+    // If we decide to remove the activeShop too: {'$unset': { 'activeShop': ''}}
+}
+
+
+
 shopSchema.virtual('polygonCoordinates').get(function () {
     try {
         return circleToPolygon([this.displayPosition.longitude, this.displayPosition.latitude], 100, 32)
@@ -141,7 +153,8 @@ shopSchema.virtual('address.display').get(function () {
 
 
 shopSchema.methods = {
-    modelProjection
+    modelProjection,
+    removeUsers
 }
 
 shopSchema.index({'$**': 'text'})

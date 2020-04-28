@@ -23,6 +23,13 @@ beforeEach(async (done) => {
     // Create object
     dataObject = await Model.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
     
+    defaultUser.activeShop = dataObject._id
+    defaultUser.shops.push(dataObject._id)
+    await defaultUser.save()
+
+    adminUser.shops.push(dataObject._id)
+    await adminUser.save()
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -44,7 +51,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
-        expect(firstItem.id).toBeTruthy()
+        expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined()
     })
  
@@ -75,8 +82,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'shopname_9', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'state', street: 'street', postalCode: 76135 } })
         
+
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
+        expect((await User.findById(defaultUser._id)).activeShop.toString()).toBe(body._id)
+        expect((await User.findById(defaultUser._id)).shops.includes(body._id)).toBe(true)
+        
     })
     
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
@@ -102,6 +113,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
+
+
+        
+        // Make sure that the shop got deleted in the shops array from our users
+        expect((await User.findById(defaultUser._id)).shops.includes(dataObject._id)).toBe(false)
+        expect((await User.findById(adminUser._id)).shops.includes(dataObject._id)).toBe(false)
 
         expect(status).toBe(204)
     })
