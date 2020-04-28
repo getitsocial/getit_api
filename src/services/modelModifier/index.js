@@ -25,9 +25,6 @@ export const addShop = () => ( async({ user, body }, res, next) => {
         next(new BadRequestError())
     
     body.shop = fullUser.activeShop
-    
-
-    console.log(fullUser)
 
     next()
 })

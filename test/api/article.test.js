@@ -23,7 +23,8 @@ beforeEach(async () => {
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 26, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse', postalCode: 76135 } })
-
+    defaultUser.activeShop = defaultShop._id
+    defaultUser.save()
 
     // Create object
     defaultCategory = await Category.create({ name: 'things', author: defaultUser._id, shop: defaultShop._id } )
@@ -92,9 +93,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
                 currency: 'Euro',
                 category: defaultCategory._id,
                 author: defaultUser._id,
-                shop: defaultShop._id
             })
-        
+
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
     })
