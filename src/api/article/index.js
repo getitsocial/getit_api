@@ -86,19 +86,6 @@ router.del('/:id',
     doorman(['user', 'admin']), 
     endpoint.remove())
 
-/**
- * @api {delete} /articles/all Delete all articles
- * @apiName DeleteAllArticles
- * @apiGroup Article
- * @apiPermission admin
- * @apiParam {String} admintoken admin access token.
- * @apiSuccess (Success 204) 204 No Content.
- * @apiError 401 admin access only.
- */
-router.del('/all', 
-    doorman(['admin']), 
-    deleteAll)
-
 
 /**
  * Export this function
