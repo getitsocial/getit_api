@@ -108,5 +108,14 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(400)
     
     }, 10000)
+ 
+    test(`POST /${apiEndpoint} 400`, async () => {
+        
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}/user`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(statusCode).toBe(400)
+    }, 10000)
 
 })
