@@ -30,7 +30,6 @@ beforeEach(async (done) => {
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
 
-
     test(`POST /${apiEndpoint} 200`, async () => {
         expect(existsSync(filePath)).toBe(true)
         
@@ -44,6 +43,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body.url).toBe('string') 
     
     }, 10000)
+
     test(`POST /${apiEndpoint} 200`, async () => {
         expect(existsSync(filePath)).toBe(true)
         
@@ -97,8 +97,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     
     }, 10000)
 
-
-
     test(`POST /${apiEndpoint} 400`, async () => {
         expect(existsSync(filePath)).toBe(true)
         
@@ -110,8 +108,5 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(400)
     
     }, 10000)
-
-
-
 
 })

@@ -3,7 +3,7 @@ import { isJWT } from 'validator'
 import server from '~/server'
 import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
-import Model from '~/api/user/model'
+import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
 
 let adminUser, 
@@ -16,12 +16,12 @@ let adminUser,
 
 beforeEach(async (done) => {
     // Create user
-    adminUser = await Model.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
 
     shop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 4, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse 26', postalCode: 76135 } })
     shop1 = await Shop.create({ name: 'shopname_1', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: adminUser._id, address: { label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', city: 'Karlsruhe', country: 'DEU', county: 'Karlsruhe (Stadt)', district: 'Weststadt', houseNumber: 4, locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', state: 'Baden-Württemberg', street: 'Goethestrasse 26', postalCode: 76135 } })
     
-    defaultUser = await Model.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', activeShop: shop._id, shops: [shop._id, shop1._id] })
+    defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', activeShop: shop._id, shops: [shop._id, shop1._id] })
 
     adminUser.role = 'admin'
     adminUser = await adminUser.save()
@@ -442,7 +442,7 @@ describe('createFromService', () => {
             })
 
             it('updates user when email is already registered', async () => {
-                const updatedUser = await Model.createFromService({ ...serviceUser, email: 'max1@moritz.com' })
+                const updatedUser = await User.createFromService({ ...serviceUser, email: 'max1@moritz.com' })
                 
                 // keep
                 expect(updatedUser.id).toBe(adminUser.id)
@@ -455,7 +455,7 @@ describe('createFromService', () => {
 
             it('updates user when service id is already registered', async () => {
                 await adminUser.set({ services: { [service]: serviceUser.id } }).save()
-                const updatedUser = await Model.createFromService(serviceUser)
+                const updatedUser = await User.createFromService(serviceUser)
                 
                 // keep
                 expect(updatedUser.id).toBe(adminUser.id)
@@ -469,7 +469,7 @@ describe('createFromService', () => {
             })
 
             it('creates a new user when neither service id and email was found', async () => {
-                const createdUser = await Model.createFromService(serviceUser)
+                const createdUser = await User.createFromService(serviceUser)
                 
                 expect(createdUser.id).not.toBe(adminUser.id)
                 expect(createdUser.services[service]).toBe(serviceUser.id)
