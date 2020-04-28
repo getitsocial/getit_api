@@ -1,13 +1,8 @@
 import { Router } from 'restify-router'
 import { search } from './controller'
+import { doorman } from '~/services/guard'
 
 const router = new Router()
-
-// TODO: Implement controller && secure endpoints 
-
-/**
- * Serve resources with fine grained mapping control
- */
 
 /**
  * @api {get} /geocode Places suggestions
@@ -16,8 +11,9 @@ const router = new Router()
  * @apiUse listParams
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-// doorman(['user', 'admin']),
+
 router.get('/geocode', 
+    doorman(['user', 'admin']),
     search)
 
 /**
