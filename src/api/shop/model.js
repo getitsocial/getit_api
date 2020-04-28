@@ -2,7 +2,6 @@ import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
 import request from 'request-promise'
 import circleToPolygon from 'circle-to-polygon'
-import { isEmpty } from 'lodash' 
 import User from '~/api/user/model'
 
 const apiKey = process.env.HERE_API
