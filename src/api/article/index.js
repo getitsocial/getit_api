@@ -3,7 +3,6 @@ import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor, addShop } from '~/services/modelModifier'
-import { deleteAll } from './controller'
 import model, { modelProjection } from './model'
 
 const config = {
