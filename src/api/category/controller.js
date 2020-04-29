@@ -30,7 +30,7 @@ export const getCategories = async({ user }, res, next) => {
                 }
             },
             { $addFields: { article_count: { $size: '$article_count' }}},
-            { $project : { '_id': 1, 'name': 1, 'author': 1 }} // modelProjection won't work here...
+            { $project : { '_id': 1, 'name': 1, 'author': 1, 'article_count': 1 }} // modelProjection won't work here...
         ])
 
         // Send response 
