@@ -14,4 +14,12 @@ export const mediaSettings = (folder) => ({
     height: 1000,
 })
 
+export const uploadToCloudinary = (image, options) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.v2.uploader.upload(image, options, (err, url) => {
+            if (err) return reject(err)
+            return resolve(url)
+        })
+    })
+}
 export default cloudinary

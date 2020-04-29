@@ -1,5 +1,5 @@
 import { Router } from 'restify-router'
-import { upload } from './controller'
+import { upload, deleteMedia } from './controller'
 import { doorman } from '~/services/guard'
 
 /**
@@ -17,5 +17,18 @@ const router = new Router()
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 router.post('/:folder', doorman(['user', 'admin']),  upload)
+
+
+/**
+ * @api {delete} /media/:foldername/:id Media Delete
+ * @apiName Delete Media
+ * @apiGroup Mediadelete
+ * @apiPermission user
+ * @apiSuccess {Object} 204
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError {Object} 401 Missing permissions
+ */
+router.del('/:folder/:id', doorman(['admin', 'user']),  deleteMedia)
+
 
 export default router

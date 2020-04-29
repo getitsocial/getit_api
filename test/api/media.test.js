@@ -5,11 +5,13 @@ import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import { existsSync } from 'fs'
+import { mediaSettings, uploadToCloudinary } from '~/services/mediaupload'
 
 let adminToken,
     filePath = `${__dirname}/../ressources/cat.jpg`,
     defaultUser,
     defaultToken,
+    defaultPublicId,
     apiEndpoint = 'media'
 
 beforeEach(async (done) => {
@@ -21,11 +23,19 @@ beforeEach(async (done) => {
    
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
-    
+
     defaultToken = await sign(defaultUser)
     expect(isJWT(defaultToken)).toBe(true)
-    
+
+
+    const settings = mediaSettings('test')
+    settings.tags = [ defaultUser._id ]
+    delete settings.crop
+
+    const response = await uploadToCloudinary(filePath, settings)
+    defaultPublicId = response.public_id
     done()
+
 })
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
@@ -42,49 +52,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body.id).toBe('string')
         expect(typeof body.url).toBe('string') 
     
-    }, 10000)
-
-    test(`POST /${apiEndpoint} 200`, async () => {
-        expect(existsSync(filePath)).toBe(true)
-        
-        const { statusCode, body } = await request(server)
-            .post(`${serverConfig.endpoint}/${apiEndpoint}/shop`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-            .attach('file', filePath)
-
-        expect(statusCode).toBe(200)
-        expect(typeof body.id).toBe('string')
-        expect(typeof body.url).toBe('string') 
-    
-    }, 10000)
-    
-    test(`POST /${apiEndpoint} 200`, async () => {
-        expect(existsSync(filePath)).toBe(true)
-        
-        const { statusCode, body } = await request(server)
-            .post(`${serverConfig.endpoint}/${apiEndpoint}/user`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-            .attach('file', filePath)
-
-        expect(statusCode).toBe(200)
-        expect(typeof body.id).toBe('string')
-        expect(typeof body.url).toBe('string') 
-    
-    }, 10000)
-
-    test(`POST /${apiEndpoint} 200`, async () => {
-        expect(existsSync(filePath)).toBe(true)
-        
-        const { statusCode, body } = await request(server)
-            .post(`${serverConfig.endpoint}/${apiEndpoint}/logo`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-            .attach('file', filePath)
-
-        expect(statusCode).toBe(200)
-        expect(typeof body.id).toBe('string')
-        expect(typeof body.url).toBe('string') 
-    
-    }, 10000)
+    }, 30000)
 
     test(`POST /${apiEndpoint} 401`, async () => {
         expect(existsSync(filePath)).toBe(true)
@@ -95,7 +63,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(401)
     
-    }, 10000)
+    }, 30000)
 
     test(`POST /${apiEndpoint} 400`, async () => {
         expect(existsSync(filePath)).toBe(true)
@@ -107,15 +75,38 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(400)
     
-    }, 10000)
+    }, 30000)
  
     test(`POST /${apiEndpoint} 400`, async () => {
         
         const { statusCode } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}/user`)
             .set('Authorization', 'Bearer ' + defaultToken)
-
+        
         expect(statusCode).toBe(400)
-    }, 10000)
+    }, 30000)
+   
+    test(`DELETE /${apiEndpoint} 204`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultPublicId}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(statusCode).toBe(204)
+    }, 30000)
+   
+    test(`DELETE /${apiEndpoint} 401`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultPublicId}`)
+
+        expect(statusCode).toBe(401)
+    }, 30000)
+
+    test(`DELETE /${apiEndpoint} 401`, async () => {
+        const { statusCode } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultPublicId}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        expect(statusCode).toBe(401)
+    }, 30000)
 
 })
