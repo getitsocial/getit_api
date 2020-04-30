@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import slugify from 'slugify'
-import { merge } from 'lodash' 
+import { merge, uniq, compact } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
@@ -108,7 +108,7 @@ export const updateShop = async({ body, params, user }, res, next) => {
             return next(new UnauthorizedError('you are not the author of this shop'))
         }
 
-        
+        // Check if picture not defined and set default picture
         if (picture && !Object.keys(picture).length) {
             picture.url = '/api/static/placeholder-bg.png'
             picture.id = 'placeholder'
@@ -119,9 +119,12 @@ export const updateShop = async({ body, params, user }, res, next) => {
             logo.id ='placeholder'
         }
 
-        
+
+        const compactArray = compact(deliveryOptions)
+
+        // const data = await Shop.findByIdAndUpdate(id, body)
         // merge and save
-        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions }).save()
+        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published,  deliveryOptions: compactArray }).save()
 
         // Send response 
         res.send(200, data.modelProjection())

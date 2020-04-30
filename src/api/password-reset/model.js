@@ -20,24 +20,5 @@ const passwordResetSchema = new Schema({
     }
 })
 
-export const modelProjection = function(req, item = this, cb) {
-    
-    const view = {}
-    const fields = ['user', 'token']
-
-
-    fields.forEach((field) => { view[field] = item[field] })
-    
-    if(!cb)
-        return view
-    
-    cb(null, view)
-
-}
-
-passwordResetSchema.methods = {
-    modelProjection
-}
-
 export default mongoose.model('PasswordReset', passwordResetSchema)
 
