@@ -2,8 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { addAuthor } from '~/services/modelModifier'
-import { deleteAll } from './controller'
+import { addAuthor, addShop } from '~/services/modelModifier'
 import model, { modelProjection } from './model'
 
 const config = {
@@ -59,7 +58,7 @@ router.get('/:id',
  * @apiError 404 Article not found.
  */
 router.post('', 
-    [doorman(['user', 'admin']), addAuthor()], 
+    [doorman(['user', 'admin']), addAuthor(), addShop()], 
     endpoint.insert())
 
 /**
@@ -85,19 +84,6 @@ router.patch('/:id',
 router.del('/:id', 
     doorman(['user', 'admin']), 
     endpoint.remove())
-
-/**
- * @api {delete} /articles/all Delete all articles
- * @apiName DeleteAllArticles
- * @apiGroup Article
- * @apiPermission admin
- * @apiParam {String} admintoken admin access token.
- * @apiSuccess (Success 204) 204 No Content.
- * @apiError 401 admin access only.
- */
-router.del('/all', 
-    doorman(['admin']), 
-    deleteAll)
 
 
 /**

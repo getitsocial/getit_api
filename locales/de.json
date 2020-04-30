@@ -4,5 +4,6 @@
 	"You can't delete other users": "Sie sind nicht berechtigt, fremde Benutzerkonten zu löschen",
 	"not a valid shop": "Ungültiger Shop",
 	"Validation failed: email: Path `email` is required., password: Path `password` is required.": "Validierung fehlgeschlagen. E-Mail und Kennwort werden benötigt.",
-	"wrong email or password": "E-Mail oder Kennwort falsch"
+	"wrong email or password": "E-Mail oder Kennwort falsch",
+	"email_error": "email_error"
 }

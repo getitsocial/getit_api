@@ -2,13 +2,13 @@ import request from 'supertest'
 import { isJWT } from 'validator'
 import server from '~/server'
 import { serverConfig } from '~/config'
-import Model from '~/api/article/model'
+import Article from '~/api/article/model'
 import Category from '~/api/category/model'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
 
-let dataObject, 
+let defaultArticle, 
     defaultCategory,
     adminToken,
     defaultUser,
@@ -22,12 +22,36 @@ beforeEach(async () => {
     const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    defaultShop = await Shop.create({ name: 'shopname', size: 3, category: 'clothing', contact: { phone: 12345 }, companyType: 'EU', author: defaultUser._id, address: { label: 'label', city: 'city', country: 'country', county: 'county', district: 'district', houseNumber: 4, locationId: '123', state: 'state', street: 'street', postalCode: 1 } })
+    defaultShop = await Shop.create({
+        name: 'shopname', 
+        size: 3, 
+        category: 'clothing', 
+        contact: { 
+            phone: 12345 
+        }, companyType: 'EU', 
+        author: adminUser._id, 
+        address: { 
+            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', 
+            city: 'Karlsruhe', 
+            country: 'DEU', 
+            county: 'Karlsruhe (Stadt)', 
+            district: 'Weststadt', 
+            houseNumber: 26, 
+            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
+            state: 'Baden-Württemberg', 
+            street: 'Goethestrasse', 
+            postalCode: 76135 
+        },
+        deliveryOptions: ['PU']
+    })
+    
+    defaultUser.shops.push(defaultShop._id)
+    defaultUser.activeShop = defaultShop._id
+    defaultUser.save()
 
-
-    // Create object
     defaultCategory = await Category.create({ name: 'things', author: defaultUser._id, shop: defaultShop._id } )
-    dataObject = await Model.create({
+    
+    defaultArticle = await Article.create({
         name: 'kebab',
         articleNumber: '12345',
         stock: 3,
@@ -63,7 +87,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultArticle._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(status).toBe(200)
@@ -92,16 +116,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
                 currency: 'Euro',
                 category: defaultCategory._id,
                 author: defaultUser._id,
-                shop: defaultShop._id
             })
-        
+
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
     })
 
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
         const { status, body } = await request(server)
-            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultArticle._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ price: 4 })
         
@@ -122,7 +145,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     
     test(`DELETE /${apiEndpoint}/:id 200`, async () => {
         const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${dataObject._id}`)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultArticle._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(status).toBe(200)

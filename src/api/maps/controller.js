@@ -3,7 +3,7 @@ import { BadRequestError } from 'restify-errors'
 
 const apiKey = process.env.HERE_API
 
-// https://developer.here.com/documentation/geocoder-autocomplete/dev_guide/topics/quick-start-get-suggestions.html
+// See here docs: https://developer.here.com/documentation/geocoder-autocomplete/dev_guide/topics/quick-start-get-suggestions.html
 const autocompleteUrl = `https://autocomplete.geocoder.ls.hereapi.com/6.2/suggest.json?country=DEU&language=DE&apiKey=${apiKey}`
 
 export const search = async(req, res, next) => {

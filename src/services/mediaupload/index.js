@@ -1,11 +1,8 @@
 import cloudinary from 'cloudinary'
+import { cloudinaryConfig } from '~/config'
 
 // Cloudinary configuration
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-})
+cloudinary.config(cloudinaryConfig)
 
 export const mediaSettings = (folder) => ({
     tags: ['bucket', 'temporary'],
@@ -17,4 +14,12 @@ export const mediaSettings = (folder) => ({
     height: 1000,
 })
 
+export const uploadToCloudinary = (image, options) => {
+    return new Promise((resolve, reject) => {
+        cloudinary.v2.uploader.upload(image, options, (err, url) => {
+            if (err) return reject(err)
+            return resolve(url)
+        })
+    })
+}
 export default cloudinary

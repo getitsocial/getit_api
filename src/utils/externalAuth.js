@@ -15,7 +15,7 @@ export const providerAuth = {
 
         return { 
             service: 'facebook',
-            picture: picture?.data?.url,
+            picture: picture?.data,
             id,
             name,
             email
@@ -33,7 +33,7 @@ export const providerAuth = {
 
         return { 
             service: 'google',
-            picture,
+            picture: { url: picture },
             id,
             name,
             email

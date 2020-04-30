@@ -70,6 +70,7 @@ docs/
 
 # Ide specific
 .vscode
+.VSCodeCounter
 
 # package management specific
 package-lock.json

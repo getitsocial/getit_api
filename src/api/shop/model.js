@@ -1,5 +1,10 @@
 import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
+import request from 'request-promise'
+import circleToPolygon from 'circle-to-polygon'
+import User from '~/api/user/model'
+
+const apiKey = process.env.HERE_API
 
 const shopSchema = new Schema({
     name: { 
@@ -11,6 +16,10 @@ const shopSchema = new Schema({
         phone: { 
             type: String, 
             required: true 
+        },
+        website: { 
+            type: String, 
+            required: false 
         },
     },
     shopId: { 
@@ -34,13 +43,24 @@ const shopSchema = new Schema({
         street: { type: String, required: true },
         postalCode: { type: Number, required: true },
     },
+    deliveryOptions: {
+        type: [String],
+        required: true,
+        enum: ['PU', 'MU', 'LD']
+    },
     companyType: {
         type: String,
         required: true,
         enum: ['SS','EU','PG','GN','GP','AG']
     },
-    logo: { type: Object, required: false },
-    picture: { type: Object, required: false },
+    logo: {
+        url: { type: String, default: '/api/static/placeholder.png' },
+        id: { type: String, default: 'placeholder' }
+    },
+    picture: {
+        url: { type: String, default: '/api/static/placeholder-bg.png' },
+        id: { type: String, default: 'placeholder' }
+    },
     size: {
         type: Number,
         required: true
@@ -54,6 +74,10 @@ const shopSchema = new Schema({
     published: {
         type: Boolean,
         default: true
+    },
+    displayPosition: {
+        latitude: { type: Number }, 
+        longitude: { type: Number },
     }
 }, {
     timestamps: true,
@@ -65,7 +89,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description']
+    const fields = ['_id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
 
     fields.forEach((field) => { view[field] = item[field] })
 
@@ -76,8 +100,46 @@ export const modelProjection = function(req, item = this, cb) {
 
 }
 
+// Get coordinates if locationId changed
+shopSchema.pre('save', async function (next) {
+    if (!this.isModified('address.locationId')) next()
+    /* istanbul ignore next */
+    try {
+        // dont touch
+        const { response: { view: [ { result: [ { location: { displayPosition }}]}]}} = await request({ uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${this.address.locationId}&jsonattributes=1&gen=9&apiKey=${apiKey}`, json: true })
+        this.displayPosition = displayPosition
+        next()
+    } catch(error) {
+        next(error)
+    }
+})
+
+export const removeUsers = async function(item = this) {    
+
+    const { _id } = item
+
+    await User.updateMany({ shops: _id }, {'$pull': { shops: _id }})
+    
+    // If we decide to remove the activeShop too: {'$unset': { 'activeShop': ''}}
+}
+
+
+shopSchema.virtual('polygonCoordinates').get(function () {
+    try {
+        return circleToPolygon([this.displayPosition.longitude, this.displayPosition.latitude], 100, 32)
+    } catch (error) {
+        return  []
+    }
+})
+
+shopSchema.virtual('address.display').get(function () {
+    return `${this.address.street} ${this.address.houseNumber}, ${this.address.postalCode} ${this.address.city}`
+})
+
+
 shopSchema.methods = {
-    modelProjection
+    modelProjection,
+    removeUsers
 }
 
 shopSchema.index({'$**': 'text'})

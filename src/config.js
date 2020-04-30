@@ -32,7 +32,8 @@ export const dbConfig = {
     options: {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
-        useCreateIndex: true
+        useCreateIndex: true,
+        useFindAndModify: false
     }
 }
 
@@ -53,4 +54,10 @@ export const i18nConfig = {
     locales: ['en', 'de'],
     directory: './locales',
     defaultLocale: 'en',
+}
+
+export const cloudinaryConfig = {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,    
 }

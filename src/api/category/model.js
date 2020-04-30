@@ -24,10 +24,11 @@ categorySchema.pre('remove', function(callback) {
     this.model('Article').deleteMany({ category: this._id }, callback)
 })
 
+
 export const modelProjection = function(req, item = this, cb) {
     
     const view = {}
-    const fields = ['id', 'name', 'author']
+    const fields = ['_id', 'name', 'author']
 
     fields.forEach((field) => { view[field] = item[field] })
 
@@ -35,6 +36,10 @@ export const modelProjection = function(req, item = this, cb) {
         return view
 
     cb(null, view)
+}
+
+categorySchema.methods = {
+    modelProjection
 }
 
 categorySchema.index({'$**': 'text'})

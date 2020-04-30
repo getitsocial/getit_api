@@ -1,5 +1,5 @@
 import { BadRequestError, UnauthorizedError, NotFoundError } from 'restify-errors'
-import { merge } from 'lodash'
+import { merge, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
 import model from './model'
@@ -32,7 +32,8 @@ export const create = async({ body }, res, next) => {
 
         // Validate request body
         await model.validate({ email, password, name })
-        
+    
+
         // Create object
         const data = await model.create({ email, password, name })
 
@@ -73,6 +74,12 @@ export const update = async({ user, params, body }, res, next) => {
         // Check permissions
         if (!isSelfUpdate && !isAdmin)
             return next(new BadRequestError(res.__('You can\'t change other user\'s data')))
+
+        // Check if picture is empty
+        if(isEmpty(picture) && picture !== undefined) {
+            picture.url = '/api/static/placeholder.png'
+            picture.id = 'placeholder'
+        }  
 
         // For merge nested Objects 
         result.markModified('location')

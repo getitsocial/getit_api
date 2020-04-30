@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { checkName, deleteShop, createShop } from './controller'
+import { checkName, deleteShop, createShop, updateShop } from './controller'
 import { addAuthor } from '~/services/modelModifier'
 import model, { modelProjection } from './model'
 
@@ -79,7 +79,7 @@ router.post('',
 // TODO: Bug, cannot update if doorman active
 router.patch('/:id', 
     doorman(['user', 'admin']), 
-    endpoint.update())
+    updateShop)
 
 /**
  * @api {delete} /shops/:id Delete shop

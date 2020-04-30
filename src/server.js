@@ -5,6 +5,7 @@ import { serverConfig, dbConfig, i18nConfig } from '~/config'
 import routes from '~/api'
 import i18n from 'i18n'
 
+
 const router = new Router()
 const server = restify.createServer(serverConfig.server)
 const processMode =  process.env.NODE_ENV
@@ -34,6 +35,11 @@ router.get('/', (req, res, next) => {
     res.send(`${res.__('hello')} ${server.name}!`)
     next()
 })
+
+// Static files
+router.get('/api/static/*', restify.plugins.serveStatic({
+    directory: __dirname,
+}))
 
 router.applyRoutes(server)
 
