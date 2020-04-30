@@ -8,7 +8,7 @@ import { existsSync } from 'fs'
 import { mediaSettings, uploadToCloudinary } from '~/services/mediaupload'
 
 let adminToken,
-    filePath = `${__dirname}/../ressources/cat.jpg`,
+    filePath = `${__dirname}/../ressources/cat.jpeg`,
     defaultUser,
     defaultToken,
     defaultPublicId,

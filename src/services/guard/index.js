@@ -12,9 +12,11 @@ const jwtr = new JWTR(redisClient)
 // Get JWT Secret
 const { secret } = serverConfig?.jwt
 
+export const verify = async (token, secret) => jwtr.verify(token, secret)
+
 const isRevokedCallback = async (req, res, done) => {
     try {
-        await jwtr.verify(extractToken(req), secret)
+        await verify(extractToken(req), secret)
         done(null, false)
     } catch( error ) {
         done(null, true)

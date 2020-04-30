@@ -4,9 +4,12 @@ import { isJWT } from 'validator'
 
 import server from '~/server'
 import { serverConfig } from '~/config'
-import { doorman } from '~/services/guard'
+import { doorman, verify } from '~/services/guard'
 import { sign, decode } from '~/services/guard'
 import User from '~/api/user/model'
+import { TokenDestroyedError } from 'jwt-redis'
+
+const { secret } = serverConfig?.jwt
 
 let token, 
     apiEndpoint = 'test'
@@ -136,7 +139,7 @@ describe('Auth Test:', () => {
     test(`POST /${apiEndpoint} 200 (Body)`, async (done) => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}`)
-            .send({token: token})
+            .send({ token: token })
         
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
@@ -149,7 +152,7 @@ describe('Auth Test:', () => {
     test(`POST /${apiEndpoint} 200 (Params)`, async (done) => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}`)
-            .query({token: token})
+            .query({ token: token })
         
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
@@ -166,6 +169,27 @@ describe('Auth Test:', () => {
         expect(statusCode).toBe(401),
         expect(header['content-type']).toBe('application/json')
         expect(body.code).toBe('Unauthorized')
+        done()
+    })
+
+
+    test('POST /auth/logout 200', async (done) => {
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/auth/logout`)
+            .set('Authorization', 'Bearer ' + token)
+        expect(statusCode).toBe(200)
+
+        await expect(verify(token, secret)).rejects.toThrow(TokenDestroyedError)
+        done()
+    })
+     
+    test(`POST /${apiEndpoint}/logout 401`, async (done) => {
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/auth/logout`)
+
+        expect(statusCode).toBe(401)
+        await expect(verify(token, secret)).resolves.not.toThrow(TokenDestroyedError)
+
         done()
     })
 
