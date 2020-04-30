@@ -33,7 +33,7 @@ export const dbConfig = {
         useNewUrlParser: true, 
         useUnifiedTopology: true,
         useCreateIndex: true,
-        useFindAndModify: false
+        useFindAndModify: true
     }
 }
 
