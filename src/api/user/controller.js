@@ -56,7 +56,8 @@ export const create = async({ body }, res, next) => {
          * 
          * For now we just ignore the missing welcome mail.
          */
-        //return next(new BadRequestError(res.__(error.message)))
+        // return next(new BadRequestError(res.__(error.message)))
+        return next(new BadRequestError(res.__('email_error')))
     }
 }
 
