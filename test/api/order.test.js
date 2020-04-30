@@ -46,7 +46,8 @@ beforeEach(async (done) => {
             state: 'Baden-Württemberg',
             street: 'Goethestrasse', 
             postalCode: 76135
-        }
+        },
+        deliveryOptions: ['PU']
     })
     
     defaultCategory = await Category.create({

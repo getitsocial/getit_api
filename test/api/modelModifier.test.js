@@ -38,7 +38,8 @@ beforeAll(async (done) => {
             state: 'Baden-Württemberg', 
             street: 'Goethestrasse 26', 
             postalCode: 76135 
-        }
+        },
+        deliveryOptions: ['PU']
     })
 
     adminUser.shops.push(shop._id)

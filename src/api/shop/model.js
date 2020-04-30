@@ -43,6 +43,11 @@ const shopSchema = new Schema({
         street: { type: String, required: true },
         postalCode: { type: Number, required: true },
     },
+    deliveryOptions: {
+        type: [String],
+        required: true,
+        enum: ['PU', 'MU', 'LD']
+    },
     companyType: {
         type: String,
         required: true,

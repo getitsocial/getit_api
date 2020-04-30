@@ -69,15 +69,15 @@ export const deleteShop = async({ user, params }, res, next) => {
 export const createShop = async({ body }, res, next) => {
     
     // Pass values
-    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published } = body
+    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions } = body
 
     try {
 
         // Validate request body
-        await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published })
+        await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions })
 
         // Create object
-        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, users: [author] })
+        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, users: [author] })
 
         await User.updateOne({_id: author._id }, { activeShop: shop._id, '$push': { shops: shop._id }})
 
@@ -93,7 +93,7 @@ export const createShop = async({ body }, res, next) => {
 export const updateShop = async({ body, params, user }, res, next) => {
     // Pass values
     const { id } = params
-    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published } = body
+    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions } = body
 
     try {
 
@@ -121,7 +121,7 @@ export const updateShop = async({ body, params, user }, res, next) => {
 
         
         // merge and save
-        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published }).save()
+        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions }).save()
 
         // Send response 
         res.send(200, data.modelProjection())

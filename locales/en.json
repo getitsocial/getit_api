@@ -2,5 +2,6 @@
 	"You can't get the active shop of other users": "You can't get the active shop of other users",
 	"You can't delete other users": "You can't delete other users",
 	"not a valid shop": "not a valid shop",
-	"Validation failed: email: Path `email` is required., password: Path `password` is required.": "Validation failed: Need email and password."
+	"Validation failed: email: Path `email` is required., password: Path `password` is required.": "Validation failed: Need email and password.",
+	"email_error": "email_error"
 }

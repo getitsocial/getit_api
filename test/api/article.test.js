@@ -41,7 +41,8 @@ beforeEach(async () => {
             state: 'Baden-Württemberg', 
             street: 'Goethestrasse', 
             postalCode: 76135 
-        }
+        },
+        deliveryOptions: ['PU']
     })
     
     defaultUser.shops.push(defaultShop._id)

@@ -40,7 +40,8 @@ beforeEach(async (done) => {
             state: 'Baden-Württemberg',
             street: 'Goethestrasse', 
             postalCode: 76135
-        }
+        },
+        deliveryOptions: ['PU']
     })
     // Create object
     defaultUser.activeShop = defaultShop._id

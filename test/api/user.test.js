@@ -38,7 +38,8 @@ beforeEach(async (done) => {
             state: 'Baden-Württemberg', 
             street: 'Goethestrasse 26', 
             postalCode: 76135 
-        }
+        },
+        deliveryOptions: ['PU']
     })
     defaultShop2 = await Shop.create({
         name: 'shopname_1', 
@@ -60,7 +61,8 @@ beforeEach(async (done) => {
             state: 'Baden-Württemberg', 
             street: 'Goethestrasse 26',
             postalCode: 76135
-        }
+        },
+        deliveryOptions: ['PU']
     })
     
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', activeShop: defaultShop1._id, shops: [defaultShop1._id, defaultShop2._id] })

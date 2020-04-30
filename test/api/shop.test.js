@@ -41,7 +41,8 @@ beforeEach(async (done) => {
             state: 'Baden-Württemberg',
             street: 'Goethestrasse',
             postalCode: 76135
-        }
+        },
+        deliveryOptions: ['PU']
     })
 
 
@@ -64,7 +65,8 @@ beforeEach(async (done) => {
             state: 'Baden-Württemberg',
             street: 'Goethestrasse',
             postalCode: 76135
-        }
+        },
+        deliveryOptions: ['PU']
     })
 
     // set shops in user
@@ -147,7 +149,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
                     state: 'state', 
                     street: 'street', 
                     postalCode: 76135 
-                }
+                },
+                deliveryOptions: ['PU']
             })
         
         expect(status).toBe(201)
