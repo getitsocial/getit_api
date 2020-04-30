@@ -11,14 +11,14 @@ export const create = async ({ body }, res, next) => {
 
     try {
         // Find user
-        const response = await userModel.findOne({ email })
+        const user = await userModel.findOne({ email })
 
         // Create reset token
-        let data = await PasswordResetModel.create({ user: response._id })
+        const data = await PasswordResetModel.create({ user: user._id })
 
         link = `${link.replace(/\/$/, '')}/${data.token}`
 
-        await sendDynamicMail({ 
+        await sendDynamicMail({
             toEmail: email,
             templateId: emailTemplates.forgot,
             dynamic_template_data: {
@@ -35,12 +35,13 @@ export const create = async ({ body }, res, next) => {
 
 export const show = async ({ params }, res, next) => {
     // Pass values
-    let { token } = params
+    const { token } = params
 
     try {
         // Find token
-        const { user } = await PasswordResetModel.findOne({ token }).populate('user')
-        res.send(user.modelProjection())
+        const { user: { picture, name }} = await PasswordResetModel.findOne({ token }).populate('user')
+        
+        res.send(200, { picture, name }) 
 
     } catch(error) {
         next(new BadRequestError('No user found with this email.'))
@@ -49,26 +50,28 @@ export const show = async ({ params }, res, next) => {
 
 export const update = async ({ params, body }, res, next) => {
     // Pass values
-    let { token } = params
-    let { password } = body
+    const { token } = params
+    const { password } = body
     
     try {
-        // Validate password
-        await userModel.validate({ password })
 
         // Find token
         const { user } = await PasswordResetModel.findOne({ token }).populate('user')
         
+
+        // Validate password
+        await userModel.validate({ password, email: user.email }) // stupid hack but ok
+
         // Set new password
-        const data = await user.set({ password }).save()
+        await user.set({ password }).save()
         
         // Remove reset token
         await PasswordResetModel.remove({ user })
         
         // Send response 
-        res.send(201, data.modelProjection())
+        res.send(204)
         
     } catch(error) {
-        next(new BadRequestError('Not valid token!'))
+        next(new BadRequestError(error))
     } 
 }
