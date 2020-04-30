@@ -117,7 +117,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body._id).toBe('string')
         expect(typeof body.role).toBe('string')
         expect(body.role).toBe('admin')
-    })  
+    }) 
     // Get active shop
     test(`GET ${serverConfig.endpoint}/users/me/shops/active 200`, async () => {
         const { body, statusCode } = await request(server)

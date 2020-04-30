@@ -10,7 +10,7 @@ export const getMe = async({ user }, res, next) => {
     try {
 
         if(!user)
-            return next(new BadRequestError('cannot find user'))
+            return next(new BadRequestError(res.__('cannot find user')))
 
         // Find user
         const result = await model.findById(user._id)
@@ -20,7 +20,7 @@ export const getMe = async({ user }, res, next) => {
 
     } catch (error) {
         /* istanbul ignore next */ 
-        return next(new BadRequestError(error))
+        return next(new BadRequestError(res.__(error.message)))
     }
 }
 
@@ -45,7 +45,6 @@ export const create = async({ body }, res, next) => {
                 username: name
             }
         })
-             
 
         // Send response 
         res.send(201, data.modelProjection())
@@ -54,8 +53,10 @@ export const create = async({ body }, res, next) => {
         /**
          * TODO: Account creation unclear for the user.
          * Particularly if we send a validation email here.
+         * 
+         * For now we just ignore the missing welcome mail.
          */
-        return next(new BadRequestError(res.__('email_error')))
+        //return next(new BadRequestError(res.__(error.message)))
     }
 }
 
@@ -64,7 +65,6 @@ export const update = async({ user, params, body }, res, next) => {
     const { name, picture, email, description, userSettings, location, role } = body
     
     try {
-
         // Find User
         const result = await model.findById(params.id === 'me' ? user._id : params.id)
 
@@ -73,7 +73,7 @@ export const update = async({ user, params, body }, res, next) => {
 
         // Check permissions
         if (!isSelfUpdate && !isAdmin)
-            return next(new BadRequestError('You can\'t change other user\'s data'))
+            return next(new BadRequestError(res.__('You can\'t change other user\'s data')))
 
         // Check if picture is empty
         if(isEmpty(picture) && picture !== undefined) {
@@ -92,7 +92,7 @@ export const update = async({ user, params, body }, res, next) => {
 
     } catch(error) {
         /* istanbul ignore next */ 
-        return next(new BadRequestError(error))
+        return next(new BadRequestError(res.__(error.message)))
     }
 }
 
@@ -106,7 +106,7 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
 
         // Check permissions
         if (!result._id.equals(user._id)) 
-            return next(new UnauthorizedError('You can\'t change other user\'s password'))
+            return next(new UnauthorizedError(res.__('You can\'t change other user\'s password')))
         
         // Save user
         const data = await result.set({ password }).save()
@@ -116,23 +116,21 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
 
     } catch(error) {
         /* istanbul ignore next */ 
-        return next(new BadRequestError(error))
+        return next(new BadRequestError(res.__(error.message)))
     }
 }
 
 
 
 export const deleteUser = async({ user, params }, res, next) => {
-    
     try {
-
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : (params.id === user._id)
 
         // Check permissions
         if (!isSelfUpdate && !isAdmin)
-            return next(new UnauthorizedError('You can\'t delete other users'))
+            return next(new UnauthorizedError(res.__('You can\'t delete other users')))
 
 
         await model.findByIdAndDelete(params.id === 'me' ? user._id : params.id)
@@ -142,13 +140,12 @@ export const deleteUser = async({ user, params }, res, next) => {
 
     } catch (error) {
         /* istanbul ignore next */ 
-        return next(new BadRequestError(error))
+        return next(new BadRequestError(res.__(error.message)))
     }
 }
 
 
 export const getActiveShop = async({ user, params }, res, next) => {
-    
     try {
 
         const isAdmin = user.role === 'admin'
@@ -157,12 +154,12 @@ export const getActiveShop = async({ user, params }, res, next) => {
 
         // Check permissions
         if (!isSelfUpdate && !isAdmin)
-            return next(new UnauthorizedError('You can\'t get the active shop of other users'))
+            return next(new UnauthorizedError(res.__('You can\'t get the active shop of other users')))
 
 
         const { activeShop } = await model.findById(params.id === 'me' ? user._id : params.id).populate('activeShop')
         if (!activeShop) 
-            return next(new NotFoundError('no active shop specified'))
+            return next(new NotFoundError(res.__('no active shop specified')))
 
         res.send(200, activeShop)
 
@@ -185,13 +182,13 @@ export const setActiveShop = async({ user, params, body }, res, next) => {
 
         // Check permissions
         if (!isSelfUpdate && !isAdmin)
-            return next(new UnauthorizedError('You can\'t delete other users'))
+            return next(new UnauthorizedError(res.__('You can\'t delete other users')))
 
 
         const dbUser = await model.findById(params.id === 'me' ? user._id : params.id)
         
         if (!dbUser.shops.includes(shopId)) 
-            return next(new BadRequestError('not a valid shop'))
+            return next(new BadRequestError(res.__('not a valid shop')))
 
         dbUser.set('activeShop', shopId)
 

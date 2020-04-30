@@ -6,11 +6,10 @@ import { comparePassword, providerAuth } from '~/utils'
 /**
  * @throws {BadRequestError} 400 Error - invalid email or password
  */
-const errorHandler = (next) => 
-    next(new BadRequestError('E-Mail oder Passwort falsch.'))
+const errorHandler = (res, next) => 
+    next(new BadRequestError(res.__("wrong email or password")))
 
 const signHandler = async (user, res) => {
-
     // Sign Token
     const token = await sign(user)
     const { _id, role } = await decode(token)
@@ -29,23 +28,22 @@ export const authenticate = async({ body }, res, next) => {
         // Find user
         const user = await model.findOne({ email })
         if(!user) 
-            return errorHandler(next)
+            return errorHandler(res, next)
         
         // Compare password
         const comparedPassword = await comparePassword(password, user.password)
         if(!comparedPassword) 
-            return errorHandler(next)
+            return errorHandler(res, next)
 
         // Sign in user
         await signHandler(user, res)
 
     } catch(error) {
-        return next(new BadRequestError(error))
+        return next(new BadRequestError(res.__(error.message)))
     }
 }
 
 export const providerAuthenticate = async({ body, params }, res, next) => {
-    
     // Pass values
     const { provider } = params
     const { token } = body
