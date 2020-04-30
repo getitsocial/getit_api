@@ -4,6 +4,7 @@ import server from '~/server'
 import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
 import Model from '~/api/user/model'
+import getMe from '~/api/user'
 import Shop from '~/api/shop/model'
 
 let adminUser, 
@@ -73,7 +74,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body._id).toBe('string')
         expect(typeof body.role).toBe('string')
         expect(body.role).toBe('admin')
-    })  
+    }) 
     // Get active shop
     test(`GET ${serverConfig.endpoint}/users/me/shops/active 200`, async () => {
         const { body, statusCode } = await request(server)
