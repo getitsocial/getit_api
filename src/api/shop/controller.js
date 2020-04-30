@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import slugify from 'slugify'
-import { isEmpty, merge } from 'lodash' 
+import { merge } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
