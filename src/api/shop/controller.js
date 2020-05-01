@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import slugify from 'slugify'
-import { mergeWith, uniq, compact, isArray } from 'lodash' 
+import { mergeWith, compact, isArray } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
@@ -131,10 +131,8 @@ export const updateShop = async({ body, params, user }, res, next) => {
                 objValue = srcValue
                 return objValue
             }
-        }
-        ).save()
+        }).save()
 
-        console.log(data)
         // Send response 
         res.send(200, data.modelProjection())
 

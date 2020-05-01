@@ -150,9 +150,11 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
                     street: 'street', 
                     postalCode: 76135 
                 },
-                deliveryOptions: ['PU']
+                deliveryOptions: ['PU'],
+                openingHours: {
+                    monday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false }
+                }
             })
-        
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
         expect((await User.findById(defaultUser._id)).activeShop.toString()).toBe(body._id)
