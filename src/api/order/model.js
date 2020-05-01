@@ -33,7 +33,7 @@ const orderSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {
 
     const view = {}
-    const fields = ['id', 'content']
+    const fields = ['_id', 'items', 'status', 'note']
 
     fields.forEach((field) => { view[field] = item[field] })
     
@@ -41,6 +41,10 @@ export const modelProjection = function(req, item = this, cb) {
         return view
     
     cb(null, view)
+}
+
+orderSchema.methods = {
+    modelProjection
 }
 
 orderSchema.index({'$**': 'text'})
