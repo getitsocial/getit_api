@@ -6,18 +6,20 @@ import Category from '~/api/category/model'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
+import Article from '~/api/article/model'
 
-let defaultCategory, 
+let defaultCategory,
     adminToken,
     defaultShop, 
     defaultUser,
+    adminUser,
     defaultToken,
     apiEndpoint = 'categories'
 
 beforeEach(async (done) => {
 
     // Create user
-    const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser =  await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     defaultShop = await Shop.create({
@@ -50,7 +52,7 @@ beforeEach(async (done) => {
 
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     
-    
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -61,10 +63,31 @@ beforeEach(async (done) => {
     done()
 })
 
+test('Remove articles when deleting a category', async () => {
+    const removeCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
+
+    const defaultArticle = await Article.create({
+        name: 'kebab',
+        articleNumber: '12345',
+        stock: 3,
+        price: 4,
+        size: 'thicc',
+        currency: 'Euro',
+        category: removeCategory._id,
+        author: defaultUser._id,
+        shop: defaultShop._id
+    })
+
+    await removeCategory.remove()
+
+    expect(await Article.findById(defaultArticle._id)).toBeNull()
+
+})
+
 describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     test(`GET /${apiEndpoint} 200`, async () => {
-        const {statusCode, body} = await request(server)
+        const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
@@ -77,6 +100,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined()
     })
+
+    test(`GET /${apiEndpoint} 400 - no active shop`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        expect(statusCode).toBe(400)
+    })
+
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
@@ -100,12 +132,22 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ name: 'hello world', author: defaultUser._id })
+            .send({ name: 'hello world' })
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('hello world')
     })
     
+
+    test(`POST /${apiEndpoint} 201`, async () => {
+        const { status } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ name: 'hello world' })
+        expect(status).toBe(400)
+    })
+    
+
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
@@ -141,31 +183,5 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(status).toBe(404)
     })
-
-    test(`DELETE /${apiEndpoint}/all 401`, async () => {
-        const { status, body } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-        
-        expect(status).toBe(401)
-        expect(body.code).toBe('Unauthorized')
-    })
-
-    test(`DELETE /${apiEndpoint}/all 200`, async () => {
-        const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + adminToken)
-
-        expect(status).toBe(200)
-    })
-
-    test(`DELETE /${apiEndpoint}/all 401`, async () => {
-        const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(status).toBe(401)
-    })
-    
 
 })

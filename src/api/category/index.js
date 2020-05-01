@@ -3,7 +3,7 @@ import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor } from '~/services/modelModifier'
-import { getCategories, deleteAll, createCategory } from './controller'
+import { getCategories, createCategory } from './controller'
 import model, { modelProjection } from './model'
 
 const config = {
@@ -83,20 +83,6 @@ router.patch('/:id',
  */
 router.del('/:id', 
     endpoint.remove())
-
-/**
- * @api {delete} /categories/all Delete all categories
- * @apiName DeleteAllCategorys
- * @apiGroup Category
- * @apiPermission admin
- * @apiParam {String} admintoken admin access token.
- * @apiSuccess (Success 204) 204 No Content.
- * @apiError 401 admin access only.
- */
-router.del('/all', 
-    doorman(['admin']), 
-    deleteAll)
-
 
 /**
  * Export this function

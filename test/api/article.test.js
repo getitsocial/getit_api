@@ -63,6 +63,14 @@ beforeEach(async () => {
         shop: defaultShop._id
     })
     
+    const view = defaultArticle.modelProjection()
+    expect(view.updatedAt).toBeUndefined()
+    expect(view.name).toBe('kebab')
+    expect(view.articleNumber).toBe('12345')
+    expect(view.stock).toBe(3)
+    expect(view.price).toBe(4)
+    expect(view.size).toBe('thicc')
+    expect(view.currency).toBe('Euro')
     
     // Sign in user
     adminToken = await sign(adminUser)

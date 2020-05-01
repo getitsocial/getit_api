@@ -79,7 +79,7 @@ const articleSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {
     
     const view = {}
-    const fields = ['id', 'author', 'name', 'size', 'stock', 'articleNumber', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax']
+    const fields = ['id', 'author', 'name', 'size', 'stock', 'articleNumber', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax', 'currency']
 
     fields.forEach((field) => { view[field] = item[field] })
     

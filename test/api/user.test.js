@@ -128,6 +128,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body._id).toBe(defaultShop1._id.toString())
     })
 
+    // Get active shop
+    test(`GET ${serverConfig.endpoint}/users/me/shops/active 404 no active shop`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/me/shops/active`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        expect(statusCode).toBe(404)
+    })
+
     test(`GET ${serverConfig.endpoint}/users/:id/shops/active 200`, async () => {
         const { body, statusCode } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
@@ -268,6 +277,27 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.name).toEqual('Maxi')
     })
 
+    test(`PATCH /${apiEndpoint}/:id 201 - Delete user picture`, async () => {
+        const { status, body } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser.id}`)
+            .send({ picture: {}, token: adminToken })
+
+        expect(body.picture.id).toBe('placeholder')
+        expect(body.picture.url).toBe('/api/static/placeholder.png')
+
+        expect(status).toBe(201)
+    })
+
+
+
+    test(`PATCH /${apiEndpoint}/:id 401 - Update wrong user`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser.id}`)
+            .send({ name: 'Maxi', token: defaultToken })
+
+        expect(status).toBe(401)
+    })
+
     test(`PATCH /${apiEndpoint}/me 201 - Update user`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/me`)
@@ -350,6 +380,16 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.role).toEqual('user')
         expect(body.name).toEqual('Maximilian')
     })
+
+    test(`PATCH /${apiEndpoint}/:id/password 401 - Update wrong user password`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}/password`)
+            .send({ password: 'NewPasswort123!', token: defaultToken })
+
+        expect(status).toBe(401)
+    })
+
+
 
     test(`DELETE ${serverConfig.endpoint}/users/me 204`, async () => {
         const { statusCode } = await request(server)

@@ -78,6 +78,7 @@ const shopSchema = new Schema({
         url: { type: String, default: '/api/static/placeholder-bg.png' },
         id: { type: String, default: 'placeholder' }
     },
+    // Should be an enum
     size: {
         type: Number,
         required: true
@@ -106,7 +107,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['_id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates']
+    const fields = ['_id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates', 'openingHours', 'deliveryOptions']
 
     fields.forEach((field) => { view[field] = item[field] })
 

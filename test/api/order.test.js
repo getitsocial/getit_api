@@ -76,7 +76,15 @@ beforeEach(async (done) => {
         status: 'open', 
         note: 'kek'
     })
-        
+    
+    const view = defaultOrder.modelProjection()
+
+    expect(Array.isArray(view.items)).toBe(true)
+    expect(view.status).not.toBeUndefined()
+    expect(view.note).not.toBeUndefined()
+    expect(view.status).not.toBeUndefined()
+ 
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
