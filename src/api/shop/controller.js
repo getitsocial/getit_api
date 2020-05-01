@@ -12,7 +12,7 @@ export const checkName = async(req, res, next) => {
         const user = await User.findById(req.user)
 
         // Body name is required
-        if(!name) new BadRequestError('name is required')
+        if (!name) return next(new BadRequestError('name is required'))
 
         // Modify name
         const slugName = slugify(name, {
@@ -20,11 +20,11 @@ export const checkName = async(req, res, next) => {
         })
 
         // Try to find existing shop
-        const shop = await Shop.findOne({shopId: slugName })
+        const shop = await Shop.findOne({ shopId: slugName })
         
         // Check if shop equals the users shop (shop edit mode)
         if (shop && !shop.equals(user?.activeShop)) 
-            throw new ConflictError('shopname exists already')
+            return next(new ConflictError('shopname exists already'))
         
         res.send()
     } catch (error) {
