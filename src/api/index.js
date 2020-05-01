@@ -9,6 +9,7 @@ import passwordReset from './password-reset'
 import auth from './auth'
 import maps from './maps'
 import media from './media'
+import verification from './verification'
 
 const router = new Router()
 
@@ -46,6 +47,7 @@ router.add('/users', user)
 router.add('/auth', auth)
 router.add('/maps', maps)
 router.add('/media', media)
+router.add('/verification', verification)
 
 
 export default router

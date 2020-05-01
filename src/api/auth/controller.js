@@ -1,4 +1,4 @@
-import { BadRequestError } from 'restify-errors'
+import { BadRequestError, UnauthorizedError } from 'restify-errors'
 import model from '~/api/user/model'
 import { sign, decode, destroy } from '~/services/guard'
 import { comparePassword, providerAuth } from '~/utils'
@@ -27,12 +27,15 @@ export const authenticate = async({ body }, res, next) => {
 
         // Find user
         const user = await model.findOne({ email })
-        if(!user) 
+        if (!user) 
             return errorHandler(res, next)
+        
+        if (!user.verified)
+            return next(new UnauthorizedError('mail is not verified'))
         
         // Compare password
         const comparedPassword = await comparePassword(password, user.password)
-        if(!comparedPassword) 
+        if (!comparedPassword) 
             return errorHandler(res, next)
 
         // Sign in user

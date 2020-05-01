@@ -414,7 +414,7 @@ describe('createFromService', () => {
             picture: {
                 url: '/api/static/placeholder.png',
                 id: 'placeholder'
-            }
+            },
         }
     })
 
@@ -430,6 +430,7 @@ describe('createFromService', () => {
                 // keep
                 expect(updatedUser.id).toBe(adminUser.id)
                 expect(updatedUser.email).toBe(adminUser.email)
+                expect(updatedUser.verified).toBe(true)
                 // update
                 expect(updatedUser.name).toBe(serviceUser.name)
                 expect(updatedUser.services[service]).toBe(serviceUser.id)
@@ -442,6 +443,8 @@ describe('createFromService', () => {
                 // keep
                 expect(updatedUser.id).toBe(adminUser.id)
                 expect(updatedUser.email).toBe(adminUser.email)
+                expect(updatedUser.verified).toBe(true)
+
                 // update
                 expect(updatedUser.name).toBe(serviceUser.name)
                 expect(updatedUser.services[service]).toBe(serviceUser.id)
@@ -455,6 +458,8 @@ describe('createFromService', () => {
                 expect(createdUser.services[service]).toBe(serviceUser.id)
                 expect(createdUser.name).toBe(serviceUser.name)
                 expect(createdUser.email).toBe(serviceUser.email)
+                expect(createdUser.verified).toBe(true)
+
             })
         })
     })

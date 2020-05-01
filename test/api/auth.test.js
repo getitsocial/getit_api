@@ -32,7 +32,8 @@ beforeAll(async (done) => {
 
 beforeEach(async () => {
     // Create User
-    const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin', verified: true })
+    await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'admin' }) // unverified user
     
     expect(typeof adminUser).toBe('object')
     expect(typeof adminUser._id).toBe('object')
@@ -81,6 +82,15 @@ describe('Auth Test:', () => {
         expect(typeof body.role).toBe('string')
         expect(typeof body.token).toBe('string')
         expect(body.role).toBe('admin')
+        done()
+    })
+
+    test(`POST ${serverConfig.endpoint}/auth 401 - without verified email`, async (done) => {
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/auth`)
+            .send({ email: 'max2@moritz.com', password: 'Max123!!!' })
+        
+        expect(statusCode).toBe(401)
         done()
     })
 

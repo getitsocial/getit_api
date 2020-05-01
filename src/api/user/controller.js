@@ -2,7 +2,9 @@ import { BadRequestError, UnauthorizedError, NotFoundError } from 'restify-error
 import { merge, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
-import model from './model'
+import User from './model'
+import Verification from '~/api/verification/model'
+
 
 const { emailTemplates } = serverConfig
 
@@ -13,7 +15,7 @@ export const getMe = async({ user }, res, next) => {
             return next(new BadRequestError(res.__('cannot find user')))
 
         // Find user
-        const result = await model.findById(user._id)
+        const result = await User.findById(user._id)
         
         // Send response 
         res.send(200, result.modelProjection())
@@ -31,13 +33,15 @@ export const create = async({ body }, res, next) => {
     try {
 
         // Validate request body
-        await model.validate({ email, password, name })
+        await User.validate({ email, password, name })
     
 
         // Create object
-        const data = await model.create({ email, password, name })
-
-        
+        const user = await User.create({ email, password, name })
+        const { token } = await Verification.create({ user: user._id })
+    
+        // Somehow pass the verification link here...
+        console.log(`https://apidomain.com/api/verification/${token}`)
         // Send welcome Mail
         await sendDynamicMail({ toEmail: email,
             templateId: emailTemplates.welcome,
@@ -47,7 +51,7 @@ export const create = async({ body }, res, next) => {
         })
 
         // Send response 
-        res.send(201, data.modelProjection())
+        res.send(201, user.modelProjection())
 
     } catch (error) {
         /**
@@ -67,7 +71,7 @@ export const update = async({ user, params, body }, res, next) => {
     
     try {
         // Find User
-        const result = await model.findById(params.id === 'me' ? user._id : params.id)
+        const result = await User.findById(params.id === 'me' ? user._id : params.id)
 
         const isAdmin = user.role === 'admin'
         const isSelfUpdate = params.id === 'me' ? true : (result._id.equals(user._id))
@@ -103,7 +107,7 @@ export const updatePassword = async ({ body , params, user }, res, next) => {
     
     try {
         // Find User
-        const result = await model.findById(params.id === 'me' ? user._id : params.id)
+        const result = await User.findById(params.id === 'me' ? user._id : params.id)
 
         // Check permissions
         if (!result._id.equals(user._id)) 
@@ -134,7 +138,7 @@ export const deleteUser = async({ user, params }, res, next) => {
             return next(new UnauthorizedError(res.__('You can\'t delete other users')))
 
 
-        await model.findByIdAndDelete(params.id === 'me' ? user._id : params.id)
+        await User.findByIdAndDelete(params.id === 'me' ? user._id : params.id)
         
         // Send response 
         res.send(204)
@@ -158,7 +162,7 @@ export const getActiveShop = async({ user, params }, res, next) => {
             return next(new UnauthorizedError(res.__('You can\'t get the active shop of other users')))
 
 
-        const { activeShop } = await model.findById(params.id === 'me' ? user._id : params.id).populate('activeShop')
+        const { activeShop } = await User.findById(params.id === 'me' ? user._id : params.id).populate('activeShop')
         if (!activeShop) 
             return next(new NotFoundError(res.__('no active shop specified')))
 
@@ -186,7 +190,7 @@ export const setActiveShop = async({ user, params, body }, res, next) => {
             return next(new UnauthorizedError(res.__('You can\'t delete other users')))
 
 
-        const dbUser = await model.findById(params.id === 'me' ? user._id : params.id)
+        const dbUser = await User.findById(params.id === 'me' ? user._id : params.id)
         
         if (!dbUser.shops.includes(shopId)) 
             return next(new BadRequestError(res.__('not a valid shop')))

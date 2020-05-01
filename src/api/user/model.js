@@ -65,6 +65,10 @@ const userSchema = new Schema({
         required: false,
         maxlength: 2000
     },
+    verified: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
     toJSON: {
@@ -126,10 +130,11 @@ userSchema.statics = {
             user.services[service] = id
             user.name = name
             user.picture = picture
+            user.verified = true
             return user.save()
         } else {
             const password = randtoken.generate(32, 'aA1!&bB2§/cC3$(dD4%)')
-            const newUser =  this.create({ services: { [service]: id }, email, password, name, picture })
+            const newUser =  this.create({ services: { [service]: id }, email, password, name, picture, verified: true })
 
             if (process.env.NODE_ENV === 'prod') {
                 // Send welcome Mail
