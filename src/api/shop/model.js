@@ -51,6 +51,7 @@ const shopSchema = new Schema({
     },
     // TODO: Add validation + tests + virtuals?
     openingHours: {
+        type: Object,
         monday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
         tuesday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
         wednesday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
