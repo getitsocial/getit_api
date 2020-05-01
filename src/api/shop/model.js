@@ -49,6 +49,16 @@ const shopSchema = new Schema({
         street: { type: String, required: true },
         postalCode: { type: Number, required: true },
     },
+    // TODO: Add validation + tests + virtuals?
+    openingHours: {
+        monday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        tuesday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        wednesday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        thursday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        friday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        saturday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        sunday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+    },
     deliveryOptions: {
         type: [String],
         required: true,
