@@ -2,17 +2,12 @@ import { BadRequestError } from 'restify-errors'
 import Category from './model'
 import User from '~/api/user/model'
 
-// Get Active shop
-const getActiveShop = async(user, next) => {
-    const { activeShop } = await User.findById(user._id)
-    if (!activeShop) return next(new BadRequestError('no active shop specified'))
-    return activeShop
-}
-
 export const getCategories = async({ user }, res, next) => {
     try {
         // Find active shop
-        const activeShop = await getActiveShop(user, next)
+        const { activeShop } = await User.findById(user._id)
+
+        if (!activeShop) return next(new BadRequestError('no active shop specified'))
 
         // Find objects        
         const categories = await Category.aggregate([
@@ -37,7 +32,6 @@ export const getCategories = async({ user }, res, next) => {
         res.send(200, categories)
 
     } catch(error) {
-        console.log(error)
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }
@@ -51,7 +45,9 @@ export const createCategory = async({ body }, res, next) => {
     try {
 
         // Find active shop
-        const activeShop = await getActiveShop(author, next)
+        const { activeShop } = await User.findById(author._id)
+
+        if (!activeShop) return next(new BadRequestError('no active shop specified'))
 
         // Validate request body
         await Category.validate({ author: author._id, name, shop: activeShop })
