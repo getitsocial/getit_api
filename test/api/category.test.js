@@ -6,8 +6,9 @@ import Category from '~/api/category/model'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
+import Article from '~/api/article/model'
 
-let defaultCategory, 
+let defaultCategory,
     adminToken,
     defaultShop, 
     defaultUser,
@@ -51,7 +52,7 @@ beforeEach(async (done) => {
 
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     
-    
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -60,6 +61,27 @@ beforeEach(async (done) => {
     expect(isJWT(defaultToken)).toBe(true)
     
     done()
+})
+
+test('Remove articles when deleting a category', async () => {
+    const removeCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
+
+    const defaultArticle = await Article.create({
+        name: 'kebab',
+        articleNumber: '12345',
+        stock: 3,
+        price: 4,
+        size: 'thicc',
+        currency: 'Euro',
+        category: removeCategory._id,
+        author: defaultUser._id,
+        shop: defaultShop._id
+    })
+
+    await removeCategory.remove()
+
+    expect(await Article.findById(defaultArticle._id)).toBeNull()
+
 })
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
@@ -161,31 +183,5 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(status).toBe(404)
     })
-
-    test(`DELETE /${apiEndpoint}/all 401`, async () => {
-        const { status, body } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-        
-        expect(status).toBe(401)
-        expect(body.code).toBe('Unauthorized')
-    })
-
-    test(`DELETE /${apiEndpoint}/all 200`, async () => {
-        const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + adminToken)
-
-        expect(status).toBe(200)
-    })
-
-    test(`DELETE /${apiEndpoint}/all 401`, async () => {
-        const { status } = await request(server)
-            .delete(`${serverConfig.endpoint}/${apiEndpoint}/all`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(status).toBe(401)
-    })
-    
 
 })
