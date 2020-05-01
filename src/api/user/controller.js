@@ -78,7 +78,7 @@ export const update = async({ user, params, body }, res, next) => {
 
         // Check permissions
         if (!isSelfUpdate && !isAdmin)
-            return next(new BadRequestError(res.__('You can\'t change other user\'s data')))
+            return next(new UnauthorizedError(res.__('You can\'t change other user\'s data')))
 
         // Check if picture is empty
         if(isEmpty(picture) && picture !== undefined) {
