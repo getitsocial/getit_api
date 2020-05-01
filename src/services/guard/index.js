@@ -47,8 +47,6 @@ export const doorman = (passedRoles) =>
         
     ]
 
-export const validateMail = async (req, id) => (await decode(extractToken(req)))._id === id
-
 export const masterman = () => ((req, res, next) => 
     (serverConfig.masterKey === extractToken(req)) ? next() : next(new UnauthorizedError())
 )
