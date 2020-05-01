@@ -63,9 +63,3 @@ export const createCategory = async({ body }, res, next) => {
         return next(new BadRequestError(error))
     }
 }
-
-export const deleteAll = async(req, res) => {
-    await Category.deleteMany()
-    res.json('success')
-}
-
