@@ -70,6 +70,22 @@ beforeAll(async (done) => {
             }
         }))
 
+        router.post('/test/author/nodoorman', addAuthor(), (({ body }, res, next) => {
+            try {
+                res.json({ ...body })
+            } catch (error) {      
+                next(error)
+            }
+        }))
+
+        router.post('/test/shop/nodoorman', addShop(), (({ body }, res, next) => {
+            try {
+                res.json({ ...body })
+            } catch (error) {      
+                next(error)
+            }
+        }))
+
 
         router.applyRoutes(server)
     })
@@ -79,7 +95,7 @@ beforeAll(async (done) => {
 })
 describe('modelModifier Test:',  () => {
 
-    test(`GET /${apiEndpoint} 200 addShop`, async (done) => {
+    test(`POST /${apiEndpoint} 200 addShop`, async (done) => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}/shop`)
             .set('Authorization', 'Bearer ' + adminToken)
@@ -93,7 +109,7 @@ describe('modelModifier Test:',  () => {
         done()
     })
 
-    test(`GET /${apiEndpoint} 200 addAuthor`, async (done) => {
+    test(`POST /${apiEndpoint} 200 addAuthor`, async (done) => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}/author`)
             .set('Authorization', 'Bearer ' + adminToken)
@@ -102,6 +118,50 @@ describe('modelModifier Test:',  () => {
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
         expect(body.author._id).toBe(adminUser._id.toString()) 
+
+        done()
+    })
+
+    test(`POST /${apiEndpoint} 401 addAuthor`, async (done) => {
+        const { statusCode } = await request(server)
+            .post(`/${apiEndpoint}/author/nodoorman`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ hello: 'there' })
+            
+        expect(statusCode).toBe(401)
+        done()
+    })
+
+    test(`POST /${apiEndpoint} 401 addShop`, async (done) => {
+        const { statusCode } = await request(server)
+            .post(`/${apiEndpoint}/shop/nodoorman`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ hello: 'there' })
+            
+        expect(statusCode).toBe(401)
+        done()
+    })
+
+
+
+    test(`POST /${apiEndpoint} 400 addShop`, async (done) => {
+        const { statusCode } = await request(server)
+            .post(`/${apiEndpoint}/shop`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        
+        expect(statusCode).toBe(400)
+
+        done()
+    })
+
+    test(`POST /${apiEndpoint} 400 addAuthor`, async (done) => {
+        const { statusCode } = await request(server)
+            .post(`/${apiEndpoint}/author`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        
+        expect(statusCode).toBe(400)
 
         done()
     })

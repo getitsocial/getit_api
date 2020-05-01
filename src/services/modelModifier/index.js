@@ -3,11 +3,13 @@ import User from '~/api/user/model'
 
 export const addAuthor = () => (({ user, body }, res, next) => {
     
-    if(!user)
-        next(new UnauthorizedError())
+    if (!user) {
+        return next(new UnauthorizedError())
+    }
 
-    if(!body)
-        next(new BadRequestError())
+    if (!body) {
+        return next(new BadRequestError())
+    }
     
     body.author = user
     
@@ -16,14 +18,17 @@ export const addAuthor = () => (({ user, body }, res, next) => {
 
 
 export const addShop = () => ( async({ user, body }, res, next) => {
+
+    if (!user) {
+        return next(new UnauthorizedError())
+    }
+
+    if (!body) {
+        return next(new BadRequestError())
+    }
+
     const fullUser = await User.findById(user)
 
-    if(!user)
-        next(new UnauthorizedError())
-
-    if(!body)
-        next(new BadRequestError())
-    
     body.shop = fullUser.activeShop
 
     next()
