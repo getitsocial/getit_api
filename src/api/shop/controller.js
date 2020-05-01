@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import slugify from 'slugify'
-import { mergeWith, compact, isArray } from 'lodash' 
+import { merge, compact } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
@@ -28,7 +28,7 @@ export const checkName = async(req, res, next) => {
         const shop = await Shop.findOne({shopId: slugName })
         
         // Check if shop equals the users shop (shop edit mode)
-        if(shop && !shop.equals(user?.activeShop)) 
+        if (shop && !shop.equals(user?.activeShop)) 
             throw new ConflictError('shopname exists already')
         
         res.send()
@@ -69,7 +69,7 @@ export const deleteShop = async({ user, params }, res, next) => {
 export const createShop = async({ body }, res, next) => {
     
     // Pass values
-    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions } = body
+    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours } = body
 
     try {
 
@@ -77,7 +77,7 @@ export const createShop = async({ body }, res, next) => {
         await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions })
 
         // Create object
-        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, users: [author] })
+        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, users: [author], openingHours })
 
         await User.updateOne({_id: author._id }, { activeShop: shop._id, '$push': { shops: shop._id }})
 
@@ -93,7 +93,7 @@ export const createShop = async({ body }, res, next) => {
 export const updateShop = async({ body, params, user }, res, next) => {
     // Pass values
     const { id } = params
-    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions } = body
+    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours } = body
 
     try {
 
@@ -121,17 +121,11 @@ export const updateShop = async({ body, params, user }, res, next) => {
 
 
         const compactArray = compact(deliveryOptions)
-
+        // console.log(shop)
         // const data = await Shop.findByIdAndUpdate(id, body)
         // merge and save
         // const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published,  deliveryOptions: compactArray }).save()
-        const data = await mergeWith(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published,  deliveryOptions: compactArray }, function(objValue, srcValue) {
-            if (isArray(objValue)) {
-                objValue = []
-                objValue = srcValue
-                return objValue
-            }
-        }).save()
+        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published,  deliveryOptions: compactArray, openingHours }).save()
 
         // Send response 
         res.send(200, data.modelProjection())
