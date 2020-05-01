@@ -88,8 +88,8 @@ describe('Auth Test:', () => {
     test(`POST ${serverConfig.endpoint}/auth 401 - without verified email`, async (done) => {
         const { statusCode } = await request(server)
             .post(`${serverConfig.endpoint}/auth`)
-            .send({ email: 'max2@moritz.com', password: 'Max123!!!' })
-        
+            .send({ email: 'max2@moritz.com', password: 'Max123!!!', token: serverConfig.masterKey  })
+
         expect(statusCode).toBe(401)
         done()
     })
