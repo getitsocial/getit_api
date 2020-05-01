@@ -39,14 +39,14 @@ export const create = async({ body }, res, next) => {
         // Create object
         const user = await User.create({ email, password, name })
         const { token } = await Verification.create({ user: user._id })
-    
-        // Somehow pass the verification link here...
-        console.log(`https://apidomain.com/api/verification/${token}`)
+        const link = `${process.env.APP_URL}/account/verify/${token}`
+
         // Send welcome Mail
         await sendDynamicMail({ toEmail: email,
             templateId: emailTemplates.welcome,
             dynamic_template_data: {
-                username: name
+                username: name,
+                link
             }
         })
 

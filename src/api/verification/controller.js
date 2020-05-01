@@ -12,7 +12,7 @@ export const verify = async ({ params }, res, next) => {
         
         await user.set({ verified: true }).save()
 
-        res.send(204) 
+        res.send(201) 
 
     } catch(error) {
         next(new BadRequestError('token invalid'))
