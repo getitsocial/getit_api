@@ -4,11 +4,6 @@ import { merge, compact } from 'lodash'
 import User from '~/api/user/model'
 import Shop from './model'
 
-export const deleteAll = async(req, res) => {
-    await Shop.deleteMany()
-    res.json('success')
-}
-
 
 export const checkName = async(req, res, next) => {
     try {
