@@ -110,7 +110,34 @@ beforeEach(async (done) => {
 })
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
-    
+
+    test(`POST /${apiEndpoint}/checkName 200`, async () => {
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}/checkName`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ name: 'somerandomassshopname_42' })
+
+        expect(statusCode).toBe(200)
+    })
+
+    test(`POST /${apiEndpoint}/checkName 400`, async () => {
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}/checkName`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ wrongparam: 'somerandomassshopname_42' })
+
+        expect(statusCode).toBe(400)
+    })
+
+    test(`POST /${apiEndpoint}/checkName 409 existing name`, async () => {
+        const { statusCode } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}/checkName`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ name: 'shopname_1' })
+            
+        expect(statusCode).toBe(409)
+    }) 
+
     test(`GET /${apiEndpoint} 200`, async () => {
         const {statusCode, body} = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
@@ -425,6 +452,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(204)
     })
+
+    test(`DELETE /${apiEndpoint}/:id 401`, async () => {
+        const { status } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${adminShop._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(status).toBe(401)
+    })
+
 
     test(`DELETE /${apiEndpoint}/:id 404`, async () => {
         const { status } = await request(server)
