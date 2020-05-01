@@ -21,6 +21,12 @@ const shopSchema = new Schema({
             type: String, 
             required: false 
         },
+        facebook: { // TODO: Add validation
+            type: String,
+        },
+        instagram: { // TODO: Add validation
+            type: String,
+        }
     },
     shopId: { 
         type: String,
