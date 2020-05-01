@@ -14,7 +14,7 @@ let adminToken,
     defaultPublicId,
     apiEndpoint = 'media'
 
-beforeEach(async (done) => {
+beforeAll(async (done) => {
 
     // Create user
     const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
