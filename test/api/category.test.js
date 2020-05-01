@@ -11,13 +11,14 @@ let defaultCategory,
     adminToken,
     defaultShop, 
     defaultUser,
+    adminUser,
     defaultToken,
     apiEndpoint = 'categories'
 
 beforeEach(async (done) => {
 
     // Create user
-    const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser =  await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     defaultShop = await Shop.create({
@@ -64,7 +65,7 @@ beforeEach(async (done) => {
 describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     test(`GET /${apiEndpoint} 200`, async () => {
-        const {statusCode, body} = await request(server)
+        const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
@@ -77,6 +78,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined()
     })
+
+    test(`GET /${apiEndpoint} 400 - no active shop`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        expect(statusCode).toBe(400)
+    })
+
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
@@ -100,12 +110,22 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ name: 'hello world', author: defaultUser._id })
+            .send({ name: 'hello world' })
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('hello world')
     })
     
+
+    test(`POST /${apiEndpoint} 201`, async () => {
+        const { status } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ name: 'hello world' })
+        expect(status).toBe(400)
+    })
+    
+
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
