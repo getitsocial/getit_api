@@ -164,7 +164,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { phone: 42 }})
+            .send({ contact: { phone: 42, instagram: 'https://www.instagram.com/barackobama/?hl=de' }})
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
         expect(body.contact.phone).toEqual('42')
