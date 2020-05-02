@@ -81,7 +81,7 @@ const shopSchema = new Schema({
     size: {
         type: Number,
         required: true,
-        enum: [5, 20, 200, 1000] // 1-5, 5-20, 20-200, 200-1000
+        enum: [1, 5, 20, 200 ] // 1-5, 5-20, 20-200, 200-1000
     },
     author: {
         type: Schema.Types.ObjectId,
