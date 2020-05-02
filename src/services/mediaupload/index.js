@@ -8,9 +8,11 @@ export const mediaSettings = (folder) => ({
     tags: ['bucket', 'temporary'],
     folder,
     use_filename: false,
-    crop: 'imagga_scale',
+    crop: 'imagga_crop',
     secure: true,
-    width: 1000
+    width: 1000,
+    sign_url: true,
+    height: 1000
 })
 
 export const uploadToCloudinary = (image, options) => {
