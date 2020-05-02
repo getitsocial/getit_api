@@ -24,7 +24,7 @@ beforeEach(async (done) => {
 
     defaultShop = await Shop.create({
         name: 'shopname', 
-        size: 3, 
+        size: 5, 
         logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
         category: 'clothing', 
         contact: { phone: 12345, instagram: 'https://www.instagram.com/barackobama/?hl=de' }, 
@@ -58,7 +58,7 @@ beforeEach(async (done) => {
 
     adminShop = await Shop.create({
         name: 'shopname_1', 
-        size: 3, 
+        size: 5, 
         logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
         category: 'clothing', 
         contact: { phone: 12345 }, 
@@ -179,7 +179,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({
                 name: 'shopname_9',
-                size: 3,
+                size: 5,
                 category: 'clothing', 
                 contact: { 
                     phone: 12345 
@@ -253,7 +253,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({
                 name: 'shopname',
-                size: 3,
+                size: 5,
                 category: 'clothing', 
                 contact: { 
                     phone: 12345,

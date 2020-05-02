@@ -20,7 +20,7 @@ beforeEach(async (done) => {
 
     defaultShop1 = await Shop.create({ 
         name: 'shopname', 
-        size: 3, 
+        size: 5, 
         category: 'clothing',
         contact: { 
             phone: 12345
@@ -43,7 +43,7 @@ beforeEach(async (done) => {
     })
     defaultShop2 = await Shop.create({
         name: 'shopname_1', 
-        size: 3,
+        size: 5,
         category: 'clothing', 
         contact: { 
             phone: 12345

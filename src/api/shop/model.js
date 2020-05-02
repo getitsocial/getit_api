@@ -78,10 +78,10 @@ const shopSchema = new Schema({
         url: { type: String, default: '/api/static/placeholder-bg.png' },
         id: { type: String, default: 'placeholder' }
     },
-    // Should be an enum
     size: {
         type: Number,
-        required: true
+        required: true,
+        enum: [5, 20, 200, 1000] // 1-5, 5-20, 20-200, 200-1000
     },
     author: {
         type: Schema.Types.ObjectId,

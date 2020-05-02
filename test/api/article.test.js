@@ -24,7 +24,7 @@ beforeEach(async () => {
 
     defaultShop = await Shop.create({
         name: 'shopname', 
-        size: 3, 
+        size: 5, 
         category: 'clothing', 
         contact: { 
             phone: 12345 
