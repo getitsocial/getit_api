@@ -1,6 +1,6 @@
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import slugify from 'slugify'
-import { merge, compact } from 'lodash' 
+import { mergeWith, isArray } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
 
@@ -114,14 +114,14 @@ export const updateShop = async({ body, params, user }, res, next) => {
             logo.id ='placeholder'
         }
 
-
-        const compactArray = compact(deliveryOptions)
-        // console.log(shop)
-        // const data = await Shop.findByIdAndUpdate(id, body)
         // merge and save
-        // const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published,  deliveryOptions: compactArray }).save()
-        const data = await merge(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published,  deliveryOptions: compactArray, openingHours }).save()
 
+        const data = mergeWith(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours }, (obj, src) => {
+            if (isArray(obj)) return src
+        })
+        
+        await data.save()
+        
         // Send response 
         res.send(200, data.modelProjection())
 

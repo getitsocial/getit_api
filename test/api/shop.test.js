@@ -314,7 +314,34 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
         expect(body.deliveryOptions.length).toBe(2)
         expect(body.deliveryOptions).toEqual(['MU', 'LD'])
+        // make sure that if 'logo' is undefined in our patch we dont set the placeholder logo on accident
+        expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
+    })
 
+    test(`PATCH /${apiEndpoint}/:id 200 delete deliveryOptions`, async () => {
+        const { status, body } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ contact: { phone: 42 }, openingHours: { monday: { allDayClosed: true }}, deliveryOptions: [] })
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+
+        // make sure we only update the updated fields in our nested object, not everything
+        expect(body.contact.phone).toEqual('42')
+        expect(body.contact.instagram).toBe('https://www.instagram.com/barackobama/?hl=de')
+
+        // opening hours
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        days.forEach((day) => {
+            expect(body.openingHours[day].open).toBe(1000)
+            expect(body.openingHours[day].close).toBe(1001)
+            expect(body.openingHours[day].allDayClosed).toBe(day === 'monday')
+            expect(body.openingHours[day].allDayOpen).toBe(false)
+        })
+
+        expect(Array.isArray(body.deliveryOptions)).toBe(true)
+        expect(body.deliveryOptions.length).toBe(0)
+        expect(body.deliveryOptions).toEqual([])
         // make sure that if 'logo' is undefined in our patch we dont set the placeholder logo on accident
         expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
     })
