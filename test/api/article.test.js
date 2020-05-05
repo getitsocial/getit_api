@@ -1,5 +1,6 @@
 import request from 'supertest'
 import { isJWT } from 'validator'
+import ShortUniqueId from 'short-unique-id'
 import server from '~/server'
 import { serverConfig } from '~/config'
 import Article from '~/api/article/model'
@@ -15,6 +16,8 @@ let defaultArticle,
     defaultShop,
     defaultToken,
     apiEndpoint = 'articles'
+
+let articleNumber = new ShortUniqueId()()
 
 beforeEach(async () => {
 
@@ -50,10 +53,9 @@ beforeEach(async () => {
     defaultUser.save()
 
     defaultCategory = await Category.create({ name: 'things', author: defaultUser._id, shop: defaultShop._id } )
-    
     defaultArticle = await Article.create({
         name: 'kebab',
-        articleNumber: '12345',
+        articleNumber,
         stock: 3,
         price: 4,
         size: 'thicc',
@@ -66,7 +68,7 @@ beforeEach(async () => {
     const view = defaultArticle.modelProjection()
     expect(view.updatedAt).toBeUndefined()
     expect(view.name).toBe('kebab')
-    expect(view.articleNumber).toBe('12345')
+    expect(view.articleNumber).toBe(articleNumber)
     expect(view.stock).toBe(3)
     expect(view.price).toBe(4)
     expect(view.size).toBe('thicc')
@@ -117,7 +119,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({
                 name: 'kebab',
-                articleNumber: '12345',
                 stock: 3,
                 price: 4,
                 size: 'thicc',

@@ -84,7 +84,7 @@ export const modelProjection = function(req, item = this, cb) {
     const fields = ['id', 'author', 'name', 'size', 'stock', 'articleNumber', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax', 'currency']
 
     fields.forEach((field) => { view[field] = item[field] })
-    
+
     if(!cb)
         return view
     
