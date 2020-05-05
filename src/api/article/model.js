@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import ShortUniqueId from 'short-unique-id'
 
 const articleSchema = new Schema({
     name: { 
@@ -8,8 +9,9 @@ const articleSchema = new Schema({
     },
     articleNumber: {
         type: String,
-        required: false,
-        maxlength: 25
+        maxlength: 25,
+        unique: true, 
+        default: new ShortUniqueId()()
     },
     stock: { 
         type: Number,

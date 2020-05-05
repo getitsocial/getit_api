@@ -4,5 +4,8 @@
 	"not a valid shop": "not a valid shop",
 	"Validation failed: email: Path `email` is required., password: Path `password` is required.": "Validation failed: Need email and password.",
 	"email_error": "Email already registered",
-	"wrong email or password": "wrong email or password"
+	"wrong email or password": "wrong email or password",
+	"no active shop specified": "no active shop specified",
+	"You can't change other user's data": "You can't change other user's data",
+	"You can't change other user's password": "You can't change other user's password"
 }
