@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { addAuthor } from '~/services/modelModifier'
+import { addAuthor, showShop } from '~/services/modelModifier'
 import { getCategories, createCategory } from './controller'
 import model, { modelProjection } from './model'
 
@@ -33,7 +33,8 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
 router.get('', 
-    doorman(['user', 'admin']), 
+    doorman(['user', 'admin']),
+    showShop(),
     getCategories)
 
 /**
@@ -60,6 +61,7 @@ router.get('/:id',
  */
 router.post('', 
     [doorman(['user', 'admin']), addAuthor()], 
+    showShop(),
     createCategory)
 
 /**

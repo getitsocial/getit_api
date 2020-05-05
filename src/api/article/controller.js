@@ -1,6 +1,5 @@
 import { BadRequestError, UnauthorizedError, NotFoundError } from 'restify-errors'
 import { mergeWith, isArray } from 'lodash' 
-
 import Article from './model'
 
 
