@@ -88,7 +88,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, articleNumber }))
+            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id }))
 
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
