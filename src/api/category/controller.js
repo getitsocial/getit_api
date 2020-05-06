@@ -11,7 +11,7 @@ export const getCategories = async({ shop }, res, next) => {
         const categories = await Category.aggregate([
             {   
                 $match: { 
-                    shop: shop 
+                    shop: shop._id
                 }
             },
             {

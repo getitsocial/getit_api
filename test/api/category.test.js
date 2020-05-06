@@ -52,7 +52,6 @@ beforeEach(async (done) => {
 
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     
-
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -92,7 +91,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
 
         const firstItem = body[0]
-        
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
         expect(typeof firstItem.name).toEqual('string')

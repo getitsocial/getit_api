@@ -7,5 +7,7 @@
 	"wrong email or password": "wrong email or password",
 	"no active shop specified": "no active shop specified",
 	"You can't change other user's data": "You can't change other user's data",
-	"You can't change other user's password": "You can't change other user's password"
+	"You can't change other user's password": "You can't change other user's password",
+	"Cannot read property '_id' of null": "Cannot read property '_id' of null",
+	"Cannot read property 'markModified' of null": "Cannot read property 'markModified' of null"
 }
