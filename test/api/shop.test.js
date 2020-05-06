@@ -5,7 +5,8 @@ import User from '~/api/user/model'
 import { serverConfig } from '~/config'
 import server from '~/server'
 import { sign } from '~/services/guard'
-
+import { defaultShopData } from './data'
+import { parseOpeningHours } from '~/utils'
 
 let defaultShop,
     adminShop,
@@ -17,79 +18,16 @@ let defaultShop,
 
 beforeEach(async (done) => {
     
-    // Create user
+    const parsedOpeningHours = parseOpeningHours(defaultShopData().openingHours)
+    // Create user 
     adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
-   
 
-    defaultShop = await Shop.create({
-        name: 'shopname', 
-        size: 5, 
-        logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
-        category: 'clothing', 
-        contact: { phone: 12345, instagram: 'https://www.instagram.com/barackobama/?hl=de' }, 
-        companyType: 'EU', 
-        author: defaultUser._id, 
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
-            city: 'Karlsruhe',
-            country: 'DEU',
-            county: 'Karlsruhe (Stadt)',
-            district: 'Weststadt',
-            houseNumber: 26,
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD',
-            state: 'Baden-Württemberg',
-            street: 'Goethestrasse',
-            postalCode: 76135
-        },
-        deliveryOptions: ['PU'],
-        openingHours: {
-            monday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            tuesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            wednesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            thursday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            friday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            saturday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            sunday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false }
+    // Create shop
+    defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours: parsedOpeningHours }))
+    adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours: parsedOpeningHours }))
 
-        }
-    })
-
-
-    adminShop = await Shop.create({
-        name: 'shopname_1', 
-        size: 5, 
-        logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
-        category: 'clothing', 
-        contact: { phone: 12345 }, 
-        companyType: 'EU', 
-        author: adminUser._id, 
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
-            city: 'Karlsruhe',
-            country: 'DEU',
-            county: 'Karlsruhe (Stadt)',
-            district: 'Weststadt',
-            houseNumber: 26,
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD',
-            state: 'Baden-Württemberg',
-            street: 'Goethestrasse',
-            postalCode: 76135
-        },
-        deliveryOptions: ['PU'],
-        openingHours: {
-            monday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            tuesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            wednesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            thursday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            friday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            saturday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-            sunday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false }
-
-        }
-    })
-
-    // set shops in user
+    // Set shops in user
     defaultUser.activeShop = defaultShop._id
     defaultUser.shops.push(defaultShop._id)
     await defaultUser.save()
@@ -97,7 +35,6 @@ beforeEach(async (done) => {
     adminUser.shops.push(defaultShop._id)
     adminUser.activeShop = adminShop._id
     await adminUser.save()
-
 
     // Sign in user
     adminToken = await sign(adminUser)
@@ -161,7 +98,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body).toEqual('object')
         expect(typeof body.polygonCoordinates).toEqual('object')
         expect(Array.isArray(body.polygonCoordinates.coordinates)).toBe(true)
-        expect(body.address.display).toEqual('Goethestrasse 26, 76135 Karlsruhe')
 
     })
     
@@ -172,144 +108,88 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(404)
     })
-    
+
     test(`POST /${apiEndpoint} 201`, async () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({
-                name: 'shopname_9',
-                size: 5,
-                category: 'clothing', 
-                contact: { 
-                    phone: 12345 
-                }, companyType: 'EU',
-                author: defaultUser._id, 
-                address: { 
-                    label: 'label', 
-                    city: 'city', 
-                    country: 'country', 
-                    county: 'county', 
-                    district: 'district', 
-                    houseNumber: 26, 
-                    locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-                    state: 'state', 
-                    street: 'street', 
-                    postalCode: 76135 
-                },
-                deliveryOptions: ['PU'],
-                openingHours: {
-                    monday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    tuesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    wednesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    thursday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    friday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    saturday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    sunday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false }
-
-                }
-            })
+            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_9', openingHours: { wednesday: [{ open: '00:00', close: '00:00'}]}}))
+       
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
-        
-
-        // opening hours
-        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-        days.forEach((day) => {
-            expect(body.openingHours[day].open).toBe(1000)
-            expect(body.openingHours[day].close).toBe(1001)
-            expect(body.openingHours[day].allDayClosed).toBe(false)
-            expect(body.openingHours[day].allDayOpen).toBe(false)
-        })
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
         expect(body.deliveryOptions.length).toBe(1)
         expect(body.deliveryOptions[0]).toBe('PU')
-
         expect(body.name).toBe('shopname_9')
         expect(body.contact.phone).toBe('12345')
-
-        expect(body.address.label).toBe('label')
-        expect(body.address.city).toBe('city')
-        expect(body.address.country).toBe('country')
-        expect(body.address.county).toBe('county')
-        expect(body.address.district).toBe('district')
-        expect(body.address.houseNumber).toBe('26')
-        expect(body.address.locationId).toBe('NT_0OLEZjK0pT1GkekbvJmsHC_yYD')
-        expect(body.address.state).toBe('state')
-        expect(body.address.street).toBe('street')
-        expect(body.address.postalCode).toBe(76135)
-
+        expect(body.address.label).toBe(defaultShopData().address.label)
+        expect(body.address.city).toBe(defaultShopData().address.city)
+        expect(body.address.country).toBe(defaultShopData().address.country)
+        expect(body.address.county).toBe(defaultShopData().address.county)
+        expect(body.address.district).toBe(defaultShopData().address.district)
+        expect(body.address.houseNumber).toBe(defaultShopData().address.houseNumber)
+        expect(body.address.locationId).toBe(defaultShopData().address.locationId)
+        expect(body.address.state).toBe(defaultShopData().address.state)
+        expect(body.address.street).toBe(defaultShopData().address.street)
+        expect(body.address.postalCode).toBe(defaultShopData().address.postalCode)
         // make sure that the shop got added to the user
         expect((await User.findById(defaultUser._id)).activeShop.toString()).toBe(body._id)
         expect((await User.findById(defaultUser._id)).shops.includes(body._id)).toBe(true)
+
+    })
+
+    test(`POST /${apiEndpoint} 400 wrong openingHours: allDayOpen + more segments `, async () => {
+        const { status, body } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_9', openingHours: { wednesday: [{ open: '00:00', close: '00:00' }, { open: '15:00', close: '15:15' }]}}))
+        expect(status).toBe(400)
+        expect(typeof body).toEqual('object')
         
     })
 
+    test(`POST /${apiEndpoint} 400 wrong openingHours: closing before opening`, async () => {
+        const { status, body } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_9', openingHours: { wednesday: [{ open: '15:30', close: '15:15' }]}}))
 
+        expect(status).toBe(400)
+        expect(typeof body).toEqual('object')
+          
+    })
+
+    test(`POST /${apiEndpoint} 400 wrong openingHours: invalid values`, async () => {
+        const { status, body } = await request(server)
+            .post(`${serverConfig.endpoint}/${apiEndpoint}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_42', openingHours: { wednesday: [{ open: '24:01', close: '25:30' }]}}))
+
+        expect(status).toBe(400)
+        expect(typeof body).toEqual('object')
+        
+    })
     test(`POST /${apiEndpoint} 400 same shop name`, async () => {
         const { status } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({
-                name: 'shopname',
-                size: 5,
-                category: 'clothing', 
-                contact: { 
-                    phone: 12345,
-                    instagram: 'https://www.instagram.com/barackobama/?hl=de'
-                }, companyType: 'EU',
-                author: defaultUser._id, 
-                address: { 
-                    label: 'label', 
-                    city: 'city', 
-                    country: 'country', 
-                    county: 'county', 
-                    district: 'district', 
-                    houseNumber: 26, 
-                    locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-                    state: 'state', 
-                    street: 'street', 
-                    postalCode: 76135 
-                },
-                deliveryOptions: ['PU'],
-                openingHours: {
-                    monday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    tuesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    wednesday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    thursday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    friday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    saturday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false },
-                    sunday: { open: 1000, close: 1001, allDayOpen: false, allDayClosed: false }
-
-                }
-            })
+            .send(defaultShopData({ author: adminUser._id, name: 'shopname_1' }))
         expect(status).toBe(400) 
         
     })
     
-
-
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { phone: 42 }, openingHours: { monday: { allDayClosed: true }}, deliveryOptions: ['MU', 'LD']})
+            .send({ contact: { phone: 42 }, openingHours: { monday: [{ open: '00:00', close: '00:00' }]}, deliveryOptions: ['MU', 'LD']})
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
 
         // make sure we only update the updated fields in our nested object, not everything
         expect(body.contact.phone).toEqual('42')
         expect(body.contact.instagram).toBe('https://www.instagram.com/barackobama/?hl=de')
-
-        // opening hours
-        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-        days.forEach((day) => {
-            expect(body.openingHours[day].open).toBe(1000)
-            expect(body.openingHours[day].close).toBe(1001)
-            expect(body.openingHours[day].allDayClosed).toBe(day === 'monday')
-            expect(body.openingHours[day].allDayOpen).toBe(false)
-        })
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
         expect(body.deliveryOptions.length).toBe(2)
@@ -322,22 +202,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { phone: 42 }, openingHours: { monday: { allDayClosed: true }}, deliveryOptions: [] })
+            .send({ contact: { phone: 42 }, openingHours: { monday: [ { open: '00:00', close: '00:00' }]}, deliveryOptions: [] })
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
 
         // make sure we only update the updated fields in our nested object, not everything
         expect(body.contact.phone).toEqual('42')
         expect(body.contact.instagram).toBe('https://www.instagram.com/barackobama/?hl=de')
-
-        // opening hours
-        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
-        days.forEach((day) => {
-            expect(body.openingHours[day].open).toBe(1000)
-            expect(body.openingHours[day].close).toBe(1001)
-            expect(body.openingHours[day].allDayClosed).toBe(day === 'monday')
-            expect(body.openingHours[day].allDayOpen).toBe(false)
-        })
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
         expect(body.deliveryOptions.length).toBe(0)
@@ -365,8 +236,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
     })
 
-
-
     test(`PATCH /${apiEndpoint}/:id 200 admin patch`, async () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
@@ -378,7 +247,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         // make sure that if 'logo' is undefined in our patch we dont set the placeholder logo on accident
         expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
     })
-
 
     test(`PATCH /${apiEndpoint}/:id 200 Delete logo`, async () => {
         const { body, status } = await request(server)
@@ -414,7 +282,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(shop.logo.id).toEqual('placeholder')
 
     })
-
 
     test(`PATCH /${apiEndpoint}/:id 200 Delete picture`, async () => {
         const { body, status } = await request(server)
@@ -488,7 +355,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(status).toBe(401)
     })
 
-
     test(`DELETE /${apiEndpoint}/:id 404`, async () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
@@ -496,5 +362,4 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(status).toBe(400)
     })
-
 })

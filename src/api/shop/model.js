@@ -3,6 +3,7 @@ import slugify from 'slugify'
 import request from 'request-promise'
 import circleToPolygon from 'circle-to-polygon'
 import User from '~/api/user/model'
+import { openingHoursValidator, minutesToHHMM } from '~/utils'
 
 const apiKey = process.env.HERE_API
 
@@ -49,16 +50,17 @@ const shopSchema = new Schema({
         street: { type: String, required: true },
         postalCode: { type: Number, required: true },
     },
-    // TODO: Add validation + tests + virtuals?
-    openingHours: {
+    parsedOpeningHours: {
         type: Object,
-        monday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
-        tuesday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
-        wednesday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
-        thursday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
-        friday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
-        saturday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
-        sunday: { open: { type: Number, min: 0, max: 1440 }, close: { type: Number, min: 0, max: 1440 }, allDayOpen: { type: Boolean }, allDayClosed: { type: Boolean } },
+        monday: [ { open: { type: Number }, close: { type: Number } } ],
+        tuesday: [ { open: { type: Number }, close: { type: Number } } ],
+        wednesday: [ { open: { type: Number }, close: { type: Number } } ],
+        thursday: [ { open: { type: Number }, close: { type: Number } } ],
+        friday: [ { open: { type: Number }, close: { type: Number } } ],
+        saturday: [ { open: { type: Number }, close: { type: Number } } ],
+        sunday: [ { open: { type: Number }, close: { type: Number } } ],
+        exceptions: {},
+        validate: openingHoursValidator
     },
     deliveryOptions: {
         type: [String],
@@ -141,7 +143,6 @@ export const removeUsers = async function(item = this) {
     // If we decide to remove the activeShop too: {'$unset': { 'activeShop': ''}}
 }
 
-
 shopSchema.virtual('polygonCoordinates').get(function () {
     try {
         return circleToPolygon([this.displayPosition.longitude, this.displayPosition.latitude], 100, 32)
@@ -154,6 +155,44 @@ shopSchema.virtual('address.display').get(function () {
     return `${this.address.street} ${this.address.houseNumber}, ${this.address.postalCode} ${this.address.city}`
 })
 
+shopSchema.virtual('openingHours').get(function() {
+    
+    const openingHours = {
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
+        saturday: [],
+        sunday: [],
+    }
+    if (this.parsedOpeningHours === undefined) return openingHours
+    const days = Object.keys(this.parsedOpeningHours).filter(day => day !== 'exceptions')
+
+    days.forEach((day) => {
+        openingHours[day] = this.parsedOpeningHours[day]
+        openingHours[day].forEach((segment) => {
+            segment.allDayOpen = segment.open === 0 && segment.close === 0
+            segment.open = minutesToHHMM(segment.open)
+            segment.close = minutesToHHMM(segment.close)
+        })
+    })
+
+    return openingHours
+})
+
+/* 
+shopSchema.virtual('isOpen').get(function () {
+    const date = new Date()
+    const day = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'][date.getDay()]
+    const minutes = (date.getHours() * 60) + date.getMinutes()
+
+    if (this.openingHours[day].length === 0) return false // all day closed
+    if (this.openingHours[day][0].open === 0 && this.openingHours[day][0].close === 0) return true // all day open
+
+    return this.openingHours[day].findIndex((segment) => segment.open <= minutes && minutes <= segment.close) !== -1
+}) 
+*/
 
 shopSchema.methods = {
     modelProjection,

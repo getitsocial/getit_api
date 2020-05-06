@@ -3,6 +3,7 @@ import slugify from 'slugify'
 import { mergeWith, isArray } from 'lodash' 
 import User from '~/api/user/model'
 import Shop from './model'
+import { parseOpeningHours } from '~/utils'
 
 
 export const checkName = async(req, res, next) => {
@@ -68,11 +69,13 @@ export const createShop = async({ body }, res, next) => {
 
     try {
 
+        const parsedOpeningHours = parseOpeningHours(openingHours)
         // Validate request body
-        await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions })
+        await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, parsedOpeningHours })
+
 
         // Create object
-        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, users: [author], openingHours })
+        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, users: [author], parsedOpeningHours })
 
         await User.updateOne({_id: author._id }, { activeShop: shop._id, '$push': { shops: shop._id }})
 
@@ -113,10 +116,11 @@ export const updateShop = async({ body, params, user }, res, next) => {
             logo.url = '/api/static/placeholder.png'
             logo.id ='placeholder'
         }
+        // 15:00 to 900 etc.
+        const parsedOpeningHours = parseOpeningHours(openingHours)
 
         // merge and save
-
-        const data = mergeWith(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours }, (obj, src) => {
+        const data = mergeWith(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, parsedOpeningHours }, (obj, src) => {
             if (isArray(obj)) return src
         })
         

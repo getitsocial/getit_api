@@ -5,6 +5,7 @@ import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
+import { defaultShopData } from './data'
 
 let adminUser, 
     defaultUser,
@@ -18,53 +19,9 @@ beforeEach(async (done) => {
     // Create user
     adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    defaultShop1 = await Shop.create({ 
-        name: 'shopname', 
-        size: 5, 
-        category: 'clothing',
-        contact: { 
-            phone: 12345
-        }, 
-        companyType: 'EU',
-        author: adminUser._id,
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
-            city: 'Karlsruhe',
-            country: 'DEU', 
-            county: 'Karlsruhe (Stadt)',
-            district: 'Weststadt',
-            houseNumber: 4,
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-            state: 'Baden-Württemberg', 
-            street: 'Goethestrasse 26', 
-            postalCode: 76135 
-        },
-        deliveryOptions: ['PU']
-    })
-    defaultShop2 = await Shop.create({
-        name: 'shopname_1', 
-        size: 5,
-        category: 'clothing', 
-        contact: { 
-            phone: 12345
-        },
-        companyType: 'EU',
-        author: adminUser._id,
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
-            city: 'Karlsruhe', 
-            country: 'DEU',
-            county: 'Karlsruhe (Stadt)',
-            district: 'Weststadt', 
-            houseNumber: 4, 
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-            state: 'Baden-Württemberg', 
-            street: 'Goethestrasse 26',
-            postalCode: 76135
-        },
-        deliveryOptions: ['PU']
-    })
-    
+    defaultShop1 = await Shop.create(defaultShopData({ author: adminUser._id }))
+    defaultShop2 = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1' }))
+
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', activeShop: defaultShop1._id, shops: [defaultShop1._id, defaultShop2._id] })
 
     adminUser.role = 'admin'

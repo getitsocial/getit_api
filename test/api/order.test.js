@@ -8,6 +8,7 @@ import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
 import Article from '~/api/article/model'
 import Category from '~/api/category/model'
+import { defaultShopData, defaultArticleData } from './data'
 
 let defaultOrder, 
     adminToken,
@@ -26,29 +27,7 @@ beforeEach(async (done) => {
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     // Shop
-    defaultShop = await Shop.create({
-        name: 'shopname',
-        size: 5,
-        category: 'clothing',
-        contact: { 
-            phone: 12345
-        }, 
-        companyType: 'EU',
-        author: adminUser._id,
-        address: {
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', 
-            city: 'Karlsruhe', 
-            country: 'DEU',
-            county: 'Karlsruhe (Stadt)', 
-            district: 'Weststadt',
-            houseNumber: 26, 
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD',
-            state: 'Baden-Württemberg',
-            street: 'Goethestrasse', 
-            postalCode: 76135
-        },
-        deliveryOptions: ['PU']
-    })
+    defaultShop = await Shop.create(defaultShopData({ author: adminUser._id }))
     
     defaultCategory = await Category.create({
         name: 'test_category',
@@ -56,17 +35,7 @@ beforeEach(async (done) => {
         author: defaultUser._id
     })
 
-    defaultArticle = await Article.create({
-        name: 'kebab', 
-        articleNumber: '12345',
-        stock: 3, 
-        price: 4, 
-        size: 'thicc', 
-        currency: 'Euro', 
-        category: defaultCategory._id,
-        author: defaultUser._id,
-        shop: defaultShop._id
-    })
+    defaultArticle = await Article.create(defaultArticleData({ category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id }))
 
     // Create object
     defaultOrder = await Order.create({ 
