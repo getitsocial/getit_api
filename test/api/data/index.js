@@ -37,7 +37,6 @@ export const defaultShopData = (edit) => mergeWith({
 
 export const defaultArticleData = (edit) => mergeWith({
     name: 'kebab',
-    articleNumber: '12345',
     stock: 3,
     price: 4,
     size: 'thicc',

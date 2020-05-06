@@ -18,7 +18,7 @@ let defaultArticle,
     defaultToken,
     apiEndpoint = 'articles'
 
-let articleNumber = new ShortUniqueId()()
+const articleNumber = new ShortUniqueId()()
 
 beforeEach(async () => {
 
@@ -34,7 +34,7 @@ beforeEach(async () => {
 
     defaultCategory = await Category.create({ name: 'things', author: defaultUser._id, shop: defaultShop._id } )
     
-    defaultArticle = await Article.create(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id }))
+    defaultArticle = await Article.create(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id, articleNumber }))
     
     const view = defaultArticle.modelProjection()
     expect(view.updatedAt).toBeUndefined()
@@ -88,7 +88,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id }))
+            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, articleNumber }))
 
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
