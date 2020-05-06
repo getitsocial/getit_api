@@ -1,4 +1,4 @@
-import { UnauthorizedError, BadRequestError, ResourceNotFoundError } from 'restify-errors'
+import { UnauthorizedError, BadRequestError } from 'restify-errors'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
 
@@ -29,29 +29,25 @@ export const addShop = () => ( async({ user, body }, res, next) => {
     }
 
     const fullUser = await User.findById(user)
+
     body.shop = fullUser.activeShop
 
     next()
 })
 
-export const showShop = () => (async(req, res, next) => {
-
+export const showShop = () => ( async(req, res, next) => {
     const { user } = req
 
-    if (!user) {
-        return next(new UnauthorizedError())
+    if(user) {
+        const fullUser = await User.findById(user)
+        console.log(fullUser)
+        try {
+            req.shop = await Shop.findById(fullUser.activeShop)
+        } catch(error) {
+            console.log(error)
+        }
     }
-
-    const fullUser = await User.findById(user._id)
     
-    const shop = await Shop.findById(fullUser.activeShop)
-    
-    if (!shop) {
-        return next(new ResourceNotFoundError())
-    }
-
-    req.shop = shop
-
     next()
 
 })
