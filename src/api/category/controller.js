@@ -1,30 +1,14 @@
 import { BadRequestError } from 'restify-errors'
+// import Article from '~/api/article/model'
 import Category from './model'
 
 export const getCategories = async({ shop }, res, next) => {
     try {
-
         // Find active shop
         if (!shop) return next(new BadRequestError('no active shop specified'))
-
+        
         // Find objects        
-        const categories = await Category.aggregate([
-            {   
-                $match: { 
-                    shop: shop._id
-                }
-            },
-            {
-                $lookup: {
-                    from: 'articles',
-                    let: { category: '$_id' },
-                    pipeline: [{ $match: { $expr: { $eq: ['$$category', '$category'] } } }],
-                    as: 'article_count'
-                }
-            },
-            { $addFields: { article_count: { $size: '$article_count' }}},
-            { $project : { '_id': 1, 'name': 1, 'author': 1, 'article_count': 1 }} // modelProjection won't work here...
-        ])
+        const categories = await Category.find({shop: shop._id}).populate([{ path: 'author', select: 'name picture' }, { path: 'article_count' }])
 
         // Send response 
         res.send(200, categories)

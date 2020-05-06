@@ -24,11 +24,18 @@ categorySchema.pre('remove', function(callback) {
     this.model('Article').deleteMany({ category: this._id }, callback)
 })
 
+categorySchema.virtual('article_count', {
+    ref: 'Article',
+    localField: '_id',
+    foreignField: 'category',
+    count: true
+})
+
 
 export const modelProjection = function(req, item = this, cb) {
     
     const view = {}
-    const fields = ['_id', 'name', 'author']
+    const fields = ['_id', 'name', 'author', 'article_count']
 
     fields.forEach((field) => { view[field] = item[field] })
 
