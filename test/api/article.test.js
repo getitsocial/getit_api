@@ -8,6 +8,7 @@ import Category from '~/api/category/model'
 import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
+import { defaultShopData, defaultArticleData } from './data'
 
 let defaultArticle, 
     defaultCategory,
@@ -17,7 +18,7 @@ let defaultArticle,
     defaultToken,
     apiEndpoint = 'articles'
 
-let articleNumber = new ShortUniqueId()()
+const articleNumber = new ShortUniqueId()()
 
 beforeEach(async () => {
 
@@ -25,45 +26,15 @@ beforeEach(async () => {
     const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    defaultShop = await Shop.create({
-        name: 'shopname', 
-        size: 5, 
-        category: 'clothing', 
-        contact: { 
-            phone: 12345 
-        }, companyType: 'EU', 
-        author: adminUser._id, 
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland', 
-            city: 'Karlsruhe', 
-            country: 'DEU', 
-            county: 'Karlsruhe (Stadt)', 
-            district: 'Weststadt', 
-            houseNumber: 26, 
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-            state: 'Baden-Württemberg', 
-            street: 'Goethestrasse', 
-            postalCode: 76135 
-        },
-        deliveryOptions: ['PU']
-    })
+    defaultShop = await Shop.create(defaultShopData({ author: adminUser._id }))
     
     defaultUser.shops.push(defaultShop._id)
     defaultUser.activeShop = defaultShop._id
     defaultUser.save()
 
     defaultCategory = await Category.create({ name: 'things', author: defaultUser._id, shop: defaultShop._id } )
-    defaultArticle = await Article.create({
-        name: 'kebab',
-        articleNumber,
-        stock: 3,
-        price: 4,
-        size: 'thicc',
-        currency: 'Euro',
-        category: defaultCategory._id,
-        author: defaultUser._id,
-        shop: defaultShop._id
-    })
+    
+    defaultArticle = await Article.create(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id, articleNumber }))
     
     const view = defaultArticle.modelProjection()
     expect(view.updatedAt).toBeUndefined()
@@ -117,15 +88,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({
-                name: 'kebab',
-                stock: 3,
-                price: 4,
-                size: 'thicc',
-                currency: 'Euro',
-                category: defaultCategory._id,
-                author: defaultUser._id,
-            })
+            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, articleNumber }))
 
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')

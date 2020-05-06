@@ -7,6 +7,7 @@ import { Router } from 'restify-router'
 import { addShop, addAuthor, showShop } from '~/services/modelModifier'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
+import { defaultShopData } from '../data'
 
 
 let adminUser,
@@ -18,29 +19,7 @@ beforeAll(async (done) => {
 
     adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
 
-    shop = await Shop.create({ 
-        name: 'shopname', 
-        size: 5, 
-        category: 'clothing',
-        contact: { 
-            phone: 12345
-        }, 
-        companyType: 'EU',
-        author: adminUser._id,
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
-            city: 'Karlsruhe',
-            country: 'DEU', 
-            county: 'Karlsruhe (Stadt)',
-            district: 'Weststadt',
-            houseNumber: 4,
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-            state: 'Baden-Württemberg', 
-            street: 'Goethestrasse 26', 
-            postalCode: 76135 
-        },
-        deliveryOptions: ['PU']
-    })
+    shop = await Shop.create(defaultShopData({ author: adminUser._id }))
 
     adminUser.shops.push(shop._id)
     adminUser.activeShop = shop._id

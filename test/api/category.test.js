@@ -7,6 +7,7 @@ import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
 import Article from '~/api/article/model'
+import { defaultShopData, defaultArticleData } from './data'
 
 let defaultCategory,
     adminToken,
@@ -22,29 +23,7 @@ beforeEach(async (done) => {
     adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser =  await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    defaultShop = await Shop.create({
-        name: 'shopname', 
-        size: 5, 
-        category: 'clothing', 
-        contact: { 
-            phone: 12345 
-        }, 
-        companyType: 'EU', 
-        author: defaultUser._id,
-        address: { 
-            label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
-            city: 'Karlsruhe',
-            country: 'DEU',
-            county: 'Karlsruhe (Stadt)',
-            district: 'Weststadt',
-            houseNumber: 26, 
-            locationId: 'NT_0OLEZjK0pT1GkekbvJmsHC_yYD', 
-            state: 'Baden-Württemberg',
-            street: 'Goethestrasse', 
-            postalCode: 76135
-        },
-        deliveryOptions: ['PU']
-    })
+    defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id }))
     // Create object
     defaultUser.activeShop = defaultShop._id
     defaultUser.shops.push(defaultShop._id)
@@ -65,17 +44,7 @@ beforeEach(async (done) => {
 test('Remove articles when deleting a category', async () => {
     const removeCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
 
-    const defaultArticle = await Article.create({
-        name: 'kebab',
-        articleNumber: '12345',
-        stock: 3,
-        price: 4,
-        size: 'thicc',
-        currency: 'Euro',
-        category: removeCategory._id,
-        author: defaultUser._id,
-        shop: defaultShop._id
-    })
+    const defaultArticle = await Article.create(defaultArticleData({ category: removeCategory._id, author: defaultUser._id, shop: defaultShop._id }))
 
     await removeCategory.remove()
 
