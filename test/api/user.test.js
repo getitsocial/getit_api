@@ -17,22 +17,15 @@ let adminUser,
 
 beforeEach(async (done) => {
     // Create user
-    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
 
     defaultShop1 = await Shop.create(defaultShopData({ author: adminUser._id }))
     defaultShop2 = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1' }))
-
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user', activeShop: defaultShop1._id, shops: [defaultShop1._id, defaultShop2._id] })
 
-    adminUser.role = 'admin'
-    adminUser = await adminUser.save()
-
-    // Sign in user
-    adminToken = await sign(adminUser)
-    expect(isJWT(adminToken)).toBe(true)
-    
-    defaultToken = await sign(defaultUser)
-    expect(isJWT(defaultToken)).toBe(true)
+    adminUser.shops.push(defaultShop1._id)
+    adminUser.activeShop = defaultShop1._id
+    await adminUser.save()
     
     // Sign in user
     adminToken = await sign(adminUser)
@@ -40,7 +33,7 @@ beforeEach(async (done) => {
     
     defaultToken = await sign(defaultUser)
     expect(isJWT(defaultToken)).toBe(true)
-
+    
     done()
 })
 
