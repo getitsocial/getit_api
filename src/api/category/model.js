@@ -24,13 +24,13 @@ categorySchema.pre('remove', function(callback) {
     this.model('Article').deleteMany({ category: this._id }, callback)
 })
 
+// Count articles in categories
 categorySchema.virtual('article_count', {
     ref: 'Article',
     localField: '_id',
     foreignField: 'category',
     count: true
 })
-
 
 export const modelProjection = function(req, item = this, cb) {
     

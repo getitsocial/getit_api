@@ -1,5 +1,4 @@
 import { BadRequestError } from 'restify-errors'
-// import Article from '~/api/article/model'
 import Category from './model'
 
 export const getCategories = async({ shop }, res, next) => {

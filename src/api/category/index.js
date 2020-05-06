@@ -60,8 +60,7 @@ router.get('/:id',
  * @apiError 404 Category not found.
  */
 router.post('', 
-    [doorman(['user', 'admin']), addAuthor()], 
-    showShop(),
+    [doorman(['user', 'admin']), addAuthor(), showShop()], 
     createCategory)
 
 /**

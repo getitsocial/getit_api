@@ -18,7 +18,6 @@ export const addAuthor = () => (({ user, body }, res, next) => {
     next()
 })
 
-
 export const addShop = () => ( async({ user, body }, res, next) => {
 
     if (!user) {
@@ -37,11 +36,16 @@ export const addShop = () => ( async({ user, body }, res, next) => {
 })
 
 export const showShop = () => ( async(req, res, next) => {
-    const { user: { _id } } = req
+    const { user } = req
 
-    if(_id) {
-        const fullUser = await User.findById(_id)
-        req.shop = await Shop.findById(fullUser.activeShop)
+    if(user) {
+        const fullUser = await User.findById(user)
+        console.log(fullUser)
+        try {
+            req.shop = await Shop.findById(fullUser.activeShop)
+        } catch(error) {
+            console.log(error)
+        }
     }
     
     next()
