@@ -58,14 +58,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-
         const firstItem = body[0]
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
         expect(typeof firstItem.name).toEqual('string')
         expect(firstItem.name).toEqual(defaultCategory.name)
         expect(firstItem._id).toBeTruthy()
-        expect(firstItem.updatedAt).toBeUndefined()
+        expect(firstItem.updatedAt).toBeTruthy()
     })
 
     test(`GET /${apiEndpoint} 400 - no active shop`, async () => {

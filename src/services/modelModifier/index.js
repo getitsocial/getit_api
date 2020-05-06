@@ -27,9 +27,9 @@ export const addShop = () => ( async({ user, body }, res, next) => {
     if (!body) {
         return next(new BadRequestError())
     }
-
+    console.log(user)
     const fullUser = await User.findById(user)
-
+    console.log(fullUser)
     body.shop = fullUser.activeShop
 
     next()
@@ -40,12 +40,7 @@ export const showShop = () => ( async(req, res, next) => {
 
     if(user) {
         const fullUser = await User.findById(user)
-        console.log(fullUser)
-        try {
-            req.shop = await Shop.findById(fullUser.activeShop)
-        } catch(error) {
-            console.log(error)
-        }
+        req.shop = await Shop.findById(fullUser.activeShop)
     }
     
     next()
