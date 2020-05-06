@@ -4,6 +4,7 @@ import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor, addShop } from '~/services/modelModifier'
 import model, { modelProjection } from './model'
+import { updateArticle } from './controller'
 
 const config = {
     populate: [{ path: 'author', select: 'name picture' }, { path: 'category', select: 'name' }],
@@ -72,7 +73,7 @@ router.post('',
  */  
 router.patch('/:id', 
     doorman(['user', 'admin']), 
-    endpoint.update())
+    updateArticle)
 
 /**
  * @api {delete} /articles/:id Delete article

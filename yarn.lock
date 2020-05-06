@@ -6687,6 +6687,11 @@ shellwords@^0.1.1:
   resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
   integrity sha512-vFwSUfQvqybiICwZY5+DAWIPLKsWO31Q91JSKl3UYv+K5c2QRPzn0qzec6QPu1Qc9eHYItiP3NdJqNVqetYAww==
 
+short-unique-id@^3.0.0-rc1:
+  version "3.0.0-rc1"
+  resolved "https://registry.yarnpkg.com/short-unique-id/-/short-unique-id-3.0.0-rc1.tgz#1558da90f9655d1fe8d5e6409bafb0bb0f12042c"
+  integrity sha512-KsV9bOCyXvyZ/vpEXzZtLsmeTDCFLBa8aOMqVA9sTmgiZ4/F5xDwCrV0GgjIEvSJ5ahdJx52sWmn3qc4vWFGqA==
+
 sift@7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/sift/-/sift-7.0.1.tgz#47d62c50b159d316f1372f8b53f9c10cd21a4b08"

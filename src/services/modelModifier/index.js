@@ -1,5 +1,7 @@
 import { UnauthorizedError, BadRequestError } from 'restify-errors'
 import User from '~/api/user/model'
+import Shop from '~/api/shop/model'
+
 
 export const addAuthor = () => (({ user, body }, res, next) => {
     
@@ -32,5 +34,17 @@ export const addShop = () => ( async({ user, body }, res, next) => {
     body.shop = fullUser.activeShop
 
     next()
+})
+
+export const showShop = () => ( async(req, res, next) => {
+    const { user: { _id } } = req
+
+    if(_id) {
+        const fullUser = await User.findById(_id)
+        req.shop = await Shop.findById(fullUser.activeShop)
+    }
+    
+    next()
+
 })
 

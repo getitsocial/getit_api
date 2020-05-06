@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import ShortUniqueId from 'short-unique-id'
 
 const articleSchema = new Schema({
     name: { 
@@ -8,8 +9,9 @@ const articleSchema = new Schema({
     },
     articleNumber: {
         type: String,
-        required: false,
-        maxlength: 25
+        maxlength: 25,
+        unique: true, 
+        default: new ShortUniqueId()()
     },
     stock: { 
         type: Number,
@@ -82,7 +84,7 @@ export const modelProjection = function(req, item = this, cb) {
     const fields = ['id', 'author', 'name', 'size', 'stock', 'articleNumber', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax', 'currency']
 
     fields.forEach((field) => { view[field] = item[field] })
-    
+
     if(!cb)
         return view
     
