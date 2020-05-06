@@ -7,10 +7,11 @@ export const getCategories = async({ shop }, res, next) => {
         if (!shop) return next(new BadRequestError('no active shop specified'))
         
         // Find objects        
-        const categories = await Category.find({shop: shop._id}).populate([{ path: 'author', select: 'name picture' }, { path: 'article_count' }])
-
+        const categories = await Category.find({ shop: shop._id }).populate([{ path: 'author', select: 'name picture' }, { path: 'article_count' }])
+        const data = []
+        categories.forEach(category => data.push(category.modelProjection()))
         // Send response 
-        res.send(200, categories)
+        res.send(200, data)
 
     } catch(error) {
         /* istanbul ignore next */ 
