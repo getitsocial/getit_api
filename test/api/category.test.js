@@ -62,12 +62,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-        const firstItem = body.categories[0]
+        const firstItem = body.rows[0]
 
-        expect(body.category_count).toBe(3)
-        expect(body.categories.length).toBe(3)
+        expect(body.count).toBe(3)
+        expect(body.rows.length).toBe(3)
         expect(statusCode).toBe(200)
-        expect(Array.isArray(body.categories)).toBe(true)
+        expect(Array.isArray(body.rows)).toBe(true)
         expect(typeof firstItem.name).toEqual('string')
         expect(firstItem.name).toEqual(defaultCategory.name)
         expect(firstItem._id).toBeTruthy()
@@ -79,9 +79,9 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1&limit=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(body.categories.length).toBe(1)
+        expect(body.rows.length).toBe(1)
         expect(statusCode).toBe(200)
-        expect(Array.isArray(body.categories)).toBe(true)
+        expect(Array.isArray(body.rows)).toBe(true)
     })
 
     test(`GET /${apiEndpoint} 200`, async () => {
@@ -89,9 +89,9 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .get(`${serverConfig.endpoint}/${apiEndpoint}?limit=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(body.categories.length).toBe(1)
+        expect(body.rows.length).toBe(1)
         expect(statusCode).toBe(200)
-        expect(Array.isArray(body.categories)).toBe(true)
+        expect(Array.isArray(body.rows)).toBe(true)
     })
 
     test(`GET /${apiEndpoint} 200`, async () => {
@@ -99,9 +99,9 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(body.categories.length).toBe(3)
+        expect(body.rows.length).toBe(3)
         expect(statusCode).toBe(200)
-        expect(Array.isArray(body.categories)).toBe(true)
+        expect(Array.isArray(body.rows)).toBe(true)
     })
 
     test(`GET /${apiEndpoint} 400 - no id`, async () => {

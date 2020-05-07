@@ -23,7 +23,7 @@ export const getCategories = async({ shop, query }, res, next) => {
         const data = []
         docs.forEach(category => data.push(category.modelProjection()))
         // Send response 
-        res.send(200, { category_count: totalDocs, categories: data })
+        res.send(200, { count: totalDocs, rows: data })
 
     } catch(error) {
         /* istanbul ignore next */ 
