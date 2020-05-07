@@ -1,6 +1,5 @@
 import request from 'supertest'
 import { isJWT } from 'validator'
-import ShortUniqueId from 'short-unique-id'
 import server from '~/server'
 import { serverConfig } from '~/config'
 import Article from '~/api/article/model'
@@ -18,7 +17,6 @@ let defaultArticle,
     defaultToken,
     apiEndpoint = 'articles'
 
-const articleNumber = new ShortUniqueId()
 
 beforeEach(async () => {
 
@@ -34,13 +32,12 @@ beforeEach(async () => {
 
     defaultCategory = await Category.create({ name: 'things', author: defaultUser._id, shop: defaultShop._id } )
     
-    let generatedArticleNumber = articleNumber()
-    defaultArticle = await Article.create(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id, articleNumber: generatedArticleNumber }))
+    defaultArticle = await Article.create(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id}))
     
     const view = defaultArticle.modelProjection()
     expect(view.updatedAt).toBeUndefined()
     expect(view.name).toBe('kebab')
-    expect(view.articleNumber).toBe(generatedArticleNumber)
+    expect(view.articleNumber).toBeTruthy()
     expect(view.stock).toBe(3)
     expect(view.price).toBe(4)
     expect(view.size).toBe('thicc')
@@ -88,7 +85,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id, articleNumber: articleNumber() }))
+            .send(defaultArticleData( { category: defaultCategory._id, author: defaultUser._id }))
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
     })

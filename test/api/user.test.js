@@ -79,12 +79,12 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     })
 
     // Get active shop
-    test(`GET ${serverConfig.endpoint}/users/me/shops/active 404 no active shop`, async () => {
+    test(`GET ${serverConfig.endpoint}/users/me/shops/active 200 get active shop from admin`, async () => {
         const { statusCode } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/me/shops/active`)
             .set('Authorization', 'Bearer ' + adminToken)
 
-        expect(statusCode).toBe(404)
+        expect(statusCode).toBe(200)
     })
 
     test(`GET ${serverConfig.endpoint}/users/:id/shops/active 200`, async () => {

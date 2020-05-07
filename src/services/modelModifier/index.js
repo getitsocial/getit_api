@@ -5,13 +5,10 @@ import Shop from '~/api/shop/model'
 
 export const addAuthor = () => (({ user, body }, res, next) => {
     
-    if (!user) {
-        return next(new UnauthorizedError())
-    }
+    if (!user) return next(new UnauthorizedError())
 
-    if (!body) {
-        return next(new BadRequestError())
-    }
+    if (!body) return next(new BadRequestError())
+    
     
     body.author = user
     
@@ -20,29 +17,29 @@ export const addAuthor = () => (({ user, body }, res, next) => {
 
 export const addShop = () => ( async({ user, body }, res, next) => {
 
-    if (!user) {
-        return next(new UnauthorizedError())
-    }
+    if (!user) return next(new UnauthorizedError())
 
-    if (!body) {
-        return next(new BadRequestError())
-    }
-    console.log(user)
-    const fullUser = await User.findById(user)
-    console.log(fullUser)
-    body.shop = fullUser.activeShop
+    if (!body) return next(new BadRequestError())
+    
+    const { activeShop }  = await User.findById(user)
+    if(!activeShop) return next()
 
+    body.shop = activeShop
+    
     next()
 })
 
-export const showShop = () => ( async(req, res, next) => {
+export const showShop = () => (async(req, res, next) => {
     const { user } = req
 
-    if(user) {
-        const fullUser = await User.findById(user)
-        req.shop = await Shop.findById(fullUser.activeShop)
-    }
+    if (!user) return next() 
     
+    const { activeShop } = await User.findById(user)
+    if(!activeShop) return next()
+    
+    const shop = await Shop.findById(activeShop)
+    req.shop = shop
+
     next()
 
 })

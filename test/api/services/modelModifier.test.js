@@ -15,21 +15,8 @@ let adminUser,
     shop,
     apiEndpoint = 'test'
 
+// Add routes
 beforeAll(async (done) => {
-
-    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-
-    shop = await Shop.create(defaultShopData({ author: adminUser._id }))
-
-    adminUser.shops.push(shop._id)
-    adminUser.activeShop = shop._id
-    await adminUser.save()
-
-    // Sign in user
-    adminToken = await sign(adminUser)
-    expect(isJWT(adminToken)).toBe(true)
-
- 
     describe('Add Testrouter', () => {
         const router = new Router()
 
@@ -79,18 +66,37 @@ beforeAll(async (done) => {
         router.applyRoutes(server)
     })
 
+    done()
+})
+
+beforeEach(async (done) => {
+
+    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+
+    shop = await Shop.create(defaultShopData({ author: adminUser._id }))
+
+    adminUser.shops.push(shop._id)
+    adminUser.activeShop = shop._id
+
+    await adminUser.save()
+
+    // Sign in user
+    adminToken = await sign(adminUser)
+    expect(isJWT(adminToken)).toBe(true)
 
     done()
 })
+
 describe('modelModifier Test:',  () => {
 
     test(`GET /${apiEndpoint} 200 showShop`, async (done) => {
-        const { body, statusCode, header } = await request(server)
+        const { body: { shop }, statusCode, header } = await request(server)
             .get(`/${apiEndpoint}/showShop`)
             .set('Authorization', 'Bearer ' + adminToken)
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
-        expect(body.shop._id).toBe(adminUser.activeShop.toString()) 
+        expect(shop._id).toBe(adminUser.activeShop.toString()) 
 
         done()
     })
@@ -100,7 +106,6 @@ describe('modelModifier Test:',  () => {
             .post(`/${apiEndpoint}/shop`)
             .set('Authorization', 'Bearer ' + adminToken)
             .send({ hello: 'there' })
-
         
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')

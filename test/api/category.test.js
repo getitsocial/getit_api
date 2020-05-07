@@ -64,7 +64,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof firstItem.name).toEqual('string')
         expect(firstItem.name).toEqual(defaultCategory.name)
         expect(firstItem._id).toBeTruthy()
-        expect(firstItem.updatedAt).toBeTruthy()
+        expect(firstItem.updatedAt).toBeUndefined()
     })
 
     test(`GET /${apiEndpoint} 400 - no active shop`, async () => {
