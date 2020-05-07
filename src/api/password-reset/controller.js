@@ -64,7 +64,12 @@ export const update = async ({ params, body }, res, next) => {
 
         // Set new password
         await user.set({ password }).save()
-        
+
+        // Verifi user
+        if(!user.verified) {
+            await user.set({ verified: true }).save()
+        }
+
         // Remove reset token
         await PasswordResetModel.remove({ user })
         
