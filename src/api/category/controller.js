@@ -1,12 +1,14 @@
-import { BadRequestError } from 'restify-errors'
+import { BadRequestError, ResourceNotFoundError } from 'restify-errors'
 import Category from './model'
 
 export const getCategories = async({ shop, query }, res, next) => {
     
     try {
 
-        if (!shop) return next(new BadRequestError('no active shop specified'))
-        
+        if (!shop) {
+            return next(new BadRequestError('no active shop specified'))
+        }
+
         const { page, limit } = query
         
         const options = {
@@ -35,7 +37,9 @@ export const createCategory = async({ body, shop }, res, next) => {
 
     try {
 
-        if (!shop) return next(new BadRequestError('no active shop specified'))
+        if (!shop) {
+            return next(new BadRequestError('no active shop specified'))
+        }
 
         // Validate request body
         await Category.validate({ author: author._id, name, shop })
@@ -50,4 +54,23 @@ export const createCategory = async({ body, shop }, res, next) => {
         /* istanbul ignore next */ 
         return next(new BadRequestError(error))
     }
+}
+
+export const getCategory = async({ params }, res, next) => {
+
+    try {
+
+        const { id } = params
+        const category = await Category.findById(id)
+        
+        if (!category) {
+            return next(new ResourceNotFoundError('category not found'))
+        }
+
+        res.send(200, category.modelProjection())
+
+    } catch (error) {
+        return next(new BadRequestError(error))
+    }
+
 }

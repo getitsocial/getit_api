@@ -100,14 +100,21 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body)).toBe(true)
     })
 
-    test(`GET /${apiEndpoint} 400 - no active shop`, async () => {
+    test(`GET /${apiEndpoint} 400 - no id`, async () => {
         const { statusCode } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + adminToken)
 
         expect(statusCode).toBe(400)
     })
-
+    
+    test(`GET /${apiEndpoint}:id 401`, async () => {
+        const { status } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
+        
+        expect(status).toBe(401)
+    })
+    
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
@@ -115,6 +122,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
+        expect(body.updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
         expect(body.name).toEqual(defaultCategory.name)
     })
 
@@ -122,7 +130,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
             .set('Authorization', 'Bearer ' + defaultToken)
-
+        
         expect(status).toBe(404)
     })
     
@@ -135,7 +143,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('hello world')
     })
-    
 
     test(`POST /${apiEndpoint} 201`, async () => {
         const { status } = await request(server)
@@ -144,7 +151,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .send({ name: 'hello world' })
         expect(status).toBe(400)
     })
-    
 
     test(`PATCH /${apiEndpoint}/:id 200`, async () => {
         const { status, body } = await request(server)

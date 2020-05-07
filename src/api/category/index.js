@@ -3,7 +3,7 @@ import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor, showShop } from '~/services/modelModifier'
-import { getCategories, createCategory } from './controller'
+import { getCategory, getCategories, createCategory } from './controller'
 import model, { modelProjection } from './model'
 
 const config = {
@@ -47,7 +47,7 @@ router.get('',
  */
 router.get('/:id', 
     doorman(['user', 'admin']), 
-    endpoint.detail())
+    getCategory)
 
 /**
  * @api {post} /categories Create category
