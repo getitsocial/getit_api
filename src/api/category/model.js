@@ -33,7 +33,7 @@ categorySchema.virtual('article_count', {
     count: true
 })
 
-export const modelProjection = function(req, item = this) {
+export const modelProjection = function(item = this) {
     
     const view = {}
     const fields = ['_id', 'name', 'author', 'article_count']
