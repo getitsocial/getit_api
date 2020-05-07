@@ -3,7 +3,7 @@ import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor, showShop } from '~/services/modelModifier'
-import { getCategory, getCategories, createCategory } from './controller'
+import { getCategory, getCategories, createCategory, updateCategory } from './controller'
 import model, { modelProjection } from './model'
 
 const config = {
@@ -73,7 +73,8 @@ router.post('',
  * @apiError 404 Category not found.
  */  
 router.patch('/:id', 
-    endpoint.update())
+    doorman(['user', 'admin']),
+    updateCategory)
 
 /**
  * @api {delete} /categories/:id Delete category

@@ -10,6 +10,7 @@ import Article from '~/api/article/model'
 import { defaultShopData, defaultArticleData } from './data'
 
 let defaultCategory,
+    adminCategory,
     adminToken,
     defaultShop, 
     defaultUser,
@@ -28,6 +29,8 @@ beforeEach(async (done) => {
     defaultUser.activeShop = defaultShop._id
     defaultUser.shops.push(defaultShop._id)
     await defaultUser.save()
+
+    adminCategory = await Category.create({ name: 'test_category', author: adminUser._id, shop: defaultShop._id })
 
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     await Category.create({ name: 'test_category_1', author: defaultUser._id, shop: defaultShop._id })
@@ -61,7 +64,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
         const firstItem = body[0]
 
-        expect(body.length).toBe(2)
+        expect(body.length).toBe(3)
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
         expect(typeof firstItem.name).toEqual('string')
@@ -95,7 +98,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(body.length).toBe(2)
+        expect(body.length).toBe(3)
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
     })
@@ -172,6 +175,23 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(status).toBe(404)
     })
     
+    test(`PATCH /${apiEndpoint}/:id 401`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminCategory._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+            .send({ name: 'test' })
+        
+        expect(status).toBe(401)
+    })
+
+    test(`PATCH /${apiEndpoint}/:id 401`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
+            .send({ name: 'test' })
+        
+        expect(status).toBe(401)
+    })
+
     test(`DELETE /${apiEndpoint}/:id 200`, async () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
