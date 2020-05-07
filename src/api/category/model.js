@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
+import Article from '~/api/article/model'
 
 const categorySchema = new Schema({
     name: { type: String, required: true },
@@ -20,10 +21,10 @@ const categorySchema = new Schema({
     }
 })
 
-categorySchema.pre('remove', function(callback) {
-    // Remove all the docs that refers
-    this.model('Article').deleteMany({ category: this._id }, callback)
-})
+export const removeArticles = async function(item = this) {    
+    const { _id } = item
+    await Article.deleteMany({ category: _id })    
+}
 
 // Count articles in categories
 categorySchema.virtual('article_count', {
@@ -44,7 +45,8 @@ export const modelProjection = function(item = this) {
 }
 
 categorySchema.methods = {
-    modelProjection
+    modelProjection,
+    removeArticles
 }
 
 categorySchema.plugin(paginate)

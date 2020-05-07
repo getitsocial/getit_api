@@ -16,6 +16,7 @@ let defaultCategory,
     defaultUser,
     adminUser,
     defaultToken,
+    defaultArticle,
     apiEndpoint = 'categories'
 
 beforeEach(async (done) => {
@@ -35,6 +36,9 @@ beforeEach(async (done) => {
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     await Category.create({ name: 'test_category_1', author: defaultUser._id, shop: defaultShop._id })
     
+    defaultArticle = await Article.create(defaultArticleData({ category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id }))
+
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -45,16 +49,6 @@ beforeEach(async (done) => {
     done()
 })
 
-test('Remove articles when deleting a category', async () => {
-    const removeCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
-
-    const defaultArticle = await Article.create(defaultArticleData({ category: removeCategory._id, author: defaultUser._id, shop: defaultShop._id }))
-
-    await removeCategory.remove()
-
-    expect(await Article.findById(defaultArticle._id)).toBeNull()
-
-})
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
 
@@ -210,6 +204,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(status).toBe(204)
+        expect(await Article.findById(defaultArticle._id)).toBeNull()
+
     })
 
     test(`DELETE /${apiEndpoint}/:id 204`, async () => {
@@ -218,6 +214,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + adminToken)
 
         expect(status).toBe(204)
+        expect(await Article.findById(defaultArticle._id)).toBeNull()
+
     })
 
     test(`DELETE /${apiEndpoint}/:id 401`, async () => {
