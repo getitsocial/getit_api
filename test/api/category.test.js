@@ -204,7 +204,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(status).toBe(401)
     })
 
-    test(`DELETE /${apiEndpoint}/:id 200`, async () => {
+    test(`DELETE /${apiEndpoint}/:id 204`, async () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -212,7 +212,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(status).toBe(204)
     })
 
-    test(`DELETE /${apiEndpoint}/:id 200`, async () => {
+    test(`DELETE /${apiEndpoint}/:id 204`, async () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .set('Authorization', 'Bearer ' + adminToken)

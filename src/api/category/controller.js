@@ -18,10 +18,11 @@ export const getCategories = async({ shop, query }, res, next) => {
             populate: [{ path: 'author', select: 'name picture' }, { path: 'article_count' }]
         }
 
-        const { totalDocs, docs} = await Category.paginate({ shop: shop._id }, options)
+        const { totalDocs, docs } = await Category.paginate({ shop: shop._id }, options)
         
         const data = []
         docs.forEach(category => data.push(category.modelProjection()))
+        
         // Send response 
         res.send(200, { count: totalDocs, rows: data })
 
@@ -33,6 +34,7 @@ export const getCategories = async({ shop, query }, res, next) => {
 }
 
 export const createCategory = async({ body, shop }, res, next) => {
+    
     // Pass values
     const { author, name } = body
 

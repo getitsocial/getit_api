@@ -10,9 +10,9 @@ const router = new Router()
  * @apiName RetrieveCategorys
  * @apiGroup Category
  * @apiUse listParams
- * @apiHeader {Number} x-total-count Categorys count.
- * @apiSuccess {Object[]} categories List of categories.
+ * @apiSuccess {count, Object[]} categories List of categories.
  * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 401 Missing permissions.
  */
 router.get('', 
     doorman(['user', 'admin']),
@@ -26,6 +26,7 @@ router.get('',
  * @apiSuccess {Object} category Category's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
+ * @apiError 401 Missing permissions.
  */
 router.get('/:id', 
     doorman(['user', 'admin']), 
@@ -40,6 +41,7 @@ router.get('/:id',
  * @apiSuccess {Object} category Category's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
+ * @apiError 401 Missing permissions.
  */
 router.post('', 
     [doorman(['user', 'admin']), addAuthor(), showShop()], 
@@ -53,6 +55,7 @@ router.post('',
  * @apiSuccess {Object} category Category's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
+ * @apiError 401 Missing permissions.
  */  
 router.patch('/:id', 
     doorman(['user', 'admin']),
@@ -64,6 +67,7 @@ router.patch('/:id',
  * @apiGroup Category
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Category not found.
+ * @apiError 401 Missing permissions.
  */
 router.del('/:id', 
     doorman(['user', 'admin']),
