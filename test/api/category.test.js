@@ -166,6 +166,17 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.name).toEqual('newname')
     })
 
+    test(`PATCH /${apiEndpoint}/:id 200`, async () => {
+        const { status, body } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+            .send({ name: 'newname' })
+        
+        expect(status).toBe(200)
+        expect(typeof body).toEqual('object')
+        expect(body.name).toEqual('newname')
+    })
+
     test(`PATCH /${apiEndpoint}/:id 404`, async () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
@@ -197,7 +208,23 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
-        expect(status).toBe(200)
+        expect(status).toBe(204)
+    })
+
+    test(`DELETE /${apiEndpoint}/:id 200`, async () => {
+        const { status } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
+            .set('Authorization', 'Bearer ' + adminToken)
+
+        expect(status).toBe(204)
+    })
+
+    test(`DELETE /${apiEndpoint}/:id 401`, async () => {
+        const { status } = await request(server)
+            .delete(`${serverConfig.endpoint}/${apiEndpoint}/${adminCategory._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(status).toBe(401)
     })
 
     test(`DELETE /${apiEndpoint}/:id 404`, async () => {

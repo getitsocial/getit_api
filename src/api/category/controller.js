@@ -102,3 +102,29 @@ export const updateCategory = async({ params, user, body }, res, next) => {
     }
 
 }
+
+export const deleteCategory = async({ params, user }, res, next) => {
+
+    try {
+
+        const { id } = params
+
+        const category = await Category.findById(id)
+        
+        if (!category) {
+            return next(new ResourceNotFoundError('category not found'))
+        }
+
+        if (user.role !== 'admin' && !category.author.equals(user._id)) {
+            return next(new UnauthorizedError('cannot delete other users category'))
+        }
+
+        await Category.findByIdAndDelete(id)        
+
+        res.send(204)
+
+    } catch (error) {
+        return next(new BadRequestError(error))
+    }
+
+}

@@ -1,27 +1,9 @@
-import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
-import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
 import { addAuthor, showShop } from '~/services/modelModifier'
-import { getCategory, getCategories, createCategory, updateCategory } from './controller'
-import model, { modelProjection } from './model'
-
-const config = {
-    populate: { path: 'author', select: 'name picture' },
-    sort: 'name',
-    pageSize: 50,
-    listProjection: modelProjection,
-    detailProjection: modelProjection
-}
+import { getCategory, getCategories, createCategory, updateCategory, deleteCategory } from './controller'
 
 const router = new Router()
-const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
-
-// TODO: Implement controller && secure endpoints 
-
-/**
- * Serve resources with fine grained mapping control
- */
 
 /**
  * @api {get} /categories Retrieve categories
@@ -84,7 +66,8 @@ router.patch('/:id',
  * @apiError 404 Category not found.
  */
 router.del('/:id', 
-    endpoint.remove())
+    doorman(['user', 'admin']),
+    deleteCategory)
 
 /**
  * Export this function
