@@ -1,15 +1,24 @@
 import { BadRequestError } from 'restify-errors'
 import Category from './model'
 
-export const getCategories = async({ shop }, res, next) => {
+export const getCategories = async({ shop, query }, res, next) => {
+    
     try {
-        // Find active shop
+
         if (!shop) return next(new BadRequestError('no active shop specified'))
         
-        // Find objects        
-        const categories = await Category.find({ shop: shop._id }).populate([{ path: 'author', select: 'name picture' }, { path: 'article_count' }])
+        const { page, limit } = query
+        
+        const options = {
+            page: page ?? 1,
+            limit: limit ?? 20,
+            populate: [{ path: 'author', select: 'name picture' }, { path: 'article_count' }]
+        }
+
+        const categories = await Category.paginate({ shop: shop._id }, options)
+        
         const data = []
-        categories.forEach(category => data.push(category.modelProjection()))
+        categories.docs.forEach(category => data.push(category.modelProjection()))
         // Send response 
         res.send(200, data)
 

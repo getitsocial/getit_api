@@ -30,6 +30,7 @@ beforeEach(async (done) => {
     await defaultUser.save()
 
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
+    await Category.create({ name: 'test_category_1', author: defaultUser._id, shop: defaultShop._id })
     
     // Sign in user
     adminToken = await sign(adminUser)
@@ -59,12 +60,44 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
         const firstItem = body[0]
+
+        expect(body.length).toBe(2)
         expect(statusCode).toBe(200)
         expect(Array.isArray(body)).toBe(true)
         expect(typeof firstItem.name).toEqual('string')
         expect(firstItem.name).toEqual(defaultCategory.name)
         expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined()
+    })
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1&limit=1`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(body.length).toBe(1)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?limit=1`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(body.length).toBe(1)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(body.length).toBe(2)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body)).toBe(true)
     })
 
     test(`GET /${apiEndpoint} 400 - no active shop`, async () => {
@@ -74,7 +107,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(400)
     })
-
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)

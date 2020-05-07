@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
+import paginate from 'mongoose-paginate-v2'
 
 const categorySchema = new Schema({
     name: { type: String, required: true },
@@ -48,6 +49,8 @@ export const modelProjection = function(req, item = this, cb) {
 categorySchema.methods = {
     modelProjection
 }
+
+categorySchema.plugin(paginate)
 
 categorySchema.index({'$**': 'text'})
 
