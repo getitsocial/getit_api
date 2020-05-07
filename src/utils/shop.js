@@ -93,5 +93,5 @@ export const minutesToHHMM = (minutes) => {
     const m = minutes % 60    
     const h = (minutes-m) / 60
 
-    return `${h}:${m<10?'0': ''}${m}`
+    return `${h<10?'0':''}${h}:${m<10?'0':''}${m}`
 }
