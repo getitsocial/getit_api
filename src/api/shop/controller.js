@@ -92,7 +92,6 @@ export const updateShop = async({ body, params, user }, res, next) => {
     // Pass values
     const { id } = params
     const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours } = body
-
     try {
 
         // find object
@@ -118,12 +117,14 @@ export const updateShop = async({ body, params, user }, res, next) => {
         }
         // 15:00 to 900 etc.
         const parsedOpeningHours = parseOpeningHours(openingHours)
-
         // merge and save
         const data = mergeWith(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, parsedOpeningHours }, (obj, src) => {
             if (isArray(obj)) return src
         })
-        
+
+        // Save mixed types of body
+        data.markModified('parsedOpeningHours')
+
         await data.save()
         
         // Send response 

@@ -78,7 +78,6 @@ export const parseOpeningHours = (openingHours) => {
         } 
 
     }
- 
     return parsed
 }
 

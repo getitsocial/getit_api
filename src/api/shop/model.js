@@ -106,6 +106,7 @@ const shopSchema = new Schema({
     }
 })
 
+
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
