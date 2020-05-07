@@ -14,17 +14,17 @@ export const getCategories = async({ shop, query }, res, next) => {
         
         const options = {
             page: page ?? 1,
-            limit: limit ?? 20,
+            limit: limit ?? 5,
             populate: [{ path: 'author', select: 'name picture' }, { path: 'article_count' }]
         }
 
-        const { totalDocs, docs } = await Category.paginate({ shop: shop._id }, options)
+        const { totalDocs, docs, nextPage, prevPage } = await Category.paginate({ shop: shop._id }, options)
         
         const data = []
         docs.forEach(category => data.push(category.modelProjection()))
         
         // Send response 
-        res.send(200, { count: totalDocs, rows: data })
+        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
 
     } catch(error) {
         /* istanbul ignore next */ 
