@@ -21,8 +21,8 @@ export const serverConfig = {
     },
     sendgridKey: requireProcessEnv('SENDGRID_KEY'),
     emailTemplates: {
-        welcome: 'd-e77bbfffbb884f9e82b21ccaa664d867',
-        forgot: 'd-6d6874a8a81b4ae68ccda1804e29bc9f'
+        welcome: 'd-e348a8a8a2f04a2e871e6fc6c26a5cfb',
+        forgot: 'd-ac2e091839ab4112b1be2ff7d9d2d6d3'
     },
     defaultEmail: 'no-reply@getit.social'
 }
