@@ -18,12 +18,12 @@ export const getCategories = async({ shop, query }, res, next) => {
             populate: [{ path: 'author', select: 'name picture' }, { path: 'article_count' }]
         }
 
-        const categories = await Category.paginate({ shop: shop._id }, options)
+        const { totalDocs, docs} = await Category.paginate({ shop: shop._id }, options)
         
         const data = []
-        categories.docs.forEach(category => data.push(category.modelProjection()))
+        docs.forEach(category => data.push(category.modelProjection()))
         // Send response 
-        res.send(200, data)
+        res.send(200, { category_count: totalDocs, categories: data })
 
     } catch(error) {
         /* istanbul ignore next */ 
