@@ -22,7 +22,7 @@ export const addShop = () => ( async({ user, body }, res, next) => {
     if (!body) return next(new BadRequestError())
     
     const { activeShop }  = await User.findById(user)
-    if(!activeShop) return next()
+    if(!activeShop) return next(new BadRequestError())
 
     body.shop = activeShop
     
@@ -35,7 +35,7 @@ export const showShop = () => (async(req, res, next) => {
     if (!user) return next() 
     
     const { activeShop } = await User.findById(user)
-    if(!activeShop) return next()
+    if(!activeShop) return next(new BadRequestError())
     
     const shop = await Shop.findById(activeShop)
     req.shop = shop
