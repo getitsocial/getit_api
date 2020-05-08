@@ -10,15 +10,19 @@ export const getCategories = async({ shop, query }, res, next) => {
             return next(new BadRequestError('no active shop specified'))
         }
 
-        const { page, limit } = query
-        
+        // Pagination
+        const { page, limit, search } = query
         const options = {
             page: page ?? 1,
-            limit: limit ?? 20,
+            limit: limit ?? 5,
             populate: [{ path: 'author', select: 'name picture' }, { path: 'article_count' }]
         }
 
-        const { totalDocs, docs, nextPage, prevPage } = await Category.paginate({ shop: shop._id }, options)
+        // Search
+        const searchParams = search ? { name: { $regex: search, $options: 'i' } } : {}
+        
+        // Query
+        const { totalDocs, docs, nextPage, prevPage } = await Category.paginate({ shop: shop._id, ...searchParams }, options)
         
         const data = []
         docs.forEach(category => data.push(category.modelProjection()))
