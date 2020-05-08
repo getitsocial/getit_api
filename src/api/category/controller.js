@@ -14,7 +14,7 @@ export const getCategories = async({ shop, query }, res, next) => {
         const { page, limit, search } = query
         const options = {
             page: page ?? 1,
-            limit: limit ?? 5,
+            limit: limit ?? 20,
             populate: [{ path: 'author', select: 'name picture' }, { path: 'article_count' }]
         }
 
