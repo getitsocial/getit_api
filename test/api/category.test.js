@@ -98,6 +98,28 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body.rows)).toBe(true)
     })
 
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?search=test_`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(body.rows.length).toBe(3)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?search=_1`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        const firstItem = body.rows[0]
+
+        expect(body.rows.length).toBe(1)
+        expect(firstItem.name).toEqual('test_category_1')
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+
     test(`GET /${apiEndpoint} 400 - no id`, async () => {
         const { statusCode } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}`)
