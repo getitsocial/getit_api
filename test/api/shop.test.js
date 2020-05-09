@@ -7,6 +7,7 @@ import server from '~/server'
 import { sign } from '~/services/guard'
 import { defaultShopData } from './data'
 import { parseOpeningHours } from '~/utils'
+import { encode } from 'ngeohash'
 
 let defaultShop,
     adminShop,
@@ -26,7 +27,6 @@ beforeEach(async (done) => {
     // Create shop
     defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours: parsedOpeningHours }))
     adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours: parsedOpeningHours }))
-
     // Set shops in user
     defaultUser.activeShop = defaultShop._id
     defaultUser.shops.push(defaultShop._id)
@@ -88,6 +88,17 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(firstItem._id).toBeTruthy()
         expect(firstItem.updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
     })
+
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/near/${encode(49.009387, 8.377048)}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(Array.isArray(body)).toBe(true)
+        expect(body.length).toBe(2)
+        expect(statusCode).toBe(200)
+    })
  
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
@@ -96,8 +107,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
-        expect(typeof body.polygonCoordinates).toEqual('object')
-        expect(Array.isArray(body.polygonCoordinates.coordinates)).toBe(true)
+        expect(body.displayPosition).not.toBeUndefined()
+        expect(body.position).toBeUndefined()
 
     })
     

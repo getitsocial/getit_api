@@ -95,9 +95,8 @@ const shopSchema = new Schema({
         type: Boolean,
         default: true
     },
-    displayPosition: {
-        latitude: { type: Number }, 
-        longitude: { type: Number },
+    position: {
+        type: Object
     }
 }, {
     timestamps: true,
@@ -110,7 +109,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['_id', 'shopId', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates', 'openingHours', 'deliveryOptions']
+    const fields = ['_id', 'shopId', 'displayPosition', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates', 'openingHours', 'deliveryOptions']
 
     fields.forEach((field) => { view[field] = item[field] })
 
@@ -129,6 +128,7 @@ shopSchema.pre('save', async function (next) {
         // dont touch
         const { response: { view: [ { result: [ { location: { displayPosition }}]}]}} = await request({ uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${this.address.locationId}&jsonattributes=1&gen=9&apiKey=${apiKey}`, json: true })
         this.displayPosition = displayPosition
+        this.position = { type: 'Point', coordinates: [ displayPosition.longitude, displayPosition.latitude ]}
         next()
     } catch(error) {
         next(error)
@@ -144,12 +144,8 @@ export const removeUsers = async function(item = this) {
     // If we decide to remove the activeShop too: {'$unset': { 'activeShop': ''}}
 }
 
-shopSchema.virtual('polygonCoordinates').get(function () {
-    try {
-        return circleToPolygon([this.displayPosition.longitude, this.displayPosition.latitude], 100, 32)
-    } catch (error) {
-        return  []
-    }
+shopSchema.virtual('displayPosition').get(function () {
+    return { latitude: this.position.coordinates[1], longitude: this.position.coordinates[0] }
 })
 
 shopSchema.virtual('address.display').get(function () {

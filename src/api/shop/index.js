@@ -2,7 +2,7 @@ import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
 import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { checkName, deleteShop, createShop, updateShop } from './controller'
+import { checkName, deleteShop, createShop, updateShop, getNearShops } from './controller'
 import { addAuthor } from '~/services/modelModifier'
 import model, { modelProjection } from './model'
 
@@ -50,6 +50,16 @@ router.post('/checkName',
  */
 router.get('/:id', 
     endpoint.detail())
+
+/**
+ * @api {get} /shops/near/:geohash get shops in range
+ * @apiName RetrieveNearShops
+ * @apiGroup Shop
+ * @apiSuccess  {Object[]} shops List of shops.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 401 missing permissions.
+ */
+router.get('/near/:geohash', getNearShops)
 
 /**
  * @api {post} /shops Create shop

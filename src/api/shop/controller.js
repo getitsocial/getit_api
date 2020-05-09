@@ -4,7 +4,31 @@ import { mergeWith, isArray } from 'lodash'
 import User from '~/api/user/model'
 import Shop from './model'
 import { parseOpeningHours } from '~/utils'
+import { decode } from 'ngeohash'
+import circleToPolygon from 'circle-to-polygon'
 
+export const getNearShops = async({ params }, res, next) => {
+   
+    try {
+        
+        const { geohash } = params
+        const { latitude, longitude } = decode(geohash)
+   
+        if (!latitude || !longitude) return next(new BadRequestError('not a valid geohash'))
+
+        const shops = await Shop.find({ position: {
+            $geoIntersects: {
+                $geometry: circleToPolygon([longitude, latitude], 10000, 32)
+            }
+        }})
+
+        res.send(shops)
+
+    } catch (error) {
+        return next(new BadRequestError(error))
+    }
+
+}
 
 export const checkName = async(req, res, next) => {
     try {
@@ -32,7 +56,6 @@ export const checkName = async(req, res, next) => {
         return next(new BadRequestError(error))
     }
 }
-
 
 export const deleteShop = async({ user, params }, res, next) => {
     const { id } = params
