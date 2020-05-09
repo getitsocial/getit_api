@@ -74,6 +74,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     })
 
+    test(`GET /${apiEndpoint} 401`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}`)
+        
+        expect(statusCode).toBe(401)
+    })
+
     test(`GET /${apiEndpoint} 200`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1`)
@@ -122,6 +129,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.category.name).not.toBeUndefined()
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
+    })
+
+    test(`GET /${apiEndpoint}:id 401`, async () => {
+        const { status } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultArticle._id}`)
+        
+        expect(status).toBe(401)
     })
 
     test(`GET /${apiEndpoint}/:id 404`, async () => {
@@ -179,7 +193,14 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.price).toEqual(4)
     })
 
-         
+    test(`PATCH /${apiEndpoint}/:id 401`, async () => {
+        const { status } = await request(server)
+            .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultArticle._id}`)
+            .send({ price: 4 })
+        
+        expect(status).toBe(401)
+    })
+
     test(`PATCH /${apiEndpoint}/:id 404`, async () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
