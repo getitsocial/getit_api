@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import shortid from 'shortid'
-
+import paginate from 'mongoose-paginate-v2'
 
 const articleSchema = new Schema({
     name: { 
@@ -12,7 +12,6 @@ const articleSchema = new Schema({
         type: String,
         maxlength: 25,
         unique: true,
-        required: true, 
         default: shortid.generate
     },
     stock: { 
@@ -80,17 +79,15 @@ const articleSchema = new Schema({
     }
 })
 
-export const modelProjection = function(req, item = this, cb) {
+export const modelProjection = function(item = this) {
     
     const view = {}
     const fields = ['id', 'author', 'name', 'size', 'stock', 'articleNumber', 'description', 'picture', 'price', 'category', 'published', 'haveStock', 'tax', 'currency']
 
     fields.forEach((field) => { view[field] = item[field] })
 
-    if(!cb)
-        return view
+    return view
     
-    cb(null, view)
 }
 
 articleSchema.virtual('haveStock').
@@ -102,6 +99,7 @@ articleSchema.methods = {
     modelProjection
 }
 
+articleSchema.plugin(paginate)
 
 articleSchema.index({'$**': 'text'})
 
