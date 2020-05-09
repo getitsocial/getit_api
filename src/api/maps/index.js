@@ -1,6 +1,6 @@
 import { Router } from 'restify-router'
-import { search } from './controller'
-import { doorman } from '~/services/guard'
+import { search, detail } from './controller'
+// import { doorman } from '~/services/guard'
 
 const router = new Router()
 
@@ -11,10 +11,19 @@ const router = new Router()
  * @apiUse listParams
  * @apiError {Object} 400 Some parameters may contain invalid values.
  */
-
-router.get('/geocode', 
-    doorman(['user', 'admin']),
+router.get('/geocode',
     search)
+
+
+/**
+ * @api {get} /detail Places suggestions
+ * @apiName RetrievePlaceSuggestions
+ * @apiGroup Maps
+ * @apiUse listParams
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ */
+router.get('/detail',
+    detail)
 
 /**
  * Export this function

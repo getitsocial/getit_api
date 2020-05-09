@@ -14,3 +14,13 @@ export const search = async(req, res, next) => {
         return next(new BadRequestError(error))
     }
 }
+
+// https://developer.here.com/documentation/geocoder/dev_guide/topics/quick-start-geocode.html
+export const detail = async(req, res, next) => {
+    try {
+        const { response: { view: [ { result: [ { location }]}]}} = await request({ uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?jsonattributes=1&gen=9&apiKey=${apiKey}`, json: true, qs: req.query })
+        res.json(location)
+    } catch(error) {
+        return next(new BadRequestError(error))
+    }
+}
