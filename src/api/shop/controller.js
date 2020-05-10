@@ -16,11 +16,14 @@ export const getNearShops = async({ params }, res, next) => {
    
         if (!latitude || !longitude) return next(new BadRequestError('not a valid geohash'))
 
-        const shops = await Shop.find({ position: {
-            $geoIntersects: {
-                $geometry: circleToPolygon([longitude, latitude], 10000, 32)
-            }
-        }})
+        const shops = await Shop.find({
+            position: {
+                $geoIntersects: {
+                    $geometry: circleToPolygon([longitude, latitude], 10000, 32)
+                }
+            },
+            published: true
+        })
 
         res.send(shops)
 

@@ -90,7 +90,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     })
 
 
-    test(`GET /${apiEndpoint} 200`, async () => {
+    test(`GET /${apiEndpoint}/near 200`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/near/${encode(49.009387, 8.377048)}`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -100,6 +100,19 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(200)
     })
   
+    test(`GET /${apiEndpoint}/near unpublished shop 200`, async () => {
+        defaultShop.set({ published: false })
+        await defaultShop.save()
+
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/near/${encode(49.009387, 8.377048)}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(Array.isArray(body)).toBe(true)
+        expect(body.length).toBe(1)
+        expect(statusCode).toBe(200)
+    })
+
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
