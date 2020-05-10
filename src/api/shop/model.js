@@ -1,7 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
 import request from 'request-promise'
-import circleToPolygon from 'circle-to-polygon'
 import User from '~/api/user/model'
 import { openingHoursValidator, minutesToHHMM } from '~/utils'
 
