@@ -165,8 +165,8 @@ export const getActiveShop = async({ user, params }, res, next) => {
         const { activeShop } = await User.findById(params.id === 'me' ? user._id : params.id).populate('activeShop')
         if (!activeShop) 
             return next(new NotFoundError(res.__('no active shop specified')))
-
-        res.send(200, activeShop)
+        
+        res.send(200, activeShop.modelProjection())
 
     } catch (error) {
         /* istanbul ignore next */ 
