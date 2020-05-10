@@ -25,8 +25,8 @@ beforeEach(async (done) => {
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     // Create shop
-    defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours: parsedOpeningHours }))
-    adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours: parsedOpeningHours }))
+    defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours }))
+    adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours, openingHours: {} }))
     // Set shops in user
     defaultUser.activeShop = defaultShop._id
     defaultUser.shops.push(defaultShop._id)
@@ -99,7 +99,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.length).toBe(2)
         expect(statusCode).toBe(200)
     })
- 
+  
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
@@ -109,7 +109,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body).toEqual('object')
         expect(body.displayPosition).not.toBeUndefined()
         expect(body.position).toBeUndefined()
-
+        expect(typeof body.isOpen).toBe('boolean')
     })
     
     test(`GET /${apiEndpoint}/:id 404`, async () => {
@@ -372,5 +372,5 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(status).toBe(400)
-    })
+    }) 
 })

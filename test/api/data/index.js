@@ -27,7 +27,7 @@ export const defaultShopData = (edit) => mergeWith({
         thursday: [{ open: '9:00', close: '12:00' }, { open: '13:00', close: '18:00' }],
         friday: [{ open: '9:00', close: '12:00' }, { open: '13:00', close: '18:00' }],
         saturday: [{ open: '9:00', close: '12:00' }, { open: '13:00', close: '18:00' }],
-        sunday: [{ open: '9:00', close: '12:00' }, { open: '13:00', close: '18:00' }]
+        sunday: []
     }
 }, edit, (obj, src) => {
     if (isArray(obj)) return src

@@ -108,7 +108,7 @@ const shopSchema = new Schema({
 export const modelProjection = function(req, item = this, cb) {    
 
     const view = {}
-    const fields = ['_id', 'shopId', 'displayPosition', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates', 'openingHours', 'deliveryOptions']
+    const fields = ['_id', 'shopId', 'displayPosition', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates', 'openingHours', 'deliveryOptions', 'isOpen']
 
     fields.forEach((field) => { view[field] = item[field] })
 
@@ -166,29 +166,30 @@ shopSchema.virtual('openingHours').get(function() {
     const days = Object.keys(this.parsedOpeningHours).filter(day => day !== 'exceptions')
 
     days.forEach((day) => {
-        openingHours[day] = this.parsedOpeningHours[day]
-        openingHours[day].forEach((segment) => {
-            segment.allDayOpen = segment.open === 0 && segment.close === 0
-            segment.open = minutesToHHMM(segment.open)
-            segment.close = minutesToHHMM(segment.close)
+        openingHours[day] = []
+        this.parsedOpeningHours[day].forEach((segment) => {
+            openingHours[day].push({
+                allDayOpen: segment.open === 0 && segment.close === 0,
+                open: minutesToHHMM(segment.open),
+                close: minutesToHHMM(segment.close)
+            })
         })
     })
 
     return openingHours
 })
 
-/* 
 shopSchema.virtual('isOpen').get(function () {
+
     const date = new Date()
-    const day = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'][date.getDay()]
+    const day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()]
     const minutes = (date.getHours() * 60) + date.getMinutes()
 
-    if (this.openingHours[day].length === 0) return false // all day closed
-    if (this.openingHours[day][0].open === 0 && this.openingHours[day][0].close === 0) return true // all day open
+    if (this.parsedOpeningHours[day].length === 0) return false // all day closed
+    if (this.parsedOpeningHours[day][0].open === 0 && this.parsedOpeningHours[day][0].close === 0) return true // all day open
 
-    return this.openingHours[day].findIndex((segment) => segment.open <= minutes && minutes <= segment.close) !== -1
+    return this.parsedOpeningHours[day].findIndex((segment) => segment.open <= minutes && minutes <= segment.close) !== -1
 }) 
-*/
 
 shopSchema.methods = {
     modelProjection,
