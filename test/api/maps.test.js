@@ -33,14 +33,4 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         
     })
 
-
-    test(`GET /${apiEndpoint} 401`, async () => {
-        const { statusCode, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/geocode?query=dummerstorfer+2`)
-
-        expect(statusCode).toBe(401)
-        expect(typeof body).toEqual('object')
-        
-    })
-
 })

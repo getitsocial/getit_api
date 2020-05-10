@@ -8,6 +8,7 @@ import { sign } from '~/services/guard'
 import User from '~/api/user/model'
 import Shop from '~/api/shop/model'
 import { defaultShopData, defaultArticleData } from './data'
+import { parseOpeningHours } from '~/utils'
 
 let defaultArticle, 
     defaultCategory,
@@ -20,11 +21,13 @@ let defaultArticle,
 
 beforeEach(async () => {
 
+    const parsedOpeningHours = parseOpeningHours(defaultShopData().openingHours)
+
     // Create user
     const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
-    defaultShop = await Shop.create(defaultShopData({ author: adminUser._id }))
+    defaultShop = await Shop.create(defaultShopData({ author: adminUser._id, parsedOpeningHours }))
     
     defaultUser.shops.push(defaultShop._id)
     defaultUser.activeShop = defaultShop._id

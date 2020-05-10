@@ -9,6 +9,7 @@ import Shop from '~/api/shop/model'
 import Article from '~/api/article/model'
 import Category from '~/api/category/model'
 import { defaultShopData, defaultArticleData } from './data'
+import { parseOpeningHours } from '~/utils'
 
 let defaultOrder, 
     adminToken,
@@ -22,12 +23,14 @@ let defaultOrder,
 
 beforeEach(async (done) => {
 
+    const parsedOpeningHours = parseOpeningHours(defaultShopData().openingHours)
+
     // Create user
     adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
 
     // Shop
-    defaultShop = await Shop.create(defaultShopData({ author: adminUser._id }))
+    defaultShop = await Shop.create(defaultShopData({ author: adminUser._id, parsedOpeningHours }))
     
     defaultCategory = await Category.create({
         name: 'test_category',
