@@ -3,9 +3,7 @@ import { BadRequestError, UnauthorizedError } from 'restify-errors'
 
 const allowedFolders = ['article', 'logo', 'user', 'shop']
 
-export const upload = async(req, res, next) => {
-
-
+export const upload = async (req, res, next) => {
     if (!req.files) {
         return next(new BadRequestError('no images attached'))
     }
@@ -14,24 +12,23 @@ export const upload = async(req, res, next) => {
         return next(new UnauthorizedError('no user specified'))
     }
 
-
     // Parse data
     const { folder } = req.params
     const { file } = req.files
     const { user } = req
-    
-    if (!allowedFolders.includes(folder)) return next(new BadRequestError('invalid folder'))
 
+    if (!allowedFolders.includes(folder))
+        return next(new BadRequestError('invalid folder'))
 
     const settings = mediaSettings(folder)
-    
-    // uhh..
-    if (process.env.NODE_ENV !== 'prod') {
+
+    // Remove crop settings in dev and save money
+    if (process.env.NODE_ENV === 'development') {
         delete settings.crop
     }
 
+    // Assign user id to media
     settings.tags = [user._id]
-    
 
     try {
         const {
@@ -41,20 +38,16 @@ export const upload = async(req, res, next) => {
             secure_url,
         } = await handler.v2.uploader.upload(file.path, settings)
         res.json({ id: public_id, etag, format, url: secure_url })
-
     } catch (error) {
         return next(new BadRequestError(error))
     }
-    
 }
 
-
-export const deleteMedia = async(req, res, next) => {
-
+export const deleteMedia = async (req, res, next) => {
     if (!req.user) {
         return next(new UnauthorizedError('no user specified'))
     }
- 
+
     // Parse data
     const { folder, id } = req.params
     const { user } = req
@@ -70,7 +63,7 @@ export const deleteMedia = async(req, res, next) => {
             return next(new UnauthorizedError())
         }
     } catch (error) {
-        return next(new BadRequestError(error))        
+        return next(new BadRequestError(error))
     }
 
     res.send(204)
