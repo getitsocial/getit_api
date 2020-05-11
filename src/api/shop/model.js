@@ -3,6 +3,7 @@ import slugify from 'slugify'
 import request from 'request-promise'
 import User from '~/api/user/model'
 import { openingHoursValidator, minutesToHHMM } from '~/utils'
+import moment from 'moment'
 
 const apiKey = process.env.HERE_API
 
@@ -181,9 +182,10 @@ shopSchema.virtual('openingHours').get(function() {
 
 shopSchema.virtual('isOpen').get(function () {
 
+    moment.locale('de')
     const date = new Date()
     const day = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()]
-    const minutes = (date.getHours() * 60) + date.getMinutes()
+    const minutes = (moment().hours() * 60) + moment().minutes()
 
     if (this.parsedOpeningHours[day].length === 0) return false // all day closed
     if (this.parsedOpeningHours[day][0].open === 0 && this.parsedOpeningHours[day][0].close === 0) return true // all day open
