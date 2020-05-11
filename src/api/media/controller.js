@@ -23,7 +23,7 @@ export const upload = async (req, res, next) => {
     const settings = mediaSettings(folder)
 
     // Remove crop settings in dev and save money
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV !== 'production') {
         delete settings.crop
     }
 
