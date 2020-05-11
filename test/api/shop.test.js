@@ -75,21 +75,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(409)
     }) 
 
-    test(`GET /${apiEndpoint} 200`, async () => {
-        const {statusCode, body} = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        const firstItem = body[0]
-
-        expect(body.length).toBe(2)
-        expect(statusCode).toBe(200)
-        expect(Array.isArray(body)).toBe(true)
-        expect(firstItem._id).toBeTruthy()
-        expect(firstItem.updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
-    })
-
-
     test(`GET /${apiEndpoint}/near 200`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/near/${encode(49.009387, 8.377048)}`)
@@ -111,11 +96,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body)).toBe(true)
         expect(body.length).toBe(1)
         expect(statusCode).toBe(200)
+        expect(body[0].updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
+
     })
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop.shopId}`)
             .set('Authorization', 'Bearer ' + defaultToken)
         
         expect(status).toBe(200)
@@ -123,12 +110,20 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.displayPosition).not.toBeUndefined()
         expect(body.position).toBeUndefined()
         expect(typeof body.isOpen).toBe('boolean')
+        expect(body.updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
+
+    })
+
+    test(`GET /${apiEndpoint}:id 200`, async () => {
+        const { status } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
+        
+        expect(status).toBe(404)
     })
     
     test(`GET /${apiEndpoint}/:id 404`, async () => {
         const { status } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
-            .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(status).toBe(404)
     })

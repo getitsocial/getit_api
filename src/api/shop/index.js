@@ -1,37 +1,8 @@
-import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
-import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { checkName, deleteShop, createShop, updateShop, getNearShops } from './controller'
+import { checkName, deleteShop, createShop, updateShop, getNearShops, getShop } from './controller'
 import { addAuthor } from '~/services/modelModifier'
-import model, { modelProjection } from './model'
-
-const config = {
-    listProjection: modelProjection,
-    detailProjection: modelProjection
-}
-
 const router = new Router()
-const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
-
-// TODO: Implement controller && secure endpoints 
-
-/**
- * Serve resources with fine grained mapping control
- */
-
-/**
- * @api {get} /shops Retrieve shops
- * @apiName RetrieveShops
- * @apiGroup Shop
- * @apiUse listParams
- * @apiHeader {Number} x-total-count Shops count.
- * @apiSuccess {Object[]} shops List of shops.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- */
-router.get('', 
-    endpoint.query())
-
 
 /**
  * TODO: Document this
@@ -41,15 +12,15 @@ router.post('/checkName',
     checkName)
 
 /**
- * @api {get} /shops/:id Retrieve shop
+ * @api {get} /shops/:shopId Retrieve shop
  * @apiName RetrieveShop
  * @apiGroup Shop
  * @apiSuccess {Object} shop Shop's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Shop not found.
  */
-router.get('/:id', 
-    endpoint.detail())
+router.get('/:shopId',
+    getShop)
 
 /**
  * @api {get} /shops/near/:geohash get shops in range
@@ -86,7 +57,6 @@ router.post('',
  * @apiError 404 Shop not found.
  */  
 
-// TODO: Bug, cannot update if doorman active
 router.patch('/:id', 
     doorman(['user', 'admin']), 
     updateShop)

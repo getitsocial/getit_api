@@ -105,19 +105,20 @@ const shopSchema = new Schema({
     }
 })
 
-
-export const modelProjection = function(req, item = this, cb) {    
+export const modelProjection = function(publicView) {    
+    
+    const item = this
 
     const view = {}
-    const fields = ['_id', 'shopId', 'displayPosition', 'name', 'contact', 'address', 'companyType', 'logo', 'picture', 'size', 'description', 'polygonCoordinates', 'openingHours', 'deliveryOptions', 'isOpen']
+    const fields = ['shopId', 'displayPosition', 'name', 'contact', 'address', 'logo', 'picture', 'description', 'openingHours', 'deliveryOptions', 'isOpen']
 
+    if (!publicView) {
+        fields.push(...['_id', 'companyType', 'size', 'id'])
+    }
+  
     fields.forEach((field) => { view[field] = item[field] })
 
-    if(!cb)
-        return view
-
-    cb(null, view)
-
+    return view
 }
 
 // Get coordinates if locationId changed

@@ -1,4 +1,4 @@
-import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
+import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError, ResourceNotFoundError } from 'restify-errors'
 import slugify from 'slugify'
 import { mergeWith, isArray } from 'lodash' 
 import User from '~/api/user/model'
@@ -24,14 +24,38 @@ export const getNearShops = async({ params }, res, next) => {
             },
             published: true
         })
-
-        res.send(shops)
+        
+        const data = []
+        shops.forEach((shop) => data.push(shop.modelProjection(true)))
+        
+        res.send(data)
 
     } catch (error) {
         return next(new BadRequestError(error))
     }
 
 }
+
+export const getShop = async({ params }, res, next) => {
+
+    try {
+
+        const { shopId } = params
+
+        const shop = await Shop.findOne({ shopId, published: true })
+
+        if (shop === null) {
+            return next(new ResourceNotFoundError('shop not found'))
+        }
+
+        res.send(shop.modelProjection(true))
+
+    } catch (error) {
+        return next(new BadRequestError(error))
+    }
+
+}
+
 
 export const checkName = async(req, res, next) => {
     try {
@@ -106,7 +130,7 @@ export const createShop = async({ body }, res, next) => {
         await User.updateOne({_id: author._id }, { activeShop: shop._id, '$push': { shops: shop._id }})
 
         // Send response 
-        res.send(201, shop.modelProjection())
+        res.send(201, shop.modelProjection(false))
 
     } catch (error) {
         /* istanbul ignore next */ 
@@ -154,7 +178,7 @@ export const updateShop = async({ body, params, user }, res, next) => {
         await data.save()
         
         // Send response 
-        res.send(200, data.modelProjection())
+        res.send(200, data.modelProjection(false))
 
     } catch (error) {
         /* istanbul ignore next */ 
