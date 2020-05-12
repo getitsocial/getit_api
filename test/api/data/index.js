@@ -5,7 +5,7 @@ export const defaultShopData = (edit) => mergeWith({
     size: 5, 
     logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
     category: 'clothing', 
-    contact: { phone: 12345, instagram: 'https://www.instagram.com/barackobama/?hl=de' }, 
+    contact: { phone: 12345, instagram: 'https://www.instagram.com/barackobama/?hl=de', website: 'google.de' }, 
     companyType: 'EU', 
     address: { 
         label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',

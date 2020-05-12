@@ -136,6 +136,20 @@ shopSchema.pre('save', async function (next) {
     }
 })
 
+// Get coordinates if locationId changed
+shopSchema.pre('save', async function (next) {
+    if (!this.isModified('contact.website')) next()
+    /* istanbul ignore next */
+    try {
+        if (!['http://', 'https://'].some(protocol => this.contact.website.startsWith(protocol))) {
+            this.contact.website = `https://${this.contact.website}`
+        }
+        next()
+    } catch(error) {
+        next(error)
+    }
+})
+
 export const removeUsers = async function(item = this) {    
 
     const { _id } = item

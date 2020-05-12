@@ -27,6 +27,9 @@ beforeEach(async (done) => {
     // Create shop
     defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours }))
     adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours, openingHours: {} }))
+
+    expect(defaultShop.contact.website).toBe('https://google.de')
+
     // Set shops in user
     defaultUser.activeShop = defaultShop._id
     defaultUser.shops.push(defaultShop._id)
