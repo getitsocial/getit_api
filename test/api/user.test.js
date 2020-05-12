@@ -68,6 +68,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body._id).toBe('string')
         expect(typeof body.role).toBe('string')
         expect(body.role).toBe('admin')
+        expect(body.shops[0].name).not.toBeUndefined()
+        expect(body.shops[0].logo).not.toBeUndefined()        
     }) 
     // Get active shop
     test(`GET ${serverConfig.endpoint}/users/me/shops/active 200`, async () => {

@@ -15,8 +15,7 @@ export const getMe = async({ user }, res, next) => {
             return next(new BadRequestError(res.__('cannot find user')))
 
         // Find user
-        const result = await User.findById(user._id)
-        
+        const result = await User.findById(user._id)?.populate({ path: 'shops', select: 'name logo', options: { lean: true } })
         // Send response 
         res.send(200, result.modelProjection())
 
