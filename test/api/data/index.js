@@ -40,7 +40,8 @@ export const defaultArticleData = (edit) => mergeWith({
     stock: 3,
     price: 4,
     size: 'thicc',
-    currency: 'Euro'
+    currency: 'Euro',
+    description: 'mhmhmhmh köftespieß'
 }, edit, (obj, src) => {
     if (isArray(obj)) return src
 })

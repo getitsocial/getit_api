@@ -1,27 +1,9 @@
-import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
-import { restConfig } from '~/config'
 import { doorman } from '~/services/guard'
-import { addAuthor, addShop } from '~/services/modelModifier'
-import model, { modelProjection } from './model'
-import { updateArticle } from './controller'
-
-const config = {
-    populate: [{ path: 'author', select: 'name picture' }, { path: 'category', select: 'name' }],
-    sort: 'name',
-    pageSize: 50,
-    listProjection: modelProjection,
-    detailProjection: modelProjection
-}
+import { addAuthor, addShop, showShop } from '~/services/modelModifier'
+import { updateArticle, deleteArticle, getArticle, getArticles, createArticle } from './controller'
 
 const router = new Router()
-const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
-
-// TODO: Implement controller && secure endpoints 
-
-/**
- * Serve resources with fine grained mapping control
- */
 
 /**
  * @api {get} /articles Retrieve articles
@@ -31,10 +13,11 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiHeader {Number} x-total-count Articles count.
  * @apiSuccess {Object[]} articles List of articles.
  * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError {Object} 401 Missing permissions.
  */
 router.get('',  
-    doorman(['user', 'admin']), 
-    endpoint.query({ filter: ((req) => new Object({ category: req.query.categoryId }))}))
+    [doorman(['user', 'admin']), showShop()],
+    getArticles)
 
 /**
  * @api {get} /articles/:id Retrieve article
@@ -43,10 +26,11 @@ router.get('',
  * @apiSuccess {Object} article Article's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
+ * @apiError {Object} 401 Missing permissions.
  */
 router.get('/:id', 
     doorman(['user', 'admin']), 
-    endpoint.detail())
+    getArticle)
 
 /**
  * @api {post} /articles Create article
@@ -57,10 +41,11 @@ router.get('/:id',
  * @apiSuccess {Object} article Article's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
+ * @apiError {Object} 401 Missing permissions.
  */
 router.post('', 
     [doorman(['user', 'admin']), addAuthor(), addShop()], 
-    endpoint.insert())
+    createArticle)
 
 /**
  * @api {patch} /articles/:id Update article
@@ -70,6 +55,7 @@ router.post('',
  * @apiSuccess {Object} article Article's data.
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
+ * @apiError {Object} 401 Missing permissions.
  */  
 router.patch('/:id', 
     doorman(['user', 'admin']), 
@@ -81,10 +67,11 @@ router.patch('/:id',
  * @apiGroup Article
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 Article not found.
+ * @apiError 401 Missing permissions.
  */
 router.del('/:id', 
     doorman(['user', 'admin']), 
-    endpoint.remove())
+    deleteArticle)
 
 
 /**
