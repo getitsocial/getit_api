@@ -49,10 +49,15 @@ const userSchema = new Schema({
             default: '/api/static/placeholder.png'
         },
     },
-    shops: [{ 
-        type: Schema.Types.ObjectId, 
-        ref: 'Shop',
-    }],
+    shops: {
+        type: [{ 
+            type: Schema.Types.ObjectId, 
+            ref: 'Shop',
+        }],
+        validate: [function(shops) {
+            return shops.length <= 100
+        }, 'only 100 shops per user'] 
+    },
     activeShop: {
         type: Schema.Types.ObjectId,
         ref: 'Shop'
