@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import redis from 'redis'
-import  { default as JWTR }  from 'jwt-redis'
+import { default as JWTR } from 'jwt-redis'
 import rJWT from 'restify-jwt-community'
 import { UnauthorizedError } from 'restify-errors'
 import { extractToken } from '~/utils'
@@ -18,7 +18,7 @@ const isRevokedCallback = async (req, res, done) => {
     try {
         await verify(extractToken(req), secret)
         done(null, false)
-    } catch( error ) {
+    } catch (error) {
         done(null, true)
     }
 }
@@ -26,7 +26,8 @@ const isRevokedCallback = async (req, res, done) => {
 // Define user roles
 export const roles = ['user', 'admin']
 
-export const sign = async ({ _id, role }) =>  jwtr.sign({ _id, role }, secret, { expiresIn: '8d' })
+export const sign = async ({ _id, role }) =>
+    jwtr.sign({ _id, role }, secret, { expiresIn: '8d' })
 
 export const decode = async (token) => jwt.decode(token)
 
@@ -39,15 +40,16 @@ export const destroy = async (req) => {
     await destroyJti(jti)
 }
 
-export const doorman = (passedRoles) =>  
-    [
-        rJWT({...serverConfig.jwt, ...{ isRevoked: isRevokedCallback }}), ((req, res, next) =>
-            (roles.some(r => passedRoles.includes(r)) && passedRoles.includes(req.user?.role) ? next() : next(new UnauthorizedError()))
-        )
-        
-    ]
+export const doorman = (passedRoles) => [
+    rJWT({ ...serverConfig.jwt, ...{ isRevoked: isRevokedCallback } }),
+    (req, res, next) =>
+        roles.some((r) => passedRoles.includes(r)) &&
+        passedRoles.includes(req.user?.role)
+            ? next()
+            : next(new UnauthorizedError()),
+]
 
-export const masterman = () => ((req, res, next) => 
-    (serverConfig.masterKey === extractToken(req)) ? next() : next(new UnauthorizedError())
-)
-    
+export const masterman = () => (req, res, next) =>
+    serverConfig.masterKey === extractToken(req)
+        ? next()
+        : next(new UnauthorizedError())

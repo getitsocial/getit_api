@@ -1,9 +1,11 @@
 import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
 import request from 'request-promise'
+import moment from 'moment'
+import paginate from 'mongoose-paginate-v2'
+
 import User from '~/api/user/model'
 import { openingHoursValidator, minutesToHHMM } from '~/utils'
-import moment from 'moment'
 
 const apiKey = process.env.HERE_API
 
@@ -274,6 +276,7 @@ shopSchema.methods = {
     removeUsers,
 }
 
+shopSchema.plugin(paginate)
 shopSchema.index({ '$**': 'text' })
 
 export default mongoose.model('Shop', shopSchema)

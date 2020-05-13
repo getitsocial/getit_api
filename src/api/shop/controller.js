@@ -59,6 +59,37 @@ export const getShop = async ({ params }, res, next) => {
     }
 }
 
+export const getAllShops = async ({ shop, query }, res, next) => {
+    try {
+        // Pagination
+        const { page, limit, search } = query
+        const options = {
+            page: page ?? 1,
+            limit: limit ?? 20,
+        }
+
+        // Search
+        const searchParams = search
+            ? { shopId: { $regex: search, $options: 'i' } }
+            : {}
+
+        // Query
+        const { totalDocs, docs, nextPage, prevPage } = await Shop.paginate(
+            { ...searchParams },
+            options
+        )
+
+        const data = []
+        docs.forEach((shop) => data.push(shop.modelProjection()))
+
+        // Send response
+        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+    } catch (error) {
+        /* istanbul ignore next */
+        return next(new BadRequestError(error))
+    }
+}
+
 export const checkName = async (req, res, next) => {
     try {
         // Parse values

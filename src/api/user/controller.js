@@ -222,13 +222,12 @@ export const setActiveShop = async ({ user, params, body }, res, next) => {
             params.id === 'me' ? user._id : params.id
         )
 
-        if (!dbUser.shops.includes(shopId))
-            return next(new BadRequestError(res.__('not a valid shop')))
-
-        dbUser.set('activeShop', shopId)
-        dbUser.save()
-
-        res.send(204)
+        if (dbUser.shops.includes(shopId) || isAdmin) {
+            dbUser.set('activeShop', shopId)
+            dbUser.save()
+            res.send(204)
+        }
+        return next(new BadRequestError(res.__('not a valid shop')))
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
