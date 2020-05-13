@@ -1,7 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import slugify from 'slugify'
 import request from 'request-promise'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import paginate from 'mongoose-paginate-v2'
 
 import User from '~/api/user/model'
@@ -256,29 +256,19 @@ shopSchema.virtual('openingHours').get(function () {
 shopSchema.virtual('isOpen').get(function () {
     moment.locale('de')
     const date = new Date()
-    const day = [
-        'sunday',
-        'monday',
-        'tuesday',
-        'wednesday',
-        'thursday',
-        'friday',
-        'saturday',
-    ][date.getDay()]
-    const minutes = moment().hours() * 60 + moment().minutes()
+    const day = ['sunday', 'monday','tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()]
+    
+    const minutes = moment().tz('Europe/Berlin').hours() * 60 + moment().minutes()
 
-    if (this.parsedOpeningHours[day].length === 0) return false // all day closed
-    if (
-        this.parsedOpeningHours[day][0].open === 0 &&
-        this.parsedOpeningHours[day][0].close === 0
-    )
+    if (this.parsedOpeningHours[day].length === 0) {
+        return false // all day closed
+    }
+    if (this.parsedOpeningHours[day][0].open === 0 && this.parsedOpeningHours[day][0].close === 0) {
         return true // all day open
+    }
 
-    return (
-        this.parsedOpeningHours[day].findIndex(
-            (segment) => segment.open <= minutes && minutes <= segment.close
-        ) !== -1
-    )
+    return -1 !== this.parsedOpeningHours[day].findIndex((segment) => segment.open <= minutes && minutes <= segment.close)
+
 })
 
 shopSchema.methods = {
