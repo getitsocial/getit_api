@@ -4,12 +4,21 @@ import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
 import { validateUserBeforeCreate } from '~/utils'
 import model, { modelProjection } from './model'
-import { getMe, create, update, updatePassword, deleteUser, getActiveShop, setActiveShop } from './controller'
+import {
+    getAllUsers,
+    getMe,
+    create,
+    update,
+    updatePassword,
+    deleteUser,
+    getActiveShop,
+    setActiveShop,
+} from './controller'
 
 const config = {
     populate: 'shop',
     listProjection: modelProjection,
-    detailProjection: modelProjection
+    detailProjection: modelProjection,
 }
 
 const router = new Router()
@@ -19,7 +28,7 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
 
 /*
  * Serve resources with fine grained mapping control
- * 
+ *
  */
 
 /**
@@ -33,9 +42,7 @@ const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 401 Admin access only.
  */
-router.get('', 
-    doorman(['user', 'admin']), 
-    endpoint.query())
+router.get('', doorman(['admin']), getAllUsers)
 
 /**
  * @api {get} /users/me Retrieve current user
@@ -56,22 +63,17 @@ router.get('/me', doorman(['user', 'admin']), getMe)
  * @apiSuccess {Object} user User's data.
  * @apiError 404 User not found.
  */
-router.get('/:id', 
-    endpoint.detail())
-
+router.get('/:id', endpoint.detail())
 
 /**
- * @api {get} /users/:id/shops/active Retrieve active shop 
+ * @api {get} /users/:id/shops/active Retrieve active shop
  * @apiName RetrieveShop
  * @apiGroup User
  * @apiPermission user
  * @apiSuccess {Object} user User's active shop.
  * @apiError 404 User not found.
  */
-router.get('/:id/shops/active', 
-    doorman(['user', 'admin']), 
-    getActiveShop)
-
+router.get('/:id/shops/active', doorman(['user', 'admin']), getActiveShop)
 
 /**
  * @api {patch} /users/:id Update users active shop
@@ -85,12 +87,8 @@ router.get('/:id/shops/active',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 401 Current user or admin access only.
  * @apiError 404 User not found.
- */ 
-router.patch('/:id/shops/active', 
-    doorman(['user', 'admin']), 
-    setActiveShop)
-
-
+ */
+router.patch('/:id/shops/active', doorman(['user', 'admin']), setActiveShop)
 
 /**
  * @api {post} /users Create user
@@ -108,10 +106,7 @@ router.patch('/:id/shops/active',
  * @apiError 401 Master access only.
  * @apiError 409 Email already registered.
  */
-router.post('', 
-    masterman(), 
-    validateUserBeforeCreate(), 
-    create)
+router.post('', masterman(), validateUserBeforeCreate(), create)
 
 /**
  * @api {patch} /users/:id Update user
@@ -127,11 +122,8 @@ router.post('',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 401 Current user or admin access only.
  * @apiError 404 User not found.
- */ 
-router.patch('/:id', 
-    doorman(['user', 'admin']), 
-    update)
-
+ */
+router.patch('/:id', doorman(['user', 'admin']), update)
 
 /**
  * @api {patch} /users/:id/password Update password
@@ -145,10 +137,7 @@ router.patch('/:id',
  * @apiError 401 Current user access only.
  * @apiError 404 User not found.
  */
-router.patch('/:id/password',
-    doorman(['user', 'admin']),
-    updatePassword)
-
+router.patch('/:id/password', doorman(['user', 'admin']), updatePassword)
 
 /**
  * @api {delete} /users/:id Delete user
@@ -157,10 +146,6 @@ router.patch('/:id/password',
  * @apiSuccess (Success 204) 204 No Content.
  * @apiError 404 User not found.
  */
-router.del('/:id', 
-    doorman(['user', 'admin']),
-    deleteUser)
-
+router.del('/:id', doorman(['user', 'admin']), deleteUser)
 
 export default router
-

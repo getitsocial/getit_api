@@ -11,6 +11,37 @@ import Verification from '~/api/verification/model'
 
 const { emailTemplates } = serverConfig
 
+export const getAllUsers = async ({ query }, res, next) => {
+    try {
+        // Pagination
+        const { page, limit, search } = query
+        const options = {
+            page: page ?? 1,
+            limit: limit ?? 20,
+        }
+
+        // Search
+        const searchParams = search
+            ? { name: { $regex: search, $options: 'i' } }
+            : {}
+
+        // Query
+        const { totalDocs, docs, nextPage, prevPage } = await User.paginate(
+            { ...searchParams },
+            options
+        )
+
+        const data = []
+        docs.forEach((user) => data.push(user.modelProjection()))
+
+        // Send response
+        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+    } catch (error) {
+        /* istanbul ignore next */
+        return next(new BadRequestError(error))
+    }
+}
+
 export const getMe = async ({ user }, res, next) => {
     try {
         if (!user) return next(new BadRequestError(res.__('cannot find user')))
