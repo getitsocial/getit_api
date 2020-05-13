@@ -131,7 +131,17 @@ export const modelProjection = function (publicView) {
     ]
 
     if (!publicView) {
-        fields.push(...['_id', 'companyType', 'size', 'id', 'published'])
+        fields.push(
+            ...[
+                '_id',
+                'companyType',
+                'size',
+                'id',
+                'published',
+                'createdAt',
+                'updatedAt',
+            ]
+        )
     }
 
     fields.forEach((field) => {
