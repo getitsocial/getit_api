@@ -136,14 +136,16 @@ shopSchema.pre('save', async function (next) {
     }
 })
 
-// Get coordinates if locationId changed
+// Set https in front of website/facebook/instagram
 shopSchema.pre('save', async function (next) {
-    if (!this.isModified('contact.website')) next()
+    if (!this.isModified('contact')) next()
     /* istanbul ignore next */
     try {
-        if (!['http://', 'https://'].some(protocol => this.contact.website.startsWith(protocol))) {
-            this.contact.website = `https://${this.contact.website}`
-        }
+        ['website', 'instagram', 'facebook'].forEach((site) => {
+            if (!['http://', 'https://'].some(protocol => this.contact[site].startsWith(protocol))) {
+                this.contact[site] = `https://${this.contact[site]}`
+            }    
+        })
         next()
     } catch(error) {
         next(error)

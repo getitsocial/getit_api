@@ -29,6 +29,8 @@ beforeEach(async (done) => {
     adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours, openingHours: {} }))
 
     expect(defaultShop.contact.website).toBe('https://google.de')
+    expect(defaultShop.contact.facebook).toBe('https://facebook.de')
+    expect(defaultShop.contact.instagram).toBe('https://instagram.de')
 
     // Set shops in user
     defaultUser.activeShop = defaultShop._id
@@ -211,7 +213,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         // make sure we only update the updated fields in our nested object, not everything
         expect(body.contact.phone).toEqual('42')
-        expect(body.contact.instagram).toBe('https://www.instagram.com/barackobama/?hl=de')
+        expect(body.contact.instagram).toBe('https://instagram.de')
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
         expect(body.deliveryOptions.length).toBe(2)
@@ -230,7 +232,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         // make sure we only update the updated fields in our nested object, not everything
         expect(body.contact.phone).toEqual('42')
-        expect(body.contact.instagram).toBe('https://www.instagram.com/barackobama/?hl=de')
+        expect(body.contact.instagram).toBe('https://instagram.de')
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
         expect(body.deliveryOptions.length).toBe(0)
