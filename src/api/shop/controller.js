@@ -1,45 +1,50 @@
-import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError, ResourceNotFoundError } from 'restify-errors'
+import {
+    BadRequestError,
+    ConflictError,
+    UnauthorizedError,
+    NotFoundError,
+    ResourceNotFoundError,
+} from 'restify-errors'
 import slugify from 'slugify'
-import { mergeWith, isArray } from 'lodash' 
+import { mergeWith, isArray } from 'lodash'
 import User from '~/api/user/model'
 import Shop from './model'
 import { parseOpeningHours } from '~/utils'
 import { decode } from 'ngeohash'
 import circleToPolygon from 'circle-to-polygon'
 
-export const getNearShops = async({ params }, res, next) => {
-   
+export const getNearShops = async ({ params }, res, next) => {
     try {
-        
         const { geohash } = params
         const { latitude, longitude } = decode(geohash)
-   
-        if (!latitude || !longitude) return next(new BadRequestError('not a valid geohash'))
+
+        if (!latitude || !longitude)
+            return next(new BadRequestError('not a valid geohash'))
 
         const shops = await Shop.find({
             position: {
                 $geoIntersects: {
-                    $geometry: circleToPolygon([longitude, latitude], 10000, 32)
-                }
+                    $geometry: circleToPolygon(
+                        [longitude, latitude],
+                        10000,
+                        32
+                    ),
+                },
             },
-            published: true
+            published: true,
         })
-        
+
         const data = []
         shops.forEach((shop) => data.push(shop.modelProjection(true)))
-        
-        res.send(data)
 
+        res.send(data)
     } catch (error) {
         return next(new BadRequestError(error))
     }
-
 }
 
-export const getShop = async({ params }, res, next) => {
-
+export const getShop = async ({ params }, res, next) => {
     try {
-
         const { shopId } = params
 
         const shop = await Shop.findOne({ shopId, published: true })
@@ -49,15 +54,12 @@ export const getShop = async({ params }, res, next) => {
         }
 
         res.send(shop.modelProjection(true))
-
     } catch (error) {
         return next(new BadRequestError(error))
     }
-
 }
 
-
-export const checkName = async(req, res, next) => {
+export const checkName = async (req, res, next) => {
     try {
         // Parse values
         const { name } = req?.body
@@ -68,27 +70,26 @@ export const checkName = async(req, res, next) => {
 
         // Modify name
         const slugName = slugify(name, {
-            lower: true
+            lower: true,
         })
 
         // Try to find existing shop
         const shop = await Shop.findOne({ shopId: slugName })
-        
+
         // Check if shop equals the users shop (shop edit mode)
-        if (shop && !shop.equals(user?.activeShop)) 
+        if (shop && !shop.equals(user?.activeShop))
             return next(new ConflictError('shopname exists already'))
-        
+
         res.send()
     } catch (error) {
         return next(new BadRequestError(error))
     }
 }
 
-export const deleteShop = async({ user, params }, res, next) => {
+export const deleteShop = async ({ user, params }, res, next) => {
     const { id } = params
-    
-    try {
 
+    try {
         const { author } = await Shop.findById(id)
 
         const isAdmin = user.role === 'admin'
@@ -102,57 +103,113 @@ export const deleteShop = async({ user, params }, res, next) => {
         }
 
         (await Shop.findByIdAndDelete(id)).removeUsers()
-        
-        // Send response 
-        res.send(204)
 
+        // Send response
+        res.send(204)
     } catch (error) {
-        /* istanbul ignore next */ 
+        /* istanbul ignore next */
         return next(new BadRequestError(error))
     }
 }
 
-export const createShop = async({ body }, res, next) => {
-    
+export const createShop = async ({ body }, res, next) => {
     // Pass values
-    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours } = body
+    const {
+        name,
+        contact,
+        shopId,
+        address,
+        companyType,
+        logo,
+        picture,
+        size,
+        author,
+        description,
+        published,
+        deliveryOptions,
+        openingHours,
+    } = body
 
     try {
-
         const parsedOpeningHours = parseOpeningHours(openingHours)
         // Validate request body
-        await Shop.validate({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, parsedOpeningHours })
-
+        await Shop.validate({
+            name,
+            contact,
+            shopId,
+            address,
+            companyType,
+            logo,
+            picture,
+            size,
+            author,
+            description,
+            published,
+            deliveryOptions,
+            parsedOpeningHours,
+        })
 
         // Create object
-        const shop = await Shop.create({ name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, users: [author], parsedOpeningHours })
+        const shop = await Shop.create({
+            name,
+            contact,
+            shopId,
+            address,
+            companyType,
+            logo,
+            picture,
+            size,
+            author,
+            description,
+            published,
+            deliveryOptions,
+            users: [author],
+            parsedOpeningHours,
+        })
 
-        await User.updateOne({_id: author._id }, { activeShop: shop._id, '$push': { shops: shop._id }})
+        await User.updateOne(
+            { _id: author._id },
+            { activeShop: shop._id, $push: { shops: shop._id } }
+        )
 
-        // Send response 
+        // Send response
         res.send(201, shop.modelProjection(false))
-
     } catch (error) {
-        /* istanbul ignore next */ 
+        /* istanbul ignore next */
         return next(new BadRequestError(error))
     }
 }
 
-export const updateShop = async({ body, params, user }, res, next) => {
+export const updateShop = async ({ body, params, user }, res, next) => {
     // Pass values
     const { id } = params
-    const { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, openingHours } = body
+    const {
+        name,
+        contact,
+        shopId,
+        address,
+        companyType,
+        logo,
+        picture,
+        size,
+        author,
+        description,
+        published,
+        deliveryOptions,
+        openingHours,
+    } = body
     try {
-
         // find object
         const shop = await Shop.findById(id)
 
         if (!shop) {
             return next(new NotFoundError('shop not found'))
-        } 
+        }
 
         if (user.role !== 'admin' && !shop.author.equals(user._id)) {
-            return next(new UnauthorizedError('you are not the author of this shop'))
+            return next(
+                new UnauthorizedError('you are not the author of this shop')
+            )
         }
 
         // Check if picture not defined and set default picture
@@ -160,29 +217,45 @@ export const updateShop = async({ body, params, user }, res, next) => {
             picture.url = '/api/static/placeholder-bg.png'
             picture.id = 'placeholder'
         }
-        
-        if (logo && !Object.keys(logo).length){
+
+        if (logo && !Object.keys(logo).length) {
             logo.url = '/api/static/placeholder.png'
-            logo.id ='placeholder'
+            logo.id = 'placeholder'
         }
         // 15:00 to 900 etc.
         const parsedOpeningHours = parseOpeningHours(openingHours)
         // merge and save
-        const data = mergeWith(shop, { name, contact, shopId, address, companyType, logo, picture, size, author, description, published, deliveryOptions, parsedOpeningHours }, (obj, src) => {
-            if (isArray(obj)) return src
-        })
+        const data = mergeWith(
+            shop,
+            {
+                name,
+                contact,
+                shopId,
+                address,
+                companyType,
+                logo,
+                picture,
+                size,
+                author,
+                description,
+                published,
+                deliveryOptions,
+                parsedOpeningHours,
+            },
+            (obj, src) => {
+                if (isArray(obj)) return src
+            }
+        )
 
         // Save mixed types of body
         data.markModified('parsedOpeningHours')
 
         await data.save()
-        
-        // Send response 
-        res.send(200, data.modelProjection(false))
 
+        // Send response
+        res.send(200, data.modelProjection(false))
     } catch (error) {
-        /* istanbul ignore next */ 
+        /* istanbul ignore next */
         return next(new BadRequestError(error))
     }
 }
-
