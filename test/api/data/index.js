@@ -5,7 +5,7 @@ export const defaultShopData = (edit) => mergeWith({
     size: 5, 
     logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
     category: 'clothing', 
-    contact: { phone: 12345, instagram: 'https://instagram.de', website: 'google.de', facebook: 'facebook.de'}, 
+    contact: { phone: 12345, instagram: 'https://instagram.de', facebook: 'facebook.de'}, 
     companyType: 'EU', 
     address: { 
         label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
