@@ -204,8 +204,7 @@ export const getActiveShop = async ({ user, params }, res, next) => {
 
 export const setActiveShop = async ({ user, params, body }, res, next) => {
     // Todo: Change this back to shopId if users array includes shopId key
-    const { _id } = body
-    const shopId = _id
+    const { _id: shopId } = body
 
     try {
         const isAdmin = user.role === 'admin'

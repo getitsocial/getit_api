@@ -123,7 +123,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/me/shops/active`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ shopId: defaultShop2._id })
+            .send({ _id: defaultShop2._id })
         
         expect(statusCode).toBe(204)
     })
@@ -132,7 +132,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ shopId: defaultShop2._id })
+            .send({ _id: defaultShop2._id })
         
         expect(statusCode).toBe(204)
     })  
@@ -141,7 +141,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
             .set('Authorization', 'Bearer ' + adminToken)
-            .send({ shopId: defaultShop2._id })
+            .send({ _id: defaultShop2._id })
         
         expect(statusCode).toBe(204)
     })  
@@ -151,7 +151,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminUser._id}/shops/active`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ shopId: defaultShop2._id })
+            .send({ _id: defaultShop2._id })
         
         expect(statusCode).toBe(401)
     })  
@@ -160,7 +160,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { statusCode } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultUser._id}/shops/active`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ shopId: 123 })
+            .send({ _id: 123 })
         
         expect(statusCode).toBe(400)
     })  

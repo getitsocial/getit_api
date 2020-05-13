@@ -59,7 +59,7 @@ export const getShop = async ({ params }, res, next) => {
     }
 }
 
-export const getAllShops = async ({ shop, query }, res, next) => {
+export const getAllShops = async ({ query }, res, next) => {
     try {
         // Pagination
         const { page, limit, search } = query
