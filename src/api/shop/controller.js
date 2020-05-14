@@ -66,6 +66,7 @@ export const getAllShops = async ({ query }, res, next) => {
         const options = {
             page: page ?? 1,
             limit: limit ?? 20,
+            populate: [{ path: 'author', select: 'name picture email' }],
         }
 
         // Search
@@ -108,10 +109,10 @@ export const checkName = async (req, res, next) => {
         const shop = await Shop.findOne({ shopId: slugName })
 
         // Check if shop equals the users shop (shop edit mode)
-        if (shop && !shop.equals(user?.activeShop))
-            return next(new ConflictError('shopname exists already'))
-
-        res.send()
+        if ((shop && shop.equals(user?.activeShop)) || user.role === 'admin') {
+            res.send()
+        }
+        return next(new ConflictError('shopname exists already'))
     } catch (error) {
         return next(new BadRequestError(error))
     }
