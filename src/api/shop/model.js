@@ -72,6 +72,11 @@ const shopSchema = new Schema(
             required: true,
             enum: ['PU', 'MU', 'LD'],
         },
+        components: {
+            type: [String],
+            required: true,
+            enum: ['menu'],
+        },
         companyType: {
             type: String,
             required: true,
@@ -128,6 +133,7 @@ export const modelProjection = function (publicView) {
         'openingHours',
         'deliveryOptions',
         'isOpen',
+        'components',
     ]
 
     if (!publicView) {
