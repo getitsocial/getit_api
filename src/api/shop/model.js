@@ -140,6 +140,7 @@ export const modelProjection = function (publicView) {
                 'published',
                 'createdAt',
                 'updatedAt',
+                'author',
             ]
         )
     }
@@ -256,19 +257,35 @@ shopSchema.virtual('openingHours').get(function () {
 shopSchema.virtual('isOpen').get(function () {
     moment.locale('de')
     const date = new Date()
-    const day = ['sunday', 'monday','tuesday', 'wednesday', 'thursday', 'friday', 'saturday'][date.getDay()]
-    
-    const minutes = moment().tz('Europe/Berlin').hours() * 60 + moment().minutes()
+    const day = [
+        'sunday',
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+    ][date.getDay()]
+
+    const minutes =
+        moment().tz('Europe/Berlin').hours() * 60 + moment().minutes()
 
     if (this.parsedOpeningHours[day].length === 0) {
         return false // all day closed
     }
-    if (this.parsedOpeningHours[day][0].open === 0 && this.parsedOpeningHours[day][0].close === 0) {
+    if (
+        this.parsedOpeningHours[day][0].open === 0 &&
+        this.parsedOpeningHours[day][0].close === 0
+    ) {
         return true // all day open
     }
 
-    return -1 !== this.parsedOpeningHours[day].findIndex((segment) => segment.open <= minutes && minutes <= segment.close)
-
+    return (
+        -1 !==
+        this.parsedOpeningHours[day].findIndex(
+            (segment) => segment.open <= minutes && minutes <= segment.close
+        )
+    )
 })
 
 shopSchema.methods = {

@@ -66,6 +66,7 @@ export const getAllShops = async ({ query }, res, next) => {
         const options = {
             page: page ?? 1,
             limit: limit ?? 20,
+            populate: [{ path: 'author', select: 'name picture email' }],
         }
 
         // Search
