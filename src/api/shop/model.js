@@ -190,7 +190,7 @@ shopSchema.pre('save', async function (next) {
     if (!this.isModified('contact')) next()
     /* istanbul ignore next */
     try {
-        ['website', 'instagram', 'facebook'].forEach((site) => {
+        ['website', 'facebook'].forEach((site) => {
             if (
                 this.contact[site] &&
                 !['http://', 'https://'].some((protocol) =>

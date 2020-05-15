@@ -26,7 +26,7 @@ export const getNearShops = async ({ params }, res, next) => {
                 $geoIntersects: {
                     $geometry: circleToPolygon(
                         [longitude, latitude],
-                        10000,
+                        50000,
                         32
                     ),
                 },
