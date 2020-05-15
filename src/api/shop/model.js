@@ -74,7 +74,7 @@ const shopSchema = new Schema(
         },
         components: {
             type: [String],
-            required: true,
+            required: false,
             enum: ['menu'],
         },
         companyType: {
