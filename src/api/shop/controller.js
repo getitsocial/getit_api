@@ -229,6 +229,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
         published,
         deliveryOptions,
         openingHours,
+        components,
     } = body
     try {
         // find object
@@ -273,6 +274,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
                 published,
                 deliveryOptions,
                 parsedOpeningHours,
+                components,
             },
             (obj, src) => {
                 if (isArray(obj)) return src
