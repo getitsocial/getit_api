@@ -1,6 +1,6 @@
 import { Router } from 'restify-router'
 import { doorman } from '~/services/guard'
-import { addAuthor, addShop, showShop } from '~/services/modelModifier'
+import { addAuthor, addShop } from '~/services/modelModifier'
 import { updateArticle, deleteArticle, getArticle, getArticles, createArticle } from './controller'
 
 const router = new Router()
@@ -16,7 +16,7 @@ const router = new Router()
  * @apiError {Object} 401 Missing permissions.
  */
 router.get('',  
-    [doorman(['user', 'admin']), showShop()],
+    [doorman(['user', 'admin'])],
     getArticles)
 
 /**
