@@ -1,28 +1,31 @@
 import { BadRequestError, UnauthorizedError, ResourceNotFoundError } from 'restify-errors'
 import { mergeWith, isArray } from 'lodash' 
 import Article from './model'
+import User from '~/api/user/model'
 
-export const getArticles = async({ shop, query }, res, next) => {
+export const getArticles = async({ query, user }, res, next) => {
     
     try {
 
-        if (!shop) {
+        const { activeShop } = User.findById(user._id)
+
+        const { page, limit, categoryId, _id = activeShop?._id } = query
+        
+        if (!_id) {
             return next(new BadRequestError('no active shop specified'))
         }
 
-        const { page, limit, categoryId } = query
-        
         const options = {
             page: page ?? 1,
             limit: limit ?? 20,
             populate: [{ path: 'author', select: 'name picture' }, { path: 'category', select: 'name' }]
         }
 
-        const { totalDocs, docs, nextPage, prevPage } = await Article.paginate({ shop: shop._id, category: categoryId }, options)
-        
+        const { totalDocs, docs, nextPage, prevPage } = await Article.paginate({ shop: _id, category: categoryId }, options)
+
         const data = []
         docs.forEach(article => data.push(article.modelProjection()))
-        
+
         // Send response 
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
 

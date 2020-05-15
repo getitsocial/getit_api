@@ -16,6 +16,7 @@ let defaultArticle,
     adminToken,
     defaultUser,
     defaultShop,
+    noShopToken,
     defaultToken,
     apiEndpoint = 'articles'
 
@@ -27,6 +28,7 @@ beforeEach(async (done) => {
     // Create user
     const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
     defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    const noShopUser = await User.create({ name: 'Bertchen', email: 'bert@moritz.com', password: 'Max123!!!', role: 'user' })
 
     defaultShop = await Shop.create(defaultShopData({ author: adminUser._id, parsedOpeningHours }))
     
@@ -48,6 +50,9 @@ beforeEach(async (done) => {
     expect(view.size).toBe('thicc')
     expect(view.currency).toBe('Euro')
     
+    noShopToken = await sign(noShopUser)
+    expect(isJWT(noShopToken)).toBe(true)
+
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
@@ -95,6 +100,43 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(typeof body.nextPage).not.toBeUndefined()
         expect(typeof body.prevPage).not.toBeUndefined()
         expect(body.count).toBe(2)
+        
+    })
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1&_id=${defaultShop._id}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+        
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows.length).toBe(1)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)
+        
+    })
+
+    test(`GET /${apiEndpoint} 200`, async () => {
+        const { statusCode, body, error } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1&_id=${defaultShop._id}`)
+            .set('Authorization', 'Bearer ' + noShopToken)
+        
+        console.log(error)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows.length).toBe(1)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)        
+    })
+ 
+    test(`GET /${apiEndpoint} 400`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1`)
+            .set('Authorization', 'Bearer ' + noShopToken)
+        
+        expect(statusCode).toBe(400)
         
     })
 
@@ -244,5 +286,5 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
     
         expect(status).toBe(404)
     })
-
+ 
 })
