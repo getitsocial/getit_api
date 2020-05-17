@@ -1,7 +1,14 @@
 import { Router } from 'restify-router'
 import { doorman } from '~/services/guard'
 import { addAuthor, addShop } from '~/services/modelModifier'
-import { updateArticle, deleteArticle, getArticle, getArticles, createArticle } from './controller'
+import {
+    updateArticle,
+    deleteArticle,
+    getArticle,
+    getArticles,
+    getPublicArticles,
+    createArticle,
+} from './controller'
 
 const router = new Router()
 
@@ -15,9 +22,19 @@ const router = new Router()
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError {Object} 401 Missing permissions.
  */
-router.get('',  
-    [doorman(['user', 'admin'])],
-    getArticles)
+router.get('', [doorman(['user', 'admin'])], getArticles)
+
+/**
+ * @api {get} /articles Retrieve articles
+ * @apiName RetrievePublishedArticles
+ * @apiGroup Article
+ * @apiUse listParams
+ * @apiHeader {Number} x-total-count Articles count.
+ * @apiSuccess {Object[]} articles List of articles.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError {Object} 401 Missing permissions.
+ */
+router.get('/public', getPublicArticles)
 
 /**
  * @api {get} /articles/:id Retrieve article
@@ -28,9 +45,7 @@ router.get('',
  * @apiError 404 Article not found.
  * @apiError {Object} 401 Missing permissions.
  */
-router.get('/:id', 
-    doorman(['user', 'admin']), 
-    getArticle)
+router.get('/:id', doorman(['user', 'admin']), getArticle)
 
 /**
  * @api {post} /articles Create article
@@ -43,9 +58,11 @@ router.get('/:id',
  * @apiError 404 Article not found.
  * @apiError {Object} 401 Missing permissions.
  */
-router.post('', 
-    [doorman(['user', 'admin']), addAuthor(), addShop()], 
-    createArticle)
+router.post(
+    '',
+    [doorman(['user', 'admin']), addAuthor(), addShop()],
+    createArticle
+)
 
 /**
  * @api {patch} /articles/:id Update article
@@ -56,10 +73,8 @@ router.post('',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Article not found.
  * @apiError {Object} 401 Missing permissions.
- */  
-router.patch('/:id', 
-    doorman(['user', 'admin']), 
-    updateArticle)
+ */
+router.patch('/:id', doorman(['user', 'admin']), updateArticle)
 
 /**
  * @api {delete} /articles/:id Delete article
@@ -69,14 +84,10 @@ router.patch('/:id',
  * @apiError 404 Article not found.
  * @apiError 401 Missing permissions.
  */
-router.del('/:id', 
-    doorman(['user', 'admin']), 
-    deleteArticle)
-
+router.del('/:id', doorman(['user', 'admin']), deleteArticle)
 
 /**
  * Export this function
  * @returns {Function} the Router of article
  */
 export default router
-

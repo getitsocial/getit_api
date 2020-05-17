@@ -1,7 +1,14 @@
 import { Router } from 'restify-router'
 import { doorman } from '~/services/guard'
 import { addAuthor, showShop } from '~/services/modelModifier'
-import { getCategory, getCategories, createCategory, updateCategory, deleteCategory } from './controller'
+import {
+    getCategory,
+    getCategories,
+    getPublicCategories,
+    createCategory,
+    updateCategory,
+    deleteCategory,
+} from './controller'
 
 const router = new Router()
 
@@ -14,10 +21,18 @@ const router = new Router()
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 401 Missing permissions.
  */
-router.get('', 
-    doorman(['user', 'admin']),
-    showShop(),
-    getCategories)
+router.get('', doorman(['user', 'admin']), showShop(), getCategories)
+
+/**
+ * @api {get} /categories/public Retrieve categories
+ * @apiName RetrievePublicCategorys
+ * @apiGroup Category
+ * @apiUse listParams
+ * @apiSuccess {count, Object[]} categories List of categories.
+ * @apiError {Object} 400 Some parameters may contain invalid values.
+ * @apiError 401 Missing permissions.
+ */
+router.get('/public', getPublicCategories)
 
 /**
  * @api {get} /categories/:id Retrieve category
@@ -28,9 +43,7 @@ router.get('',
  * @apiError 404 Category not found.
  * @apiError 401 Missing permissions.
  */
-router.get('/:id', 
-    doorman(['user', 'admin']), 
-    getCategory)
+router.get('/:id', doorman(['user', 'admin']), getCategory)
 
 /**
  * @api {post} /categories Create category
@@ -43,9 +56,11 @@ router.get('/:id',
  * @apiError 404 Category not found.
  * @apiError 401 Missing permissions.
  */
-router.post('', 
-    [doorman(['user', 'admin']), addAuthor(), showShop()], 
-    createCategory)
+router.post(
+    '',
+    [doorman(['user', 'admin']), addAuthor(), showShop()],
+    createCategory
+)
 
 /**
  * @api {patch} /categories/:id Update category
@@ -56,10 +71,8 @@ router.post('',
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 404 Category not found.
  * @apiError 401 Missing permissions.
- */  
-router.patch('/:id', 
-    doorman(['user', 'admin']),
-    updateCategory)
+ */
+router.patch('/:id', doorman(['user', 'admin']), updateCategory)
 
 /**
  * @api {delete} /categories/:id Delete category
@@ -69,13 +82,10 @@ router.patch('/:id',
  * @apiError 404 Category not found.
  * @apiError 401 Missing permissions.
  */
-router.del('/:id', 
-    doorman(['user', 'admin']),
-    deleteCategory)
+router.del('/:id', doorman(['user', 'admin']), deleteCategory)
 
 /**
  * Export this function
  * @returns {Function} the Router of category
  */
 export default router
-

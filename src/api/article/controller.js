@@ -6,6 +6,7 @@ import {
 import { mergeWith, isArray } from 'lodash'
 import Article from './model'
 import User from '~/api/user/model'
+import Shop from '~/api/shop/model'
 
 export const getArticles = async ({ query, user }, res, next) => {
     try {
@@ -36,6 +37,62 @@ export const getArticles = async ({ query, user }, res, next) => {
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+    } catch (error) {
+        /* istanbul ignore next */
+        return next(new BadRequestError(error))
+    }
+}
+
+export const getPublicArticles = async ({ query, user }, res, next) => {
+    try {
+        const { page, limit, category, shopId } = query
+        const options = {
+            page: page ?? 1,
+            limit: limit ?? 20,
+            populate: [
+                { path: 'author', select: 'name picture' },
+                { path: 'category', select: 'name' },
+            ],
+        }
+
+        // Filter Articles by Shop
+        let byShop = {}
+        if (shopId) {
+            try {
+                const { _id, components } = await Shop.findOne({ shopId })
+                byShop = {
+                    shop: _id,
+                    shopId: shopId,
+                    components,
+                }
+            } catch (error) {
+                // Shop not found
+            }
+        }
+
+        // Filter Articles by Category if exist
+        let byCategory = {}
+        if (category) {
+            byCategory.category = category
+        }
+
+        // Use ... method for optional and {} for required
+        const { totalDocs, docs, nextPage, prevPage } = await Article.paginate(
+            { shop: byShop.shop, ...byCategory },
+            options
+        )
+        const data = []
+        docs.forEach((article) => data.push(article.modelProjection()))
+
+        // Send response with query information
+        res.send(200, {
+            count: totalDocs,
+            rows: data,
+            shop: { ...byShop },
+            ...byCategory,
+            nextPage,
+            prevPage,
+        })
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
