@@ -59,10 +59,11 @@ export const getPublicArticles = async ({ query, user }, res, next) => {
         let byShop = {}
         if (shopId) {
             try {
-                const { _id, components } = await Shop.findOne({ shopId })
+                const { _id, components, name } = await Shop.findOne({ shopId })
                 byShop = {
                     shop: _id,
                     shopId: shopId,
+                    name: name,
                     components,
                 }
             } catch (error) {
