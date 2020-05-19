@@ -30,6 +30,11 @@
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "max-len": [
+            "error", { "code": 120 }
+        ],
+        "no-trailing-spaces": "error",
+        "curly": "error"
     }
 }
