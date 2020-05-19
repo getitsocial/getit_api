@@ -1,9 +1,6 @@
-import restifyMongoose from '~/services/apiDriver'
 import { Router } from 'restify-router'
-import { restConfig } from '~/config'
 import { doorman, masterman } from '~/services/guard'
 import { validateUserBeforeCreate } from '~/utils'
-import model, { modelProjection } from './model'
 import {
     getAllUsers,
     getMe,
@@ -16,21 +13,7 @@ import {
     setActiveShop,
 } from './controller'
 
-const config = {
-    populate: 'shop',
-    listProjection: modelProjection,
-    detailProjection: modelProjection,
-}
-
 const router = new Router()
-const endpoint = restifyMongoose(model, Object.assign(config, restConfig))
-
-// TODO: Implement controller && secure endpoints
-
-/*
- * Serve resources with fine grained mapping control
- *
- */
 
 /**
  * @api {get} /users Retrieve users
