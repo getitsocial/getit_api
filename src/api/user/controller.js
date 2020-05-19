@@ -3,7 +3,7 @@ import {
     UnauthorizedError,
     NotFoundError,
 } from 'restify-errors'
-import { merge, isEmpty } from 'lodash'
+import { mergeWith, isArray, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
 import User from './model'
@@ -60,6 +60,29 @@ export const getMe = async ({ user }, res, next) => {
     }
 }
 
+export const getUser = async ({ user, params }, res, next) => {
+    try {
+        // Find user
+        const result = await User.findById(params.id)?.populate([
+            {
+                path: 'shops',
+                select: 'name logo shopId',
+                options: { lean: true },
+            },
+            {
+                path: 'activeShop',
+                select: 'name logo shopId',
+                options: { lean: true },
+            },
+        ])
+        // Send response
+        res.send(200, result.modelProjection())
+    } catch (error) {
+        /* istanbul ignore next */
+        return next(new BadRequestError(res.__(error.message)))
+    }
+}
+
 export const create = async ({ body }, res, next) => {
     // Pass values
     const { email, password, name } = body
@@ -107,6 +130,8 @@ export const update = async ({ user, params, body }, res, next) => {
         userSettings,
         location,
         role,
+        shops,
+        activeShop,
     } = body
 
     try {
@@ -133,20 +158,35 @@ export const update = async ({ user, params, body }, res, next) => {
             picture.id = 'placeholder'
         }
 
+        const adminFields = {}
+        if (isAdmin) {
+            adminFields.shops = shops
+            adminFields.activeShop = activeShop
+        }
+
+        const data = mergeWith(
+            result,
+            {
+                name,
+                picture,
+                email,
+                description,
+                userSettings,
+                location,
+                role,
+                shops,
+                activeShop,
+                ...adminFields,
+            },
+            (obj, src) => {
+                if (isArray(obj)) return src
+            }
+        )
         // For merge nested Objects
         result.markModified('location')
+        result.markModified('shops')
 
-        // Save user
-        const data = await merge(result, {
-            name,
-            picture,
-            email,
-            description,
-            userSettings,
-            location,
-            role,
-        }).save()
-
+        await data.save()
         // Send response
         res.send(201, data.modelProjection())
     } catch (error) {

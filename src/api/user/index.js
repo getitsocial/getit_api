@@ -7,6 +7,7 @@ import model, { modelProjection } from './model'
 import {
     getAllUsers,
     getMe,
+    getUser,
     create,
     update,
     updatePassword,
@@ -63,7 +64,7 @@ router.get('/me', doorman(['user', 'admin']), getMe)
  * @apiSuccess {Object} user User's data.
  * @apiError 404 User not found.
  */
-router.get('/:id', endpoint.detail())
+router.get('/:id', doorman(['admin']), getUser)
 
 /**
  * @api {get} /users/:id/shops/active Retrieve active shop
