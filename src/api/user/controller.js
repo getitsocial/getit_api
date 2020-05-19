@@ -2,7 +2,9 @@ import {
     BadRequestError,
     UnauthorizedError,
     NotFoundError,
+    ResourceNotFoundError
 } from 'restify-errors'
+
 import { mergeWith, isArray, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
@@ -31,11 +33,15 @@ export const getAllUsers = async ({ query }, res, next) => {
             options
         )
 
+        // Model projection
         const data = []
-        docs.forEach((user) => data.push(user.modelProjection()))
+        docs.forEach((user) => {
+            data.push(user.modelProjection())
+        })
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -44,7 +50,10 @@ export const getAllUsers = async ({ query }, res, next) => {
 
 export const getMe = async ({ user }, res, next) => {
     try {
-        if (!user) return next(new BadRequestError(res.__('cannot find user')))
+
+        if (!user) {
+            return next(new BadRequestError(res.__('cannot find user')))
+        }
 
         // Find user
         const result = await User.findById(user._id)?.populate({
@@ -52,18 +61,24 @@ export const getMe = async ({ user }, res, next) => {
             select: 'name logo shopId',
             options: { lean: true },
         })
+
+        if (!result) {
+            return next(new ResourceNotFoundError(res.__('cannot find user')))
+        }
+
         // Send response
         res.send(200, result.modelProjection())
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
     }
 }
 
-export const getUser = async ({ user, params }, res, next) => {
+export const getUser = async ({ params }, res, next) => {
     try {
         // Find user
-        const result = await User.findById(params.id)?.populate([
+        const user = await User.findById(params.id)?.populate([
             {
                 path: 'shops',
                 select: 'name logo shopId',
@@ -75,8 +90,14 @@ export const getUser = async ({ user, params }, res, next) => {
                 options: { lean: true },
             },
         ])
+
+        if (!user) {
+            return next(new ResourceNotFoundError(res.__('cannot find user')))
+        }
+
         // Send response
-        res.send(200, result.modelProjection())
+        res.send(200, user.modelProjection())
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -108,14 +129,9 @@ export const create = async ({ body }, res, next) => {
 
         // Send response
         res.send(201, user.modelProjection())
+
     } catch (error) {
-        /**
-         * TODO: Account creation unclear for the user.
-         * Particularly if we send a validation email here.
-         *
-         * For now we just ignore the missing welcome mail.
-         */
-        // return next(new BadRequestError(res.__(error.message)))
+        /* istanbul ignore next */
         return next(new BadRequestError(res.__('email_error')))
     }
 }
@@ -136,21 +152,15 @@ export const update = async ({ user, params, body }, res, next) => {
 
     try {
         // Find User
-        const result = await User.findById(
-            params.id === 'me' ? user._id : params.id
-        )
+        const result = await User.findById(params.id === 'me' ? user._id : params.id)
 
         const isAdmin = user.role === 'admin'
-        const isSelfUpdate =
-            params.id === 'me' ? true : result._id.equals(user._id)
+        const isSelfUpdate = params.id === 'me' ? true : result._id.equals(user._id)
 
         // Check permissions
-        if (!isSelfUpdate && !isAdmin)
-            return next(
-                new UnauthorizedError(
-                    res.__('You can\'t change other user\'s data')
-                )
-            )
+        if (!isSelfUpdate && !isAdmin) {
+            return next(new UnauthorizedError(res.__('You can\'t change other user\'s data')))
+        }
 
         // Check if picture is empty
         if (isEmpty(picture) && picture !== undefined) {
@@ -178,10 +188,9 @@ export const update = async ({ user, params, body }, res, next) => {
                 activeShop,
                 ...adminFields,
             },
-            (obj, src) => {
-                if (isArray(obj)) return src
-            }
+            (obj, src) => isArray(obj) ? src : undefined
         )
+
         // For merge nested Objects
         result.markModified('location')
         result.markModified('shops')
@@ -189,6 +198,7 @@ export const update = async ({ user, params, body }, res, next) => {
         await data.save()
         // Send response
         res.send(201, data.modelProjection())
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -201,23 +211,19 @@ export const updatePassword = async ({ body, params, user }, res, next) => {
 
     try {
         // Find User
-        const result = await User.findById(
-            params.id === 'me' ? user._id : params.id
-        )
+        const result = await User.findById(params.id === 'me' ? user._id : params.id)
 
         // Check permissions
-        if (!result._id.equals(user._id))
-            return next(
-                new UnauthorizedError(
-                    res.__('You can\'t change other user\'s password')
-                )
-            )
+        if (!result._id.equals(user._id)) {
+            return next(new UnauthorizedError(res.__('You can\'t change other user\'s password')))
+        }
 
         // Save user
         const data = await result.set({ password }).save()
 
         // Send response
         res.send(201, data.modelProjection())
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -226,6 +232,7 @@ export const updatePassword = async ({ body, params, user }, res, next) => {
 
 export const deleteUser = async ({ user, params }, res, next) => {
     try {
+
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : params.id === user._id
@@ -240,6 +247,7 @@ export const deleteUser = async ({ user, params }, res, next) => {
 
         // Send response
         res.send(204)
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -248,25 +256,24 @@ export const deleteUser = async ({ user, params }, res, next) => {
 
 export const getActiveShop = async ({ user, params }, res, next) => {
     try {
+
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : params.id === user._id
 
         // Check permissions
-        if (!isSelfUpdate && !isAdmin)
-            return next(
-                new UnauthorizedError(
-                    res.__('You can\'t get the active shop of other users')
-                )
-            )
+        if (!isSelfUpdate && !isAdmin) {
+            return next(new UnauthorizedError(res.__('You can\'t get the active shop of other users')))
+        }
 
-        const { activeShop } = await User.findById(
-            params.id === 'me' ? user._id : params.id
-        ).populate('activeShop')
-        if (!activeShop)
+        const { activeShop } = await User.findById(params.id === 'me' ? user._id : params.id).populate('activeShop')
+
+        if (!activeShop) {
             return next(new NotFoundError(res.__('no active shop specified')))
+        }
 
         res.send(200, activeShop.modelProjection())
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -278,26 +285,26 @@ export const setActiveShop = async ({ user, params, body }, res, next) => {
     const { _id: shopId } = body
 
     try {
+
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : params.id === user._id
 
         // Check permissions
-        if (!isSelfUpdate && !isAdmin)
-            return next(
-                new UnauthorizedError(res.__('You can\'t delete other users'))
-            )
-
-        const dbUser = await User.findById(
-            params.id === 'me' ? user._id : params.id
-        )
-
-        if (dbUser.shops.includes(shopId) || isAdmin) {
-            dbUser.set('activeShop', shopId)
-            dbUser.save()
-            res.send(204)
+        if (!isSelfUpdate && !isAdmin) {
+            return next(new UnauthorizedError(res.__('You can\'t delete other users')))
         }
-        return next(new BadRequestError(res.__('not a valid shop')))
+
+        const dbUser = await User.findById(params.id === 'me' ? user._id : params.id)
+
+        if (!dbUser.shops.includes(shopId) && !isAdmin) {
+            return next(new BadRequestError(res.__('not a valid shop')))
+        }
+
+        dbUser.set('activeShop', shopId)
+        dbUser.save()
+        res.send(204)
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
