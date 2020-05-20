@@ -18,8 +18,9 @@ export const getNearShops = async ({ params }, res, next) => {
         const { geohash } = params
         const { latitude, longitude } = decode(geohash)
 
-        if (!latitude || !longitude)
+        if (!latitude || !longitude) {
             return next(new BadRequestError('not a valid geohash'))
+        }
 
         const shops = await Shop.find({
             position: {
@@ -35,17 +36,22 @@ export const getNearShops = async ({ params }, res, next) => {
         })
 
         const data = []
-        shops.forEach((shop) => data.push(shop.modelProjection(true)))
+        shops.forEach((shop) => {
+            data.push(shop.modelProjection(true))
+        })
 
         res.send(data)
+
     } catch (error) {
         return next(new BadRequestError(error))
     }
 }
 
 export const getShop = async ({ params }, res, next) => {
+
+    const { shopId } = params
+
     try {
-        const { shopId } = params
 
         const shop = await Shop.findOne({ shopId, published: true })
 
@@ -54,15 +60,18 @@ export const getShop = async ({ params }, res, next) => {
         }
 
         res.send(shop.modelProjection(true))
+
     } catch (error) {
         return next(new BadRequestError(error))
     }
 }
 
 export const getAllShops = async ({ query }, res, next) => {
+
+    const { page, limit, search } = query
+
     try {
         // Pagination
-        const { page, limit, search } = query
         const options = {
             page: page ?? 1,
             limit: limit ?? 20,
@@ -70,21 +79,19 @@ export const getAllShops = async ({ query }, res, next) => {
         }
 
         // Search
-        const searchParams = search
-            ? { shopId: { $regex: search, $options: 'i' } }
-            : {}
+        const searchParams = search ? { shopId: { $regex: search, $options: 'i' } } : {}
 
         // Query
-        const { totalDocs, docs, nextPage, prevPage } = await Shop.paginate(
-            { ...searchParams },
-            options
-        )
+        const { totalDocs, docs, nextPage, prevPage } = await Shop.paginate({ ...searchParams }, options)
 
         const data = []
-        docs.forEach((shop) => data.push(shop.modelProjection()))
+        docs.forEach((shop) => {
+            data.push(shop.modelProjection())
+        })
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -92,13 +99,17 @@ export const getAllShops = async ({ query }, res, next) => {
 }
 
 export const checkName = async (req, res, next) => {
+
+    const { name } = req?.body
+
     try {
         // Parse values
-        const { name } = req?.body
         const user = await User.findById(req.user)
 
         // Body name is required
-        if (!name) return next(new BadRequestError('name is required'))
+        if (!name) {
+            return next(new BadRequestError('name is required'))
+        }
 
         // Modify name
         const slugName = slugify(name, {
@@ -109,8 +120,9 @@ export const checkName = async (req, res, next) => {
         const shop = await Shop.findOne({ shopId: slugName })
 
         // Check if shop equals the users shop (shop edit mode)
-        if (shop && !shop.equals(user?.activeShop))
+        if (shop && !shop.equals(user?.activeShop)) {
             return next(new ConflictError('shopname exists already'))
+        }
 
         res.send()
     } catch (error) {
@@ -119,9 +131,11 @@ export const checkName = async (req, res, next) => {
 }
 
 export const deleteShop = async ({ user, params }, res, next) => {
+
     const { id } = params
 
     try {
+
         const { author } = await Shop.findById(id)
 
         const isAdmin = user.role === 'admin'
@@ -163,6 +177,7 @@ export const createShop = async ({ body }, res, next) => {
     } = body
 
     try {
+
         const parsedOpeningHours = parseOpeningHours(openingHours)
         // Validate request body
         await Shop.validate({
@@ -206,6 +221,7 @@ export const createShop = async ({ body }, res, next) => {
 
         // Send response
         res.send(201, shop.modelProjection(false))
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -231,6 +247,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
         openingHours,
         components,
     } = body
+
     try {
         // find object
         const shop = await Shop.findById(id)
@@ -240,9 +257,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
         }
 
         if (user.role !== 'admin' && !shop.author.equals(user._id)) {
-            return next(
-                new UnauthorizedError('you are not the author of this shop')
-            )
+            return next(new UnauthorizedError('you are not the author of this shop'))
         }
 
         // Check if picture not defined and set default picture
@@ -255,6 +270,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
             logo.url = '/api/static/placeholder.png'
             logo.id = 'placeholder'
         }
+
         // 15:00 to 900 etc.
         const parsedOpeningHours = parseOpeningHours(openingHours)
         // merge and save
@@ -276,9 +292,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
                 parsedOpeningHours,
                 components,
             },
-            (obj, src) => {
-                if (isArray(obj)) return src
-            }
+            (obj, src) => isArray(obj) ? src : undefined
         )
 
         // Save mixed types of body
@@ -288,6 +302,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
 
         // Send response
         res.send(200, data.modelProjection(false))
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))

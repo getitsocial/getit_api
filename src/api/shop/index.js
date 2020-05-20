@@ -10,6 +10,7 @@ import {
     getAllShops,
 } from './controller'
 import { addAuthor } from '~/services/modelModifier'
+
 const router = new Router()
 
 /**

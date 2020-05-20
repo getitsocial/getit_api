@@ -137,17 +137,16 @@ export const modelProjection = function (publicView) {
     ]
 
     if (!publicView) {
-        fields.push(
-            ...[
-                '_id',
-                'companyType',
-                'size',
-                'id',
-                'published',
-                'createdAt',
-                'updatedAt',
-                'author',
-            ]
+        fields.push(...[
+            '_id',
+            'companyType',
+            'size',
+            'id',
+            'published',
+            'createdAt',
+            'updatedAt',
+            'author',
+        ]
         )
     }
 
@@ -160,7 +159,10 @@ export const modelProjection = function (publicView) {
 
 // Get coordinates if locationId changed
 shopSchema.pre('save', async function (next) {
-    if (!this.isModified('address.locationId')) next()
+
+    if (!this.isModified('address.locationId')) {
+        next()
+    }
     /* istanbul ignore next */
     try {
         // dont touch
@@ -177,6 +179,7 @@ shopSchema.pre('save', async function (next) {
                 ],
             },
         } = await request({
+            // eslint-disable-next-line max-len
             uri: `https://geocoder.ls.hereapi.com/6.2/geocode.json?locationid=${this.address.locationId}&jsonattributes=1&gen=9&apiKey=${apiKey}`,
             json: true,
         })
@@ -193,16 +196,15 @@ shopSchema.pre('save', async function (next) {
 
 // Set https in front of website/facebook/instagram
 shopSchema.pre('save', async function (next) {
-    if (!this.isModified('contact')) next()
+    if (!this.isModified('contact')) {
+        next()
+    }
+
     /* istanbul ignore next */
     try {
         ['website', 'facebook'].forEach((site) => {
-            if (
-                this.contact[site] &&
-                !['http://', 'https://'].some((protocol) =>
-                    this.contact[site].startsWith(protocol)
-                )
-            ) {
+            // eslint-disable-next-line max-len
+            if (this.contact[site] && !['http://', 'https://'].some((protocol) => this.contact[site].startsWith(protocol))) {
                 this.contact[site] = `https://${this.contact[site]}`
             }
         })
@@ -210,6 +212,7 @@ shopSchema.pre('save', async function (next) {
     } catch (error) {
         next(error)
     }
+
 })
 
 export const removeUsers = async function (item = this) {
@@ -232,6 +235,7 @@ shopSchema.virtual('address.display').get(function () {
 })
 
 shopSchema.virtual('openingHours').get(function () {
+
     const openingHours = {
         monday: [],
         tuesday: [],
@@ -241,10 +245,11 @@ shopSchema.virtual('openingHours').get(function () {
         saturday: [],
         sunday: [],
     }
-    if (this.parsedOpeningHours === undefined) return openingHours
-    const days = Object.keys(this.parsedOpeningHours).filter(
-        (day) => day !== 'exceptions'
-    )
+
+    if (this.parsedOpeningHours === undefined) {
+        return openingHours
+    }
+    const days = Object.keys(this.parsedOpeningHours).filter((day) => day !== 'exceptions')
 
     days.forEach((day) => {
         openingHours[day] = []
@@ -261,6 +266,7 @@ shopSchema.virtual('openingHours').get(function () {
 })
 
 shopSchema.virtual('isOpen').get(function () {
+
     moment.locale('de')
     const date = new Date()
     const day = [
@@ -273,25 +279,22 @@ shopSchema.virtual('isOpen').get(function () {
         'saturday',
     ][date.getDay()]
 
-    const minutes =
-        moment().tz('Europe/Berlin').hours() * 60 + moment().minutes()
+    const minutes = moment().tz('Europe/Berlin').hours() * 60 + moment().minutes()
 
     if (this.parsedOpeningHours[day].length === 0) {
         return false // all day closed
     }
-    if (
-        this.parsedOpeningHours[day][0].open === 0 &&
-        this.parsedOpeningHours[day][0].close === 0
-    ) {
+
+    if (this.parsedOpeningHours[day][0].open === 0 && this.parsedOpeningHours[day][0].close === 0) {
         return true // all day open
     }
 
-    return (
-        -1 !==
-        this.parsedOpeningHours[day].findIndex(
-            (segment) => segment.open <= minutes && minutes <= segment.close
-        )
-    )
+    const isOpen = this.parsedOpeningHours[day].findIndex((segment) => {
+        return segment.open <= minutes && minutes <= segment.close
+    }) !== -1
+
+    return isOpen
+
 })
 
 shopSchema.methods = {
