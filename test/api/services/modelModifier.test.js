@@ -25,7 +25,7 @@ beforeAll(async (done) => {
         router.get('/test/showShop', [doorman(['admin', 'user']), showShop()], (({ shop }, res, next) => {
             try {
                 res.json({ shop })
-            } catch (error) {      
+            } catch (error) {
                 next(error)
             }
         }))
@@ -34,7 +34,7 @@ beforeAll(async (done) => {
         router.post('/test/shop', [doorman(['admin', 'user']), addShop()], (({ body }, res, next) => {
             try {
                 res.json({ ...body })
-            } catch (error) {      
+            } catch (error) {
                 next(error)
             }
         }))
@@ -42,7 +42,7 @@ beforeAll(async (done) => {
         router.post('/test/shop/nodoorman', addShop(), (({ body }, res, next) => {
             try {
                 res.json({ ...body })
-            } catch (error) {      
+            } catch (error) {
                 next(error)
             }
         }))
@@ -51,7 +51,7 @@ beforeAll(async (done) => {
         router.post('/test/author', [doorman(['admin', 'user']), addAuthor()], (({ body }, res, next) => {
             try {
                 res.json({ ...body })
-            } catch (error) {      
+            } catch (error) {
                 next(error)
             }
         }))
@@ -59,7 +59,7 @@ beforeAll(async (done) => {
         router.post('/test/author/nodoorman', addAuthor(), (({ body }, res, next) => {
             try {
                 res.json({ ...body })
-            } catch (error) {      
+            } catch (error) {
                 next(error)
             }
         }))
@@ -99,7 +99,7 @@ describe('modelModifier Test:',  () => {
 
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
-        expect(shop._id).toBe(adminUser.activeShop.toString()) 
+        expect(shop._id).toBe(adminUser.activeShop.toString())
 
         done()
     })
@@ -109,10 +109,10 @@ describe('modelModifier Test:',  () => {
             .post(`/${apiEndpoint}/shop`)
             .set('Authorization', 'Bearer ' + adminToken)
             .send({ hello: 'there' })
-        
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
-        expect(body.shop).toBe(shop._id.toString()) 
+        expect(body.shop).toBe(shop._id.toString())
 
         done()
     })
@@ -122,10 +122,10 @@ describe('modelModifier Test:',  () => {
             .post(`/${apiEndpoint}/author`)
             .set('Authorization', 'Bearer ' + adminToken)
             .send({ hello: 'there' })
-            
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
-        expect(body.author._id).toBe(adminUser._id.toString()) 
+        expect(body.author._id).toBe(adminUser._id.toString())
 
         done()
     })
@@ -135,7 +135,7 @@ describe('modelModifier Test:',  () => {
             .post(`/${apiEndpoint}/author/nodoorman`)
             .set('Authorization', 'Bearer ' + adminToken)
             .send({ hello: 'there' })
-            
+
         expect(statusCode).toBe(401)
         done()
     })
@@ -145,7 +145,7 @@ describe('modelModifier Test:',  () => {
             .post(`/${apiEndpoint}/shop/nodoorman`)
             .set('Authorization', 'Bearer ' + adminToken)
             .send({ hello: 'there' })
-            
+
         expect(statusCode).toBe(401)
         done()
     })
@@ -155,7 +155,7 @@ describe('modelModifier Test:',  () => {
             .post(`/${apiEndpoint}/shop`)
             .set('Authorization', 'Bearer ' + adminToken)
 
-        
+
         expect(statusCode).toBe(400)
 
         done()
