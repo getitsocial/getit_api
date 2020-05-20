@@ -147,8 +147,11 @@ export const deleteShop = async ({ user, params }, res, next) => {
         if (!isSelfUpdate && !isAdmin) {
             return next(new UnauthorizedError('You can\'t delete other users'))
         }
+        const shop = await Shop.findByIdAndDelete(id)
 
-        (await Shop.findByIdAndDelete(id)).removeUsers()
+        await shop.removeUsers()
+        await shop.removeArticles()
+        await shop.removeCategories()
 
         // Send response
         res.send(204)
