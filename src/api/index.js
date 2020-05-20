@@ -2,7 +2,6 @@ import { Router } from 'restify-router'
 import user from './user'
 /* ENDPOINT_ROUTER_IMPORT */
 import shop from './shop'
-import order from './order'
 import category from './category'
 import article from './article'
 import passwordReset from './password-reset'
@@ -39,7 +38,6 @@ const router = new Router()
 
 /* ENDPOINT_ROUTER_EXPORT */
 router.add('/shops', shop)
-router.add('/orders', order)
 router.add('/categories', category)
 router.add('/articles', article)
 router.add('/password-resets', passwordReset)
