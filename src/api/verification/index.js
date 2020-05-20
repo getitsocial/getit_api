@@ -13,5 +13,4 @@ const router = new Router()
  */
 router.get('/:token', verify)
 
-
 export default router
