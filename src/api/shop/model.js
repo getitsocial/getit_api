@@ -219,7 +219,6 @@ shopSchema.pre('save', async function (next) {
 })
 
 export const removeCategories = async function ({ _id } = this) {
-    console.log(_id)
     await Category.deleteMany({ shop: _id })
 }
 
