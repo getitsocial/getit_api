@@ -74,7 +74,12 @@ beforeEach(async (done) => {
 
     const parsedOpeningHours = parseOpeningHours(defaultShopData().openingHours)
 
-    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
+    adminUser = await User.create({
+        name: 'Maximilian',
+        email: 'max1@moritz.com',
+        password: 'Max123!!!',
+        role: 'admin'
+    })
 
     shop = await Shop.create(defaultShopData({ author: adminUser._id, parsedOpeningHours }))
 
