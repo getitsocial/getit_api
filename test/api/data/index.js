@@ -1,13 +1,13 @@
 import { mergeWith, isArray } from 'lodash'
 
 export const defaultShopData = (edit) => mergeWith({
-    name: 'shopname', 
-    size: 5, 
-    logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' }, 
-    category: 'clothing', 
-    contact: { phone: 12345, instagram: 'https://instagram.de', facebook: 'facebook.de'}, 
-    companyType: 'EU', 
-    address: { 
+    name: 'shopname',
+    size: 5,
+    logo: { url: 'https://i.picsum.photos/id/368/200/300.jpg' },
+    category: 'clothing',
+    contact: { phone: 12345, instagram: 'https://instagram.de', facebook: 'facebook.de'},
+    companyType: 'EU',
+    address: {
         label: 'Goethestraße 26, 76135 Karlsruhe, Deutschland',
         city: 'Karlsruhe',
         country: 'DEU',
@@ -29,11 +29,7 @@ export const defaultShopData = (edit) => mergeWith({
         saturday: [{ open: '9:00', close: '12:00' }, { open: '13:00', close: '18:00' }],
         sunday: []
     }
-}, edit, (obj, src) => {
-    if (isArray(obj)) return src
-})
-
-
+}, edit, (obj, src) => isArray(obj) ? src : undefined)
 
 export const defaultArticleData = (edit) => mergeWith({
     name: 'kebab',
@@ -42,6 +38,4 @@ export const defaultArticleData = (edit) => mergeWith({
     size: 'thicc',
     currency: 'Euro',
     description: 'mhmhmhmh köftespieß'
-}, edit, (obj, src) => {
-    if (isArray(obj)) return src
-})
+}, edit, (obj, src) => isArray(obj) ? src : undefined)
