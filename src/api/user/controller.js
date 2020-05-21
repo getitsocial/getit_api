@@ -1,9 +1,4 @@
-import {
-    BadRequestError,
-    UnauthorizedError,
-    NotFoundError,
-    ResourceNotFoundError
-} from 'restify-errors'
+import { BadRequestError, UnauthorizedError, NotFoundError, ResourceNotFoundError } from 'restify-errors'
 import rp from 'request-promise'
 import { mergeWith, isArray, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
@@ -23,15 +18,10 @@ export const getAllUsers = async ({ query }, res, next) => {
         }
 
         // Search
-        const searchParams = search
-            ? { name: { $regex: search, $options: 'i' } }
-            : {}
+        const searchParams = search ? { name: { $regex: search, $options: 'i' } } : {}
 
         // Query
-        const { totalDocs, docs, nextPage, prevPage } = await User.paginate(
-            { ...searchParams },
-            options
-        )
+        const { totalDocs, docs, nextPage, prevPage } = await User.paginate({ ...searchParams }, options)
 
         // Model projection
         const data = []
@@ -41,7 +31,6 @@ export const getAllUsers = async ({ query }, res, next) => {
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -50,7 +39,6 @@ export const getAllUsers = async ({ query }, res, next) => {
 
 export const getMe = async ({ user }, res, next) => {
     try {
-
         if (!user) {
             return next(new BadRequestError(res.__('cannot find user')))
         }
@@ -68,7 +56,6 @@ export const getMe = async ({ user }, res, next) => {
 
         // Send response
         res.send(200, result.modelProjection())
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -97,7 +84,6 @@ export const getUser = async ({ params }, res, next) => {
 
         // Send response
         res.send(200, user.modelProjection())
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -132,7 +118,7 @@ export const create = async ({ body }, res, next) => {
                 method: 'POST',
                 uri: 'https://hooks.slack.com/services/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',
                 body: {
-                    text: `:hatching_chick: We have a new User - :wave::skin-tone-6: Say hello to ${name:hatching_chick:}`,
+                    text: `:hatching_chick: We have a new User - :wave: Say hello to ${name}`,
                 },
                 json: true,
             })
@@ -140,7 +126,6 @@ export const create = async ({ body }, res, next) => {
 
         // Send response
         res.send(201, user.modelProjection())
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__('email_error')))
@@ -149,17 +134,7 @@ export const create = async ({ body }, res, next) => {
 
 export const update = async ({ user, params, body }, res, next) => {
     // Pass values
-    const {
-        name,
-        picture,
-        email,
-        description,
-        userSettings,
-        location,
-        role,
-        shops,
-        activeShop,
-    } = body
+    const { name, picture, email, description, userSettings, location, role, shops, activeShop } = body
 
     try {
         // Find User
@@ -199,7 +174,7 @@ export const update = async ({ user, params, body }, res, next) => {
                 activeShop,
                 ...adminFields,
             },
-            (obj, src) => isArray(obj) ? src : undefined
+            (obj, src) => (isArray(obj) ? src : undefined)
         )
 
         // For merge nested Objects
@@ -209,7 +184,6 @@ export const update = async ({ user, params, body }, res, next) => {
         await data.save()
         // Send response
         res.send(201, data.modelProjection())
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -234,7 +208,6 @@ export const updatePassword = async ({ body, params, user }, res, next) => {
 
         // Send response
         res.send(201, data.modelProjection())
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -243,22 +216,17 @@ export const updatePassword = async ({ body, params, user }, res, next) => {
 
 export const deleteUser = async ({ user, params }, res, next) => {
     try {
-
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : params.id === user._id
 
         // Check permissions
-        if (!isSelfUpdate && !isAdmin)
-            return next(
-                new UnauthorizedError(res.__('You can\'t delete other users'))
-            )
+        if (!isSelfUpdate && !isAdmin) {return next(new UnauthorizedError(res.__('You can\'t delete other users')))}
 
         await User.findByIdAndDelete(params.id === 'me' ? user._id : params.id)
 
         // Send response
         res.send(204)
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(res.__(error.message)))
@@ -267,7 +235,6 @@ export const deleteUser = async ({ user, params }, res, next) => {
 
 export const getActiveShop = async ({ user, params }, res, next) => {
     try {
-
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : params.id === user._id
@@ -284,7 +251,6 @@ export const getActiveShop = async ({ user, params }, res, next) => {
         }
 
         res.send(200, activeShop.modelProjection())
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -296,7 +262,6 @@ export const setActiveShop = async ({ user, params, body }, res, next) => {
     const { _id: shopId } = body
 
     try {
-
         const isAdmin = user.role === 'admin'
 
         const isSelfUpdate = params.id === 'me' ? true : params.id === user._id
@@ -315,7 +280,6 @@ export const setActiveShop = async ({ user, params, body }, res, next) => {
         dbUser.set('activeShop', shopId)
         dbUser.save()
         res.send(204)
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
