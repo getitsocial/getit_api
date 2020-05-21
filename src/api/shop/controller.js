@@ -1,5 +1,4 @@
 import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError, ResourceNotFoundError } from 'restify-errors'
-import rp from 'request-promise'
 
 import slugify from 'slugify'
 import { mergeWith, isArray } from 'lodash'
@@ -200,17 +199,6 @@ export const createShop = async ({ body }, res, next) => {
         })
 
         await User.updateOne({ _id: author._id }, { activeShop: shop._id, $push: { shops: shop._id } })
-
-        if (process.env.NODE_ENV === 'production') {
-            rp({
-                method: 'POST',
-                uri: 'https://hooks.slack.com/services/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',
-                body: {
-                    text: `:tada: We have a new Shop - ${name}`,
-                },
-                json: true,
-            })
-        }
 
         // Send response
         res.send(201, shop.modelProjection(false))

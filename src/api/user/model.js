@@ -5,7 +5,6 @@ import paginate from 'mongoose-paginate-v2'
 import { hashPassword, passwordValidator } from '~/utils'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
-import rp from 'request-promise'
 
 const { emailTemplates } = serverConfig
 
@@ -177,17 +176,6 @@ userSchema.statics = {
                     dynamic_template_data: {
                         username: name,
                     },
-                })
-            }
-
-            if (process.env.NODE_ENV === 'production') {
-                rp({
-                    method: 'POST',
-                    uri: 'https://hooks.slack.com/services/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',
-                    body: {
-                        text: `:hatching_chick: We have a new User - :wave: Say hello to ${name}`,
-                    },
-                    json: true,
                 })
             }
 
