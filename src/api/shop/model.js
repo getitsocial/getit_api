@@ -5,6 +5,9 @@ import moment from 'moment-timezone'
 import paginate from 'mongoose-paginate-v2'
 
 import User from '~/api/user/model'
+import Category from '~/api/category/model'
+import Article from '~/api/article/model'
+
 import { openingHoursValidator, minutesToHHMM } from '~/utils'
 
 const apiKey = process.env.HERE_API
@@ -215,12 +218,16 @@ shopSchema.pre('save', async function (next) {
 
 })
 
-export const removeUsers = async function (item = this) {
-    const { _id } = item
+export const removeCategories = async function ({ _id } = this) {
+    await Category.deleteMany({ shop: _id })
+}
 
-    await User.updateMany({ shops: _id }, { $pull: { shops: _id } })
+export const removeArticles = async function ({ _id } = this) {
+    await Article.deleteMany({ shop: _id })
+}
 
-    // If we decide to remove the activeShop too: {'$unset': { 'activeShop': ''}}
+export const removeUsers = async function ({ _id } = this) {
+    await User.updateMany({ shops: _id }, { $pull: { shops: _id }, $unset: { activeShop: ''} })
 }
 
 shopSchema.virtual('displayPosition').get(function () {
@@ -300,6 +307,8 @@ shopSchema.virtual('isOpen').get(function () {
 shopSchema.methods = {
     modelProjection,
     removeUsers,
+    removeArticles,
+    removeCategories
 }
 
 shopSchema.plugin(paginate)
