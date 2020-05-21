@@ -4,7 +4,7 @@ import {
     NotFoundError,
     ResourceNotFoundError
 } from 'restify-errors'
-
+import rp from 'request-promise'
 import { mergeWith, isArray, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
@@ -126,6 +126,17 @@ export const create = async ({ body }, res, next) => {
                 link,
             },
         })
+
+        if (process.env.NODE_ENV === 'production') {
+            rp({
+                method: 'POST',
+                uri: 'https://hooks.slack.com/services/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',
+                body: {
+                    text: `:hatching_chick: We have a new User - :wave::skin-tone-6: Say hello to ${name:hatching_chick:}`,
+                },
+                json: true,
+            })
+        }
 
         // Send response
         res.send(201, user.modelProjection())
