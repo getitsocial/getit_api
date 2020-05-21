@@ -9,5 +9,6 @@
 	"Cannot read property 'modelProjection' of null": "Cannot read property 'modelProjection' of null",
 	"Cannot read property 'user' of undefined": "Cannot read property 'user' of undefined",
 	"isArray is not defined": "isArray is not defined",
-	"User validation failed: activeShop: Cast to ObjectID failed for value \"\" at path \"activeShop\"": "User validation failed: activeShop: Cast to ObjectID failed for value \"\" at path \"activeShop\""
+	"User validation failed: activeShop: Cast to ObjectID failed for value \"\" at path \"activeShop\"": "User validation failed: activeShop: Cast to ObjectID failed for value \"\" at path \"activeShop\"",
+	"no active shop specified": "no active shop specified"
 }

@@ -1,10 +1,6 @@
-import {
-    BadRequestError,
-    ConflictError,
-    UnauthorizedError,
-    NotFoundError,
-    ResourceNotFoundError,
-} from 'restify-errors'
+import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError, ResourceNotFoundError } from 'restify-errors'
+import rp from 'request-promise'
+
 import slugify from 'slugify'
 import { mergeWith, isArray } from 'lodash'
 import User from '~/api/user/model'
@@ -25,11 +21,7 @@ export const getNearShops = async ({ params }, res, next) => {
         const shops = await Shop.find({
             position: {
                 $geoIntersects: {
-                    $geometry: circleToPolygon(
-                        [longitude, latitude],
-                        100000,
-                        32
-                    ),
+                    $geometry: circleToPolygon([longitude, latitude], 100000, 32),
                 },
             },
             published: true,
@@ -41,18 +33,15 @@ export const getNearShops = async ({ params }, res, next) => {
         })
 
         res.send(data)
-
     } catch (error) {
         return next(new BadRequestError(error))
     }
 }
 
 export const getShop = async ({ params }, res, next) => {
-
     const { shopId } = params
 
     try {
-
         const shop = await Shop.findOne({ shopId, published: true })
 
         if (shop === null) {
@@ -60,14 +49,12 @@ export const getShop = async ({ params }, res, next) => {
         }
 
         res.send(shop.modelProjection(true))
-
     } catch (error) {
         return next(new BadRequestError(error))
     }
 }
 
 export const getAllShops = async ({ query }, res, next) => {
-
     const { page, limit, search } = query
 
     try {
@@ -91,7 +78,6 @@ export const getAllShops = async ({ query }, res, next) => {
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -99,7 +85,6 @@ export const getAllShops = async ({ query }, res, next) => {
 }
 
 export const checkName = async (req, res, next) => {
-
     const { name } = req?.body
 
     try {
@@ -131,11 +116,9 @@ export const checkName = async (req, res, next) => {
 }
 
 export const deleteShop = async ({ user, params }, res, next) => {
-
     const { id } = params
 
     try {
-
         const { author } = await Shop.findById(id)
 
         const isAdmin = user.role === 'admin'
@@ -177,7 +160,6 @@ export const createShop = async ({ body }, res, next) => {
     } = body
 
     try {
-
         const parsedOpeningHours = parseOpeningHours(openingHours)
         // Validate request body
         await Shop.validate({
@@ -214,14 +196,21 @@ export const createShop = async ({ body }, res, next) => {
             parsedOpeningHours,
         })
 
-        await User.updateOne(
-            { _id: author._id },
-            { activeShop: shop._id, $push: { shops: shop._id } }
-        )
+        await User.updateOne({ _id: author._id }, { activeShop: shop._id, $push: { shops: shop._id } })
+
+        if (process.env.NODE_ENV === 'production') {
+            rp({
+                method: 'POST',
+                uri: 'https://hooks.slack.com/services/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',
+                body: {
+                    text: `:tada: We have a new Shop - ${name}`,
+                },
+                json: true,
+            })
+        }
 
         // Send response
         res.send(201, shop.modelProjection(false))
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -292,7 +281,7 @@ export const updateShop = async ({ body, params, user }, res, next) => {
                 parsedOpeningHours,
                 components,
             },
-            (obj, src) => isArray(obj) ? src : undefined
+            (obj, src) => (isArray(obj) ? src : undefined)
         )
 
         // Save mixed types of body
@@ -302,7 +291,6 @@ export const updateShop = async ({ body, params, user }, res, next) => {
 
         // Send response
         res.send(200, data.modelProjection(false))
-
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
