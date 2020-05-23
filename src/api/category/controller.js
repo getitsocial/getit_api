@@ -9,9 +9,6 @@ import { merge } from 'lodash'
 
 export const getCategories = async ({ shop, query }, res, next) => {
     try {
-        if (!shop) {
-            return next(new BadRequestError('no active shop specified'))
-        }
 
         // Pagination
         const { page, limit, search } = query
@@ -91,21 +88,19 @@ export const getPublicCategories = async ({ query }, res, next) => {
     }
 }
 
-export const createCategory = async ({ body, shop }, res, next) => {
+export const createCategory = async (req, res, next) => {
     // Pass values
-    const { author, name } = body
+    const { name } = req.body
+    const { shop, author } = req
 
     try {
-        if (!shop) {
-            return next(new BadRequestError('no active shop specified'))
-        }
 
         // Validate request body
-        await Category.validate({ author: author._id, name, shop })
+        await Category.validate({ author, name, shop })
 
         // Create object
         const category = await Category.create({
-            author: author._id,
+            author,
             name,
             shop,
         })

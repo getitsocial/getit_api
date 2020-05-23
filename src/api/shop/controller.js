@@ -143,7 +143,7 @@ export const deleteShop = async ({ user, params }, res, next) => {
     }
 }
 
-export const createShop = async ({ body }, res, next) => {
+export const createShop = async (req, res, next) => {
     // Pass values
     const {
         name,
@@ -154,12 +154,13 @@ export const createShop = async ({ body }, res, next) => {
         logo,
         picture,
         size,
-        author,
         description,
         published,
         deliveryOptions,
         openingHours,
-    } = body
+    } = req.body
+
+    const { author } = req
 
     try {
         const parsedOpeningHours = parseOpeningHours(openingHours)
@@ -198,7 +199,7 @@ export const createShop = async ({ body }, res, next) => {
             parsedOpeningHours,
         })
 
-        await User.updateOne({ _id: author._id }, { activeShop: shop._id, $push: { shops: shop._id } })
+        await User.updateOne({ _id: author }, { activeShop: shop._id, $push: { shops: shop._id } })
 
         // Send response
         res.send(201, shop.modelProjection(false))

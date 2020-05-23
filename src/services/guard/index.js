@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import redis from 'redis'
 import { default as JWTR } from 'jwt-redis'
 import rJWT from 'restify-jwt-community'
-import { UnauthorizedError } from 'restify-errors'
+import { UnauthorizedError, BadRequestError } from 'restify-errors'
 import { extractToken } from '~/utils'
 import { serverConfig, dbIndex } from '~/config'
 
@@ -49,7 +49,16 @@ export const doorman = (passedRoles) => [
             : next(new UnauthorizedError()),
 ]
 
-export const masterman = () => (req, res, next) =>
-    serverConfig.masterKey === extractToken(req)
-        ? next()
-        : next(new UnauthorizedError())
+export const masterman = () => (req, res, next) => {
+    if (serverConfig.masterKey !== extractToken(req)) {
+        return next(new UnauthorizedError())
+    }
+    return next()
+}
+
+export const requireShop = () => (req, res, next) => {
+    if (req.shop === undefined) {
+        return next(new BadRequestError('no active shop specified'))
+    }
+    return next()
+}

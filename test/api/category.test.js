@@ -13,7 +13,7 @@ import { parseOpeningHours } from '~/utils'
 let defaultCategory,
     adminCategory,
     adminToken,
-    defaultShop, 
+    defaultShop,
     defaultUser,
     adminUser,
     defaultToken,
@@ -25,8 +25,18 @@ beforeEach(async (done) => {
 
     const parsedOpeningHours = parseOpeningHours(defaultShopData().openingHours)
     // Create user
-    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-    defaultUser =  await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    adminUser = await User.create({
+        name: 'Maximilian',
+        email: 'max1@moritz.com',
+        password: 'Max123!!!',
+        role: 'admin'
+    })
+    defaultUser =  await User.create({
+        name: 'Maximilian',
+        email: 'max2@moritz.com',
+        password: 'Max123!!!',
+        role: 'user'
+    })
 
     defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours }))
     // Create object
@@ -38,17 +48,21 @@ beforeEach(async (done) => {
 
     defaultCategory = await Category.create({ name: 'test_category', author: defaultUser._id, shop: defaultShop._id })
     await Category.create({ name: 'test_category_1', author: defaultUser._id, shop: defaultShop._id })
-    
-    defaultArticle = await Article.create(defaultArticleData({ category: defaultCategory._id, author: defaultUser._id, shop: defaultShop._id }))
+
+    defaultArticle = await Article.create(defaultArticleData({
+        category: defaultCategory._id,
+        author: defaultUser._id,
+        shop: defaultShop._id
+    }))
 
 
     // Sign in user
     adminToken = await sign(adminUser)
     expect(isJWT(adminToken)).toBe(true)
-    
+
     defaultToken = await sign(defaultUser)
     expect(isJWT(defaultToken)).toBe(true)
-    
+
     done()
 })
 
@@ -130,19 +144,19 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(400)
     })
-    
+
     test(`GET /${apiEndpoint}:id 401`, async () => {
         const { status } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
-        
+
         expect(status).toBe(401)
     })
-    
+
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-        
+
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
         expect(body.updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
@@ -153,15 +167,16 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
             .set('Authorization', 'Bearer ' + defaultToken)
-        
+
         expect(status).toBe(404)
     })
-    
+
     test(`POST /${apiEndpoint} 201`, async () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'hello world' })
+
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('hello world')
@@ -180,7 +195,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'newname' })
-        
+
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('newname')
@@ -191,7 +206,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .set('Authorization', 'Bearer ' + adminToken)
             .send({ name: 'newname' })
-        
+
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
         expect(body.name).toEqual('newname')
@@ -202,16 +217,16 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'test' })
-        
+
         expect(status).toBe(404)
     })
-    
+
     test(`PATCH /${apiEndpoint}/:id 401`, async () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${adminCategory._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
             .send({ name: 'test' })
-        
+
         expect(status).toBe(401)
     })
 
@@ -219,7 +234,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
             .send({ name: 'test' })
-        
+
         expect(status).toBe(401)
     })
 
@@ -255,7 +270,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status } = await request(server)
             .delete(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
             .set('Authorization', 'Bearer ' + defaultToken)
-        
+
         expect(status).toBe(404)
     })
 

@@ -118,7 +118,7 @@ export const getArticle = async ({ params }, res, next) => {
     }
 }
 
-export const createArticle = async ({ body }, res, next) => {
+export const createArticle = async (req, res, next) => {
     const {
         name,
         articleNumber,
@@ -131,10 +131,9 @@ export const createArticle = async ({ body }, res, next) => {
         category,
         published,
         tax,
-        author,
-        shop,
-    } = body
+    } = req.body
 
+    const { author, shop } = req
     try {
         await Article.validate({
             name,
@@ -233,7 +232,7 @@ export const updateArticle = async ({ body, params, user }, res, next) => {
                 tax,
             },
             (obj, src) => {
-                if (isArray(obj)) return src
+                if (isArray(obj)) {return src}
             }
         )
 

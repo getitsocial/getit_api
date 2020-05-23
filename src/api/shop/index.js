@@ -9,7 +9,7 @@ import {
     getShop,
     getAllShops,
 } from './controller'
-import { addAuthor } from '~/services/modelModifier'
+import { addAuthor } from '~/services/requestModifier'
 
 const router = new Router()
 

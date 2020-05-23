@@ -1,6 +1,6 @@
 import { Router } from 'restify-router'
 import { doorman } from '~/services/guard'
-import { addAuthor, addShop } from '~/services/modelModifier'
+import { addAuthor, addShop } from '~/services/requestModifier'
 import {
     updateArticle,
     deleteArticle,
@@ -60,7 +60,7 @@ router.get('/:id', doorman(['user', 'admin']), getArticle)
  */
 router.post(
     '',
-    [doorman(['user', 'admin']), addAuthor(), addShop()],
+    [doorman(['user', 'admin']), addAuthor(), addShop({ required: true })],
     createArticle
 )
 

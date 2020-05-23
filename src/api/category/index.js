@@ -1,6 +1,6 @@
 import { Router } from 'restify-router'
 import { doorman } from '~/services/guard'
-import { addAuthor, showShop } from '~/services/modelModifier'
+import { addAuthor, addShop } from '~/services/requestModifier'
 import {
     getCategory,
     getCategories,
@@ -21,7 +21,7 @@ const router = new Router()
  * @apiError {Object} 400 Some parameters may contain invalid values.
  * @apiError 401 Missing permissions.
  */
-router.get('', doorman(['user', 'admin']), showShop(), getCategories)
+router.get('', [doorman(['user', 'admin']), addShop({ required: true })], getCategories)
 
 /**
  * @api {get} /categories/public Retrieve categories
@@ -58,7 +58,7 @@ router.get('/:id', doorman(['user', 'admin']), getCategory)
  */
 router.post(
     '',
-    [doorman(['user', 'admin']), addAuthor(), showShop()],
+    [doorman(['user', 'admin']), addAuthor(), addShop({ required: true })],
     createCategory
 )
 
