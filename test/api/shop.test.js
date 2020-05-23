@@ -24,12 +24,27 @@ beforeEach(async (done) => {
 
     const parsedOpeningHours = parseOpeningHours(defaultShopData().openingHours)
     // Create user
-    adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin' })
-    defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+    adminUser = await User.create({
+        name: 'Maximilian',
+        email: 'max1@moritz.com',
+        password: 'Max123!!!',
+        role: 'admin'
+    })
+    defaultUser = await User.create({
+        name: 'Maximilian',
+        email: 'max2@moritz.com',
+        password: 'Max123!!!',
+        role: 'user'
+    })
 
     // Create shop
     defaultShop = await Shop.create(defaultShopData({ author: defaultUser._id, parsedOpeningHours }))
-    adminShop = await Shop.create(defaultShopData({ author: adminUser._id, name: 'shopname_1', parsedOpeningHours, openingHours: {} }))
+    adminShop = await Shop.create(defaultShopData({
+        author: adminUser._id,
+        name: 'shopname_1',
+        parsedOpeningHours,
+        openingHours: {}
+    }))
 
     const category = await Category.create({ name: 'test_category_1', author: defaultUser._id, shop: defaultShop._id })
     await Category.create({ name: 'test_category_2', author: defaultUser._id, shop: defaultShop._id })
@@ -94,7 +109,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(Array.isArray(body)).toBe(true)
-        expect(body.length).toBe(2)
+        expect(body).toHaveLength(2)
         expect(statusCode).toBe(200)
     })
 
@@ -107,7 +122,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(Array.isArray(body)).toBe(true)
-        expect(body.length).toBe(1)
+        expect(body).toHaveLength(1)
         expect(statusCode).toBe(200)
         expect(body[0].updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
 
@@ -145,13 +160,19 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_9', openingHours: { wednesday: [{ open: '00:00', close: '00:00'}]}}))
+            .send(defaultShopData({
+                author: defaultUser._id,
+                name: 'shopname_9',
+                openingHours: {
+                    wednesday: [{ open: '00:00', close: '00:00'}]
+                }
+            }))
 
         expect(status).toBe(201)
         expect(typeof body).toEqual('object')
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
-        expect(body.deliveryOptions.length).toBe(1)
+        expect(body.deliveryOptions).toHaveLength(1)
         expect(body.deliveryOptions[0]).toBe('PU')
         expect(body.name).toBe('shopname_9')
         expect(body.contact.phone).toBe('12345')
@@ -175,7 +196,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_9', openingHours: { wednesday: [{ open: '00:00', close: '00:00' }, { open: '15:00', close: '15:15' }]}}))
+            .send(defaultShopData({
+                author: defaultUser._id,
+                name: 'shopname_9',
+                openingHours: {
+                    wednesday: [{ open: '00:00', close: '00:00' }, { open: '15:00', close: '15:15' }]
+                }
+            }))
         expect(status).toBe(400)
         expect(typeof body).toEqual('object')
 
@@ -185,7 +212,11 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_9', openingHours: { wednesday: [{ open: '15:30', close: '15:15' }]}}))
+            .send(defaultShopData({
+                author: defaultUser._id,
+                name: 'shopname_9',
+                openingHours: { wednesday: [{ open: '15:30', close: '15:15' }]}
+            }))
 
         expect(status).toBe(400)
         expect(typeof body).toEqual('object')
@@ -196,7 +227,13 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .post(`${serverConfig.endpoint}/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send(defaultShopData({ author: defaultUser._id, name: 'shopname_42', openingHours: { wednesday: [{ open: '24:01', close: '25:30' }]}}))
+            .send(defaultShopData({
+                author: defaultUser._id,
+                name: 'shopname_42',
+                openingHours: {
+                    wednesday: [{ open: '24:01', close: '25:30' }]
+                }
+            }))
 
         expect(status).toBe(400)
         expect(typeof body).toEqual('object')
@@ -215,7 +252,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { phone: 42 }, openingHours: { monday: [{ open: '00:00', close: '00:00' }]}, deliveryOptions: ['MU', 'LD']})
+            .send({
+                contact: {
+                    phone: 42
+                },
+                openingHours: {
+                    monday: [{ open: '00:00', close: '00:00' }]
+                },
+                deliveryOptions: ['MU', 'LD']
+            })
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
 
@@ -224,7 +269,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.contact.instagram).toBe('https://instagram.de')
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
-        expect(body.deliveryOptions.length).toBe(2)
+        expect(body.deliveryOptions).toHaveLength(2)
         expect(body.deliveryOptions).toEqual(['MU', 'LD'])
         // make sure that if 'logo' is undefined in our patch we dont set the placeholder logo on accident
         expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
@@ -234,7 +279,15 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         const { status, body } = await request(server)
             .patch(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
-            .send({ contact: { phone: 42 }, openingHours: { monday: [ { open: '00:00', close: '00:00' }]}, deliveryOptions: [] })
+            .send({
+                contact: {
+                    phone: 42
+                },
+                openingHours: {
+                    monday: [ { open: '00:00', close: '00:00' }]
+                },
+                deliveryOptions: []
+            })
         expect(status).toBe(200)
         expect(typeof body).toEqual('object')
 
@@ -243,7 +296,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(body.contact.instagram).toBe('https://instagram.de')
 
         expect(Array.isArray(body.deliveryOptions)).toBe(true)
-        expect(body.deliveryOptions.length).toBe(0)
+        expect(body.deliveryOptions).toHaveLength(0)
         expect(body.deliveryOptions).toEqual([])
         // make sure that if 'logo' is undefined in our patch we dont set the placeholder logo on accident
         expect(body.logo.url).not.toEqual('/api/static/placeholder.png')
@@ -380,8 +433,8 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect((await User.findById(adminUser._id)).activeShop).toBeUndefined()
 
         // Categories and Articles got deleted
-        expect((await Category.find({ shop: defaultShop._id})).length).toBe(0)
-        expect((await Article.find({ shop: defaultShop._id})).length).toBe(0)
+        expect((await Category.find({ shop: defaultShop._id}))).toHaveLength(0)
+        expect((await Article.find({ shop: defaultShop._id}))).toHaveLength(0)
 
         expect(status).toBe(204)
     })

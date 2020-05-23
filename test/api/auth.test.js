@@ -11,7 +11,7 @@ import { TokenDestroyedError } from 'jwt-redis'
 
 const { secret } = serverConfig?.jwt
 
-let token, 
+let token,
     apiEndpoint = 'test'
 
 beforeAll(async (done) => {
@@ -32,9 +32,20 @@ beforeAll(async (done) => {
 
 beforeEach(async () => {
     // Create User
-    const adminUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'admin', verified: true })
-    await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'admin' }) // unverified user
-    
+    const adminUser = await User.create({
+        name: 'Maximilian',
+        email: 'max1@moritz.com',
+        password: 'Max123!!!',
+        role: 'admin',
+        verified: true
+    })
+    await User.create({
+        name: 'Maximilian',
+        email: 'max2@moritz.com',
+        password: 'Max123!!!',
+        role: 'admin'
+    }) // unverified user
+
     expect(typeof adminUser).toBe('object')
     expect(typeof adminUser._id).toBe('object')
     expect(Array.isArray([adminUser.keyworkds])).toBe(true)
@@ -74,7 +85,7 @@ describe('Auth Test:', () => {
         const { body, statusCode, header } = await request(server)
             .post(`${serverConfig.endpoint}/auth`)
             .send({ email: 'max1@moritz.com', password: 'Max123!!!', token: serverConfig.masterKey })
-        
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
         expect(typeof body).toBe('object')
@@ -98,7 +109,7 @@ describe('Auth Test:', () => {
         const { statusCode } = await request(server)
             .post(`${serverConfig.endpoint}/auth`)
             .send({ email: 'max1@moritz.com', password: 'Max123!!!' })
-        
+
         expect(statusCode).toBe(401)
         done()
     })
@@ -107,7 +118,7 @@ describe('Auth Test:', () => {
         const { statusCode } = await request(server)
             .post(`${serverConfig.endpoint}/auth`)
             .send({ email: 'unknown@user.com', password: 'Max123!!!', token: serverConfig.masterKey })
-        
+
         expect(statusCode).toBe(400)
         done()
     })
@@ -116,7 +127,7 @@ describe('Auth Test:', () => {
         const { statusCode } = await request(server)
             .post(`${serverConfig.endpoint}/auth`)
             .send({ email: 'max1@moritz.com', password: 'Max123!!?!', token: serverConfig.masterKey })
-        
+
         expect(statusCode).toBe(400)
         done()
     })
@@ -125,7 +136,7 @@ describe('Auth Test:', () => {
         const { body, statusCode, header } = await request(server)
             .post(`${serverConfig.endpoint}/auth`)
             .send({ badRequest: 'sooo bad... muahaha...', token: serverConfig.masterKey })
-        
+
         expect(statusCode).toBe(400)
         expect(header['content-type']).toBe('application/json')
         expect(typeof body).toBe('object')
@@ -137,7 +148,7 @@ describe('Auth Test:', () => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}`)
             .set('Authorization', 'Bearer ' + token)
-        
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
         expect(typeof body).toBe('object')
@@ -150,7 +161,7 @@ describe('Auth Test:', () => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}`)
             .send({ token: token })
-        
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
         expect(typeof body).toBe('object')
@@ -163,7 +174,7 @@ describe('Auth Test:', () => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}`)
             .query({ token: token })
-        
+
         expect(statusCode).toBe(200)
         expect(header['content-type']).toBe('application/json')
         expect(typeof body).toBe('object')
@@ -175,7 +186,7 @@ describe('Auth Test:', () => {
     test(`POST /${apiEndpoint} 401`, async (done) => {
         const { body, statusCode, header } = await request(server)
             .post(`/${apiEndpoint}`)
-        
+
         expect(statusCode).toBe(401),
         expect(header['content-type']).toBe('application/json')
         expect(body.code).toBe('Unauthorized')
@@ -192,7 +203,7 @@ describe('Auth Test:', () => {
         await expect(verify(token, secret)).rejects.toThrow(TokenDestroyedError)
         done()
     })
-     
+
     test(`POST /${apiEndpoint}/logout 401`, async (done) => {
         const { statusCode } = await request(server)
             .post(`${serverConfig.endpoint}/auth/logout`)

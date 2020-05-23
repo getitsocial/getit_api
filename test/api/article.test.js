@@ -107,7 +107,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
-        expect(body.rows.length).toBe(2)
+        expect(body.rows).toHaveLength(2)
         expect(typeof body.nextPage).not.toBeUndefined()
         expect(typeof body.prevPage).not.toBeUndefined()
         expect(body.count).toBe(2)
@@ -130,7 +130,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
-        expect(body.rows.length).toBe(1)
+        expect(body.rows).toHaveLength(1)
         expect(typeof body.nextPage).not.toBeUndefined()
         expect(typeof body.prevPage).not.toBeUndefined()
         expect(body.count).toBe(2)
@@ -138,29 +138,27 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     test(`GET /${apiEndpoint} 200`, async () => {
         const { statusCode, body } = await request(server)
-            .get(
-                `${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1&_id=${defaultShop._id}`
-            )
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1&_id=${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
-        expect(body.rows.length).toBe(1)
+        expect(body.rows).toHaveLength(1)
         expect(typeof body.nextPage).not.toBeUndefined()
         expect(typeof body.prevPage).not.toBeUndefined()
         expect(body.count).toBe(2)
     })
 
     test(`GET /${apiEndpoint} 200`, async () => {
-        const { statusCode, body, error } = await request(server)
-            .get(
-                `${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1&_id=${defaultShop._id}`
-            )
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1&_id=${defaultShop._id}`)
             .set('Authorization', 'Bearer ' + noShopToken)
 
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
-        expect(body.rows.length).toBe(1)
+        expect(body.rows).toHaveLength(1)
         expect(typeof body.nextPage).not.toBeUndefined()
         expect(typeof body.prevPage).not.toBeUndefined()
         expect(body.count).toBe(2)
@@ -185,7 +183,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
-        expect(body.rows.length).toBe(0)
+        expect(body.rows).toHaveLength(0)
         expect(typeof body.nextPage).not.toBeUndefined()
         expect(typeof body.prevPage).not.toBeUndefined()
         expect(body.count).toBe(2)

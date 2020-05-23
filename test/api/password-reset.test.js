@@ -13,9 +13,14 @@ let defaultToken,
 
 
 beforeEach(async () => {
-    
+
     // Create User
-    defaultUser = await User.create({ name: 'Maximilian', email: 'max1@moritz.com', password: 'Max123!!!', role: 'user' })
+    defaultUser = await User.create({
+        name: 'Maximilian',
+        email: 'max1@moritz.com',
+        password: 'Max123!!!',
+        role: 'user'
+    })
     // Create password reset
     defaultPasswordReset = await PasswordResetModel.create({ user: defaultUser._id })
 

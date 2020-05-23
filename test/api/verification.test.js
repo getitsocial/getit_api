@@ -12,13 +12,18 @@ let defaultUser,
     apiEndpoint = 'verification'
 
 beforeEach(async (done) => {
-    
-    defaultUser = await User.create({ name: 'Maximilian', email: 'max2@moritz.com', password: 'Max123!!!', role: 'user' })
+
+    defaultUser = await User.create({
+        name: 'Maximilian',
+        email: 'max2@moritz.com',
+        password: 'Max123!!!',
+        role: 'user'
+    })
     defaultVerification = await Verification.create({ user: defaultUser._id })
-    
+
     defaultToken = await sign(defaultUser)
     expect(isJWT(defaultToken)).toBe(true)
-    
+
     done()
 })
 
