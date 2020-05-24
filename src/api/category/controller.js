@@ -8,6 +8,7 @@ import Shop from '~/api/shop/model'
 import { merge } from 'lodash'
 
 export const getCategories = async ({ shop, query }, res, next) => {
+
     try {
 
         // Pagination
@@ -33,7 +34,9 @@ export const getCategories = async ({ shop, query }, res, next) => {
         )
 
         const data = []
-        docs.forEach((category) => data.push(category.modelProjection()))
+        docs.forEach((category) =>  {
+            data.push(category.modelProjection())
+        })
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
@@ -41,11 +44,18 @@ export const getCategories = async ({ shop, query }, res, next) => {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
     }
+
 }
 
 export const getPublicCategories = async ({ query }, res, next) => {
+
     try {
-        const { page, limit, category, shopId } = query
+
+        const { page, limit, shopId } = query
+
+        if (!shopId) {
+            return next(new BadRequestError('shopId query is missing'))
+        }
 
         const options = {
             page: page ?? 1,
@@ -56,29 +66,21 @@ export const getPublicCategories = async ({ query }, res, next) => {
             ],
         }
 
-        // Filter Categories by Shop
-        let byShop = {}
-        if (shopId) {
-            try {
-                const { _id, components } = await Shop.findOne({ shopId })
-                byShop = {
-                    shop: _id,
-                    shopId: shopId,
-                    components,
-                }
-            } catch (error) {
-                // Shop not found
-            }
+        const shop = (await Shop.findOne({ shopId }))?._id
+
+        if (!shop) {
+            return next(new ResourceNotFoundError('shop not found'))
         }
 
         // Query
         const { totalDocs, docs, nextPage, prevPage } = await Category.paginate(
-            { shop: byShop.shop },
+            { shop },
             options
         )
-
         const data = []
-        docs.forEach((category) => data.push(category.modelProjection()))
+        docs.forEach((category) => {
+            data.push(category.modelProjection())
+        })
 
         // Send response
         res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
@@ -86,6 +88,7 @@ export const getPublicCategories = async ({ query }, res, next) => {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
     }
+
 }
 
 export const createCategory = async (req, res, next) => {

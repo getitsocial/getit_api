@@ -145,6 +145,16 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(400)
     })
 
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(statusCode).toBe(200)
+    })
+
     test(`GET /${apiEndpoint}:id 401`, async () => {
         const { status } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultCategory._id}`)
