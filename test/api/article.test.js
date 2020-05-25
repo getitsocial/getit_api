@@ -94,6 +94,7 @@ beforeEach(async (done) => {
 })
 
 describe(`Test /${apiEndpoint} endpoint:`, () => {
+
     test(`GET /${apiEndpoint} 200`, async () => {
         const { statusCode, body } = await request(server)
             .get(
@@ -199,6 +200,104 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
     })
+
+    // public
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&shopId=${defaultShop.shopId}`)
+
+        expect(body.rows[0].author.name).not.toBeUndefined()
+        expect(body.rows[0].author.picture).not.toBeUndefined()
+        expect(body.rows[0].category.name).not.toBeUndefined()
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(2)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)
+    })
+
+    test(`GET /${apiEndpoint}/public 404`, async () => {
+        const { statusCode } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&shopId=kekek`)
+
+        expect(statusCode).toBe(404)
+
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&limit=1&shopId=${defaultShop.shopId}`)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(1)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+        // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&limit=1&shopId=${defaultShop.shopId}`)
+            .set('Authorization', 'Bearer ' + defaultToken)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(1)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+        // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&limit=1&shopId=${defaultShop.shopId}`)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(1)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)
+    })
+
+    test(`GET /${apiEndpoint}/public 400`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&limit=1&`)
+
+        expect(statusCode).toBe(400)
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&page=2&shopId=${defaultShop.shopId}`)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(0)
+        expect(typeof body.nextPage).not.toBeUndefined()
+        expect(typeof body.prevPage).not.toBeUndefined()
+        expect(body.count).toBe(2)
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&shopId=${defaultShop.shopId}`)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+    // end public
 
     test(`GET /${apiEndpoint}:id 200`, async () => {
         const { status, body } = await request(server)

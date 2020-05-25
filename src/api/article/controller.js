@@ -43,9 +43,16 @@ export const getArticles = async ({ query, user }, res, next) => {
     }
 }
 
-export const getPublicArticles = async ({ query, user }, res, next) => {
+export const getPublicArticles = async ({ query }, res, next) => {
+
     try {
+
         const { page, limit, category, shopId } = query
+
+        if (!shopId) {
+            return next(new BadRequestError('shopId query is missing'))
+        }
+
         const options = {
             page: page ?? 1,
             limit: limit ?? 20,
@@ -56,44 +63,39 @@ export const getPublicArticles = async ({ query, user }, res, next) => {
         }
 
         // Filter Articles by Shop
-        let byShop = {}
-        if (shopId) {
-            try {
-                const { _id, components, name } = await Shop.findOne({ shopId })
-                byShop = {
-                    shop: _id,
-                    shopId: shopId,
-                    name: name,
-                    components,
-                }
-            } catch (error) {
-                // Shop not found
-            }
+        const { _id, components, name } = await Shop.findOne({ shopId }) ?? {}
+
+        if (!_id) {
+            return next(new ResourceNotFoundError('shop not found'))
         }
 
         // Filter Articles by Category if exist
-        let byCategory = {}
+        const filterCategory = {}
         if (category) {
-            byCategory.category = category
+            filterCategory.category = category
         }
 
         // Use ... method for optional and {} for required
         const { totalDocs, docs, nextPage, prevPage } = await Article.paginate(
-            { shop: byShop.shop, ...byCategory },
+            { shop: _id, ...filterCategory },
             options
         )
-        const data = []
-        docs.forEach((article) => data.push(article.modelProjection()))
+
+        const rows = []
+        docs.forEach((article) => {
+            rows.push(article.modelProjection())
+        })
 
         // Send response with query information
         res.send(200, {
             count: totalDocs,
-            rows: data,
-            shop: { ...byShop },
-            ...byCategory,
+            rows,
+            shop: { _id, components, name, shopId },
+            ...filterCategory,
             nextPage,
             prevPage,
         })
+
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
