@@ -143,9 +143,7 @@ export const updateCategory = async ({ params, user, body }, res, next) => {
         }
 
         if (user.role !== 'admin' && !category.author.equals(user._id)) {
-            return next(
-                new UnauthorizedError('cannot update other users category')
-            )
+            return next(new UnauthorizedError('cannot update other users category'))
         }
 
         const data = await merge(category, { name }).save()
@@ -167,9 +165,7 @@ export const deleteCategory = async ({ params, user }, res, next) => {
         }
 
         if (user.role !== 'admin' && !category.author.equals(user._id)) {
-            return next(
-                new UnauthorizedError('cannot delete other users category')
-            )
+            return next(new UnauthorizedError('cannot delete other users category'))
         }
 
         await category.removeArticles()

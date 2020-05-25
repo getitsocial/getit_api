@@ -85,7 +85,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(firstItem.updatedAt).toBeUndefined()
     })
 
-    test(`GET /${apiEndpoint} 200`, async () => {
+    test(`GET /${apiEndpoint} 200 page && limit`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1&limit=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -95,7 +95,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body.rows)).toBe(true)
     })
 
-    test(`GET /${apiEndpoint} 200`, async () => {
+    test(`GET /${apiEndpoint} 200 limit`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}?limit=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -105,7 +105,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body.rows)).toBe(true)
     })
 
-    test(`GET /${apiEndpoint} 200`, async () => {
+    test(`GET /${apiEndpoint} 200 page`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}?page=1`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -115,7 +115,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body.rows)).toBe(true)
     })
 
-    test(`GET /${apiEndpoint} 200`, async () => {
+    test(`GET /${apiEndpoint} 200 search`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}?search=test_`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -125,7 +125,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(Array.isArray(body.rows)).toBe(true)
     })
 
-    test(`GET /${apiEndpoint} 200`, async () => {
+    test(`GET /${apiEndpoint} 200 search`, async () => {
         const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}?search=_1`)
             .set('Authorization', 'Bearer ' + defaultToken)
@@ -145,15 +145,62 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(400)
     })
 
+    // public routes
 
-    test(`GET /${apiEndpoint}/public 200`, async () => {
-
-        const { statusCode } = await request(server)
+    test(`GET /${apiEndpoint} 200 public`, async () => {
+        const { statusCode, body } = await request(server)
             .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
 
+        const firstItem = body.rows[0]
+        expect(body.count).toBe(3)
+        expect(body.rows).toHaveLength(3)
         expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(typeof firstItem.name).toEqual('string')
+        expect(firstItem.name).toEqual(defaultCategory.name)
+        expect(firstItem._id).toBeTruthy()
+        expect(firstItem.updatedAt).toBeUndefined()
     })
+
+    test(`GET /${apiEndpoint} 400 public`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public`)
+        expect(statusCode).toBe(400)
+    })
+
+    test(`GET /${apiEndpoint} 404 public`, async () => {
+        const { statusCode } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=lololololol`)
+        expect(statusCode).toBe(404)
+    })
+
+    test(`GET /${apiEndpoint} 200 public page && limit`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}&page=1&limit=1`)
+
+        expect(body.rows).toHaveLength(1)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint} 200 public limit`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}&limit=1`)
+
+        expect(body.rows).toHaveLength(1)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint} 200 public page`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}&page=1`)
+
+        expect(body.rows).toHaveLength(3)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+    // end of public routes
 
     test(`GET /${apiEndpoint}:id 401`, async () => {
         const { status } = await request(server)
