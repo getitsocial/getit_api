@@ -33,13 +33,13 @@ export const getCategories = async ({ shop, query }, res, next) => {
             options
         )
 
-        const data = []
+        const rows = []
         docs.forEach((category) =>  {
-            data.push(category.modelProjection())
+            rows.push(category.modelProjection())
         })
 
         // Send response
-        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+        res.send(200, { count: totalDocs, rows, nextPage, prevPage })
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -51,7 +51,7 @@ export const getPublicCategories = async ({ query }, res, next) => {
 
     try {
 
-        const { page, limit, shopId } = query
+        const { page, limit, shopId, search } = query
 
         if (!shopId) {
             return next(new BadRequestError('shopId query is missing'))
@@ -66,6 +66,11 @@ export const getPublicCategories = async ({ query }, res, next) => {
             ],
         }
 
+        // Search
+        const searchParams = search
+            ? { name: { $regex: search, $options: 'i' } }
+            : {}
+
         const shop = (await Shop.findOne({ shopId }))?._id
 
         if (!shop) {
@@ -74,16 +79,16 @@ export const getPublicCategories = async ({ query }, res, next) => {
 
         // Query
         const { totalDocs, docs, nextPage, prevPage } = await Category.paginate(
-            { shop },
+            { shop, ...searchParams },
             options
         )
-        const data = []
+        const rows = []
         docs.forEach((category) => {
-            data.push(category.modelProjection())
+            rows.push(category.modelProjection())
         })
 
         // Send response
-        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+        res.send(200, { count: totalDocs, rows, nextPage, prevPage })
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))

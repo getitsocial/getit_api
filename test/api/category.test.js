@@ -200,6 +200,27 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
     })
+
+    test(`GET /${apiEndpoint} 200 search`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}&search=test_`)
+
+        expect(body.rows).toHaveLength(3)
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint} 200 search`, async () => {
+        const { statusCode, body } = await request(server)
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?shopId=${defaultShop.shopId}&search=_1`)
+
+        const firstItem = body.rows[0]
+        expect(body.rows).toHaveLength(1)
+        expect(firstItem.name).toEqual('test_category_1')
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+    })
+
     // end of public routes
 
     test(`GET /${apiEndpoint}:id 401`, async () => {
