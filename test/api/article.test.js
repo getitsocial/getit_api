@@ -66,6 +66,7 @@ beforeEach(async (done) => {
     )
     adminArticle = await Article.create(
         defaultArticleData({
+            name: 'kebab_1',
             category: defaultCategory._id,
             author: adminUser._id,
             shop: defaultShop._id,
@@ -167,9 +168,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     test(`GET /${apiEndpoint} 400`, async () => {
         const { statusCode } = await request(server)
-            .get(
-                `${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1`
-            )
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&limit=1`)
             .set('Authorization', 'Bearer ' + noShopToken)
 
         expect(statusCode).toBe(400)
@@ -177,9 +176,7 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
     test(`GET /${apiEndpoint} 200`, async () => {
         const { statusCode, body } = await request(server)
-            .get(
-                `${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&page=2`
-            )
+            .get(`${serverConfig.endpoint}/${apiEndpoint}?categoryId=${defaultCategory._id}&page=2`)
             .set('Authorization', 'Bearer ' + defaultToken)
 
         expect(statusCode).toBe(200)
@@ -296,6 +293,27 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
 
         expect(statusCode).toBe(200)
         expect(Array.isArray(body.rows)).toBe(true)
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&shopId=${defaultShop.shopId}&search=_1`)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(1)
+    })
+
+    test(`GET /${apiEndpoint}/public 200`, async () => {
+        const { statusCode, body } = await request(server)
+            // eslint-disable-next-line max-len
+            .get(`${serverConfig.endpoint}/${apiEndpoint}/public?category=${defaultCategory._id}&shopId=${defaultShop.shopId}&search=kebab`)
+
+        expect(statusCode).toBe(200)
+        expect(Array.isArray(body.rows)).toBe(true)
+        expect(body.rows).toHaveLength(2)
+
     })
     // end public
 

@@ -12,7 +12,7 @@ export const getArticles = async ({ query, user }, res, next) => {
     try {
         const { activeShop } = await User.findById(user._id)
 
-        const { page, limit, categoryId, _id = activeShop?._id } = query
+        const { page, limit, categoryId, _id = activeShop?._id, search } = query
 
         if (!_id) {
             return next(new BadRequestError('no active shop specified'))
@@ -26,17 +26,23 @@ export const getArticles = async ({ query, user }, res, next) => {
                 { path: 'category', select: 'name' },
             ],
         }
+        // Search
+        const searchParams = search
+            ? { name: { $regex: search, $options: 'i' } }
+            : {}
 
         const { totalDocs, docs, nextPage, prevPage } = await Article.paginate(
-            { shop: _id, category: categoryId },
+            { shop: _id, category: categoryId, ...searchParams },
             options
         )
 
-        const data = []
-        docs.forEach((article) => data.push(article.modelProjection()))
+        const rows = []
+        docs.forEach((article) => {
+            rows.push(article.modelProjection())
+        })
 
         // Send response
-        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+        res.send(200, { count: totalDocs, rows, nextPage, prevPage })
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
@@ -47,7 +53,7 @@ export const getPublicArticles = async ({ query }, res, next) => {
 
     try {
 
-        const { page, limit, category, shopId } = query
+        const { page, limit, category, shopId, search } = query
 
         if (!shopId) {
             return next(new BadRequestError('shopId query is missing'))
@@ -61,6 +67,11 @@ export const getPublicArticles = async ({ query }, res, next) => {
                 { path: 'category', select: 'name' },
             ],
         }
+
+        // Search
+        const searchParams = search
+            ? { name: { $regex: search, $options: 'i' } }
+            : {}
 
         // Filter Articles by Shop
         const { _id, components, name } = await Shop.findOne({ shopId }) ?? {}
@@ -77,7 +88,7 @@ export const getPublicArticles = async ({ query }, res, next) => {
 
         // Use ... method for optional and {} for required
         const { totalDocs, docs, nextPage, prevPage } = await Article.paginate(
-            { shop: _id, ...filterCategory },
+            { shop: _id, ...filterCategory, ...searchParams },
             options
         )
 
