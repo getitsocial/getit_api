@@ -24,13 +24,13 @@ export const getAllShops = async ({ query }, res, next) => {
         // Query
         const { totalDocs, docs, nextPage, prevPage } = await Shop.paginate({ ...searchParams }, options)
 
-        const data = []
+        const rows = []
         docs.forEach((shop) => {
-            data.push(shop.modelProjection())
+            rows.push(shop.modelProjection())
         })
 
         // Send response
-        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+        res.send(200, { count: totalDocs, rows, nextPage, prevPage })
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))
