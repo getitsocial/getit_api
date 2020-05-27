@@ -6,7 +6,6 @@ import {
     deleteArticle,
     getArticle,
     getArticles,
-    getPublicArticles,
     createArticle,
 } from './controller'
 
@@ -23,18 +22,6 @@ const router = new Router()
  * @apiError {Object} 401 Missing permissions.
  */
 router.get('', [doorman(['user', 'admin'])], getArticles)
-
-/**
- * @api {get} /articles Retrieve articles
- * @apiName RetrievePublishedArticles
- * @apiGroup Article
- * @apiUse listParams
- * @apiHeader {Number} x-total-count Articles count.
- * @apiSuccess {Object[]} articles List of articles.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError {Object} 401 Missing permissions.
- */
-router.get('/public', getPublicArticles)
 
 /**
  * @api {get} /articles/:id Retrieve article

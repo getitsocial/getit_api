@@ -2,10 +2,6 @@ import { Router } from 'restify-router'
 import { authenticate, providerAuthenticate, logout } from './controller'
 import { masterman, doorman } from '~/services/guard'
 
-/**
- * Serve resources with fine grained mapping control
- */
-
 const router = new Router()
 
 /**
@@ -21,8 +17,8 @@ const router = new Router()
  * @apiError 404 User not found.
  * @apiError 401 Master access only.
  */
-router.post('', 
-    masterman(), 
+router.post('',
+    masterman(),
     authenticate)
 
 /**
@@ -34,7 +30,7 @@ router.post('',
  * @apiSuccess (Success 201) {Object} user Current user's data.
  * @apiError 401 Invalid credentials.
  */
-router.post('/:provider', 
+router.post('/:provider',
     providerAuthenticate)
 
 /**
@@ -43,8 +39,8 @@ router.post('/:provider',
  * @apiGroup Auth
  * @apiError 401 Invalid credentials.
  */
-router.post('/logout', 
-    doorman(['user', 'admin']), 
+router.post('/logout',
+    doorman(['user', 'admin']),
     logout)
 
 export default router

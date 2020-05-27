@@ -3,8 +3,8 @@ import { isJWT } from 'validator'
 import server from '~/server'
 import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
-import User from '~/api/user/model'
-import Verification from '~/api/verification/model'
+import User from '!/user'
+import Verification from '!/verification'
 
 let defaultUser,
     defaultToken,
@@ -20,7 +20,6 @@ beforeEach(async (done) => {
         role: 'user'
     })
     defaultVerification = await Verification.create({ user: defaultUser._id })
-
     defaultToken = await sign(defaultUser)
     expect(isJWT(defaultToken)).toBe(true)
 

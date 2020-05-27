@@ -3,7 +3,7 @@ import { isJWT } from 'validator'
 import server from '~/server'
 import { serverConfig } from '~/config'
 import { sign } from '~/services/guard'
-import User from '~/api/user/model'
+import User from '!/user'
 
 let defaultUser,
     defaultToken,

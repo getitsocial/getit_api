@@ -4,9 +4,9 @@ import request from 'request-promise'
 import moment from 'moment-timezone'
 import paginate from 'mongoose-paginate-v2'
 
-import User from '~/api/user/model'
-import Category from '~/api/category/model'
-import Article from '~/api/article/model'
+import User from '!/user'
+import Category from '!/category'
+import Article from '!/article'
 
 import { openingHoursValidator, minutesToHHMM } from '~/utils'
 

@@ -6,7 +6,7 @@ import server from '~/server'
 import { serverConfig } from '~/config'
 import { doorman, verify } from '~/services/guard'
 import { sign, decode } from '~/services/guard'
-import User from '~/api/user/model'
+import User from '!/user'
 import { TokenDestroyedError } from 'jwt-redis'
 
 const { secret } = serverConfig?.jwt

@@ -1,16 +1,15 @@
 import request from 'supertest'
 import { isJWT } from 'validator'
-import Shop from '~/api/shop/model'
-import User from '~/api/user/model'
-import Category from '~/api/category/model'
-import Article from '~/api/article/model'
+import Shop from '!/shop'
+import User from '!/user'
+import Category from '!/category'
+import Article from '!/article'
 
 import { serverConfig } from '~/config'
 import server from '~/server'
 import { sign } from '~/services/guard'
-import { defaultShopData, defaultArticleData } from './data'
+import { defaultShopData, defaultArticleData } from '../data'
 import { parseOpeningHours } from '~/utils'
-import { encode } from 'ngeohash'
 
 let defaultShop,
     adminShop,
@@ -18,7 +17,7 @@ let defaultShop,
     adminToken,
     defaultUser,
     defaultToken,
-    apiEndpoint = 'shops'
+    apiEndpoint = 'dealer/shops'
 
 beforeEach(async (done) => {
 
@@ -101,59 +100,6 @@ describe(`Test /${apiEndpoint} endpoint:`, () => {
             .send({ name: 'shopname_1' })
 
         expect(statusCode).toBe(409)
-    })
-
-    test(`GET /${apiEndpoint}/near 200`, async () => {
-        const { statusCode, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/near/${encode(49.009387, 8.377048)}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(Array.isArray(body)).toBe(true)
-        expect(body).toHaveLength(2)
-        expect(statusCode).toBe(200)
-    })
-
-    test(`GET /${apiEndpoint}/near unpublished shop 200`, async () => {
-        defaultShop.set({ published: false })
-        await defaultShop.save()
-
-        const { statusCode, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/near/${encode(49.009387, 8.377048)}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(Array.isArray(body)).toBe(true)
-        expect(body).toHaveLength(1)
-        expect(statusCode).toBe(200)
-        expect(body[0].updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
-
-    })
-
-    test(`GET /${apiEndpoint}:id 200`, async () => {
-        const { status, body } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop.shopId}`)
-            .set('Authorization', 'Bearer ' + defaultToken)
-
-        expect(status).toBe(200)
-        expect(typeof body).toEqual('object')
-        expect(body.displayPosition).not.toBeUndefined()
-        expect(body.position).toBeUndefined()
-        expect(typeof body.isOpen).toBe('boolean')
-        expect(body.updatedAt).toBeUndefined() // make sure that modelProjection is somehow working
-
-    })
-
-    test(`GET /${apiEndpoint}:id 200`, async () => {
-        const { status } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/${defaultShop._id}`)
-
-        expect(status).toBe(404)
-    })
-
-    test(`GET /${apiEndpoint}/:id 404`, async () => {
-        const { status } = await request(server)
-            .get(`${serverConfig.endpoint}/${apiEndpoint}/123456789098765432123456`)
-
-        expect(status).toBe(404)
     })
 
     test(`POST /${apiEndpoint} 201`, async () => {

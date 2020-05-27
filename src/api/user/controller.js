@@ -2,8 +2,8 @@ import { BadRequestError, UnauthorizedError, NotFoundError, ResourceNotFoundErro
 import { mergeWith, isArray, isEmpty } from 'lodash'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
-import User from './model'
-import Verification from '~/api/verification/model'
+import User from '!/user'
+import Verification from '!/verification'
 
 const { emailTemplates } = serverConfig
 
@@ -23,13 +23,13 @@ export const getAllUsers = async ({ query }, res, next) => {
         const { totalDocs, docs, nextPage, prevPage } = await User.paginate({ ...searchParams }, options)
 
         // Model projection
-        const data = []
+        const rows = []
         docs.forEach((user) => {
-            data.push(user.modelProjection())
+            rows.push(user.modelProjection())
         })
 
         // Send response
-        res.send(200, { count: totalDocs, rows: data, nextPage, prevPage })
+        res.send(200, { count: totalDocs, rows, nextPage, prevPage })
     } catch (error) {
         /* istanbul ignore next */
         return next(new BadRequestError(error))

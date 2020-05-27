@@ -17,8 +17,9 @@ export const upload = async (req, res, next) => {
     const { file } = req.files
     const { user } = req
 
-    if (!allowedFolders.includes(folder))
+    if (!allowedFolders.includes(folder)) {
         return next(new BadRequestError('invalid folder'))
+    }
 
     const settings = mediaSettings(folder)
 

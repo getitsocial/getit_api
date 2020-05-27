@@ -5,8 +5,6 @@ import {
     deleteShop,
     createShop,
     updateShop,
-    getNearShops,
-    getShop,
     getAllShops,
 } from './controller'
 import { addAuthor } from '~/services/requestModifier'
@@ -19,16 +17,6 @@ const router = new Router()
 router.post('/checkName', [doorman(['user', 'admin'])], checkName)
 
 /**
- * @api {get} /shops/:shopId Retrieve shop
- * @apiName RetrieveShop
- * @apiGroup Shop
- * @apiSuccess {Object} shop Shop's data.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError 404 Shop not found.
- */
-router.get('/:shopId', getShop)
-
-/**
  * @api {get} /shops/ Retrieve all shops
  * @apiName RetrieveAllShops
  * @apiGroup Shop
@@ -37,16 +25,6 @@ router.get('/:shopId', getShop)
  * @apiError 404 Shop not found.
  */
 router.get('', [doorman(['admin'])], getAllShops)
-
-/**
- * @api {get} /shops/near/:geohash get shops in range
- * @apiName RetrieveNearShops
- * @apiGroup Shop
- * @apiSuccess  {Object[]} shops List of shops.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError 401 missing permissions.
- */
-router.get('/near/:geohash', getNearShops)
 
 /**
  * @api {post} /shops Create shop

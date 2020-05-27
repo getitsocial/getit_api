@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 import paginate from 'mongoose-paginate-v2'
-import Article from '~/api/article/model'
+import Article from '!/article'
 
 const categorySchema = new Schema(
     {

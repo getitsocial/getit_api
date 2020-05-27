@@ -4,7 +4,6 @@ import { addAuthor, addShop } from '~/services/requestModifier'
 import {
     getCategory,
     getCategories,
-    getPublicCategories,
     createCategory,
     updateCategory,
     deleteCategory,
@@ -22,17 +21,6 @@ const router = new Router()
  * @apiError 401 Missing permissions.
  */
 router.get('', [doorman(['user', 'admin']), addShop({ required: true })], getCategories)
-
-/**
- * @api {get} /categories/public Retrieve categories
- * @apiName RetrievePublicCategorys
- * @apiGroup Category
- * @apiUse listParams
- * @apiSuccess {count, Object[]} categories List of categories.
- * @apiError {Object} 400 Some parameters may contain invalid values.
- * @apiError 401 Missing permissions.
- */
-router.get('/public', getPublicCategories)
 
 /**
  * @api {get} /categories/:id Retrieve category

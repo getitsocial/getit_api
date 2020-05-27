@@ -1,8 +1,8 @@
 import { BadRequestError } from 'restify-errors'
 import { sendDynamicMail } from '~/services/sendgrid'
 import { serverConfig } from '~/config'
-import PasswordResetModel from './model'
-import userModel from '~/api/user/model'
+import PasswordResetModel from '!/password-reset'
+import User from '!/user'
 const { emailTemplates } = serverConfig
 
 export const create = async ({ body }, res, next) => {
@@ -11,7 +11,7 @@ export const create = async ({ body }, res, next) => {
 
     try {
         // Find user
-        const user = await userModel.findOne({ email })
+        const user = await User.findOne({ email })
 
         // Create reset token
         const data = await PasswordResetModel.create({ user: user._id })
@@ -59,7 +59,7 @@ export const update = async ({ params, body }, res, next) => {
         const { user } = await PasswordResetModel.findOne({ token }).populate('user')
 
         // Validate password
-        await userModel.validate({ password, email: user.email }) // stupid hack but ok
+        await User.validate({ password, email: user.email }) // stupid hack but ok
 
         // Set new password
         await user.set({ password }).save()

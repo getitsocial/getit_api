@@ -1,5 +1,5 @@
 import { BadRequestError, InternalServerError } from 'restify-errors'
-import User from '~/api/user/model'
+import User from '!/user'
 
 export const addAuthor = () => ((req, res, next) => {
 

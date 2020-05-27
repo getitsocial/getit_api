@@ -1,57 +1,11 @@
-import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError, ResourceNotFoundError } from 'restify-errors'
+import { BadRequestError, ConflictError, UnauthorizedError, NotFoundError } from 'restify-errors'
 
 import slugify from 'slugify'
 import { mergeWith, isArray } from 'lodash'
-import User from '~/api/user/model'
-import Shop from './model'
+import User from '!/user'
+import Shop from '!/shop'
 import { parseOpeningHours } from '~/utils'
-import { decode } from 'ngeohash'
-import circleToPolygon from 'circle-to-polygon'
 
-export const getNearShops = async ({ params }, res, next) => {
-    try {
-        const { geohash } = params
-        const { latitude, longitude } = decode(geohash)
-
-        if (!latitude || !longitude) {
-            return next(new BadRequestError('not a valid geohash'))
-        }
-
-        const shops = await Shop.find({
-            position: {
-                $geoIntersects: {
-                    $geometry: circleToPolygon([longitude, latitude], 100000, 32),
-                },
-            },
-            published: true,
-        })
-
-        const data = []
-        shops.forEach((shop) => {
-            data.push(shop.modelProjection(true))
-        })
-
-        res.send(data)
-    } catch (error) {
-        return next(new BadRequestError(error))
-    }
-}
-
-export const getShop = async ({ params }, res, next) => {
-    const { shopId } = params
-
-    try {
-        const shop = await Shop.findOne({ shopId, published: true })
-
-        if (shop === null) {
-            return next(new ResourceNotFoundError('shop not found'))
-        }
-
-        res.send(shop.modelProjection(true))
-    } catch (error) {
-        return next(new BadRequestError(error))
-    }
-}
 
 export const getAllShops = async ({ query }, res, next) => {
     const { page, limit, search } = query

@@ -1,12 +1,12 @@
 import { BadRequestError, UnauthorizedError } from 'restify-errors'
-import model from '~/api/user/model'
+import User from '!/user'
 import { sign, decode, destroy } from '~/services/guard'
 import { comparePassword, providerAuth } from '~/utils'
 
 /**
  * @throws {BadRequestError} 400 Error - invalid email or password
  */
-const errorHandler = (res, next) => 
+const errorHandler = (res, next) =>
     next(new BadRequestError(res.__('wrong email or password')))
 
 const signHandler = async (user, res) => {
@@ -20,23 +20,26 @@ const signHandler = async (user, res) => {
 export const authenticate = async({ body }, res, next) => {
     // Pass values
     const { email, password } = body
-    
+
     try {
         // Validate request body
-        await model.validate({ email, password })
+        await User.validate({ email, password })
 
         // Find user
-        const user = await model.findOne({ email })
-        if (!user) 
+        const user = await User.findOne({ email })
+        if (!user) {
             return errorHandler(res, next)
-        
-        if (!user.verified)
+        }
+
+        if (!user.verified) {
             return next(new UnauthorizedError('mail is not verified'))
-        
+        }
+
         // Compare password
         const comparedPassword = await comparePassword(password, user.password)
-        if (!comparedPassword) 
+        if (!comparedPassword) {
             return errorHandler(res, next)
+        }
 
         // Sign in user
         await signHandler(user, res)
@@ -54,11 +57,11 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
     try {
         // Get user from external provider
         const providerUser = await providerAuth[provider](token)
-        const user = await model.createFromService(providerUser)
-       
+        const user = await User.createFromService(providerUser)
+
         // Sign in user
         await signHandler(user, res)
-        
+
     } catch(error) {
         return next(new BadRequestError(error))
     }
@@ -68,7 +71,7 @@ export const providerAuthenticate = async({ body, params }, res, next) => {
 export const logout = async(req, res, next) => {
     try {
         await destroy(req)
-        res.send('success')    
+        res.send('success')
     } catch (error) {
         next(new BadRequestError('Logout was unsuccessful'))
     }

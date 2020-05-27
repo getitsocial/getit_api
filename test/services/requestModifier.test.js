@@ -5,9 +5,9 @@ import { sign, doorman } from '~/services/guard'
 import { isJWT } from 'validator'
 import { Router } from 'restify-router'
 import { addShop, addAuthor } from '~/services/requestModifier'
-import User from '~/api/user/model'
-import Shop from '~/api/shop/model'
-import { defaultShopData } from '../data'
+import User from '!/user'
+import Shop from '!/shop'
+import { defaultShopData } from '../api/data'
 import { parseOpeningHours } from '~/utils'
 
 let adminUser,

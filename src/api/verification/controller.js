@@ -1,5 +1,5 @@
 import { BadRequestError } from 'restify-errors'
-import PasswordResetModel from './model'
+import Verification from '!/verification'
 
 export const verify = async ({ params }, res, next) => {
     // Pass values
@@ -7,7 +7,7 @@ export const verify = async ({ params }, res, next) => {
 
     try {
         // Find token
-        const { user } = await PasswordResetModel.findOneAndDelete({ token }).populate('user')
+        const { user } = await Verification.findOneAndDelete({ token }).populate('user')
 
         await user.set({ verified: true }).save()
 
