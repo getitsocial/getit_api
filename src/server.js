@@ -1,7 +1,7 @@
 import restify, { plugins } from 'restify'
 import { Router } from 'restify-router'
 import { connect } from '~/services/mongoose'
-import { serverConfig, dbConfig, i18nConfig } from '~/config' 
+import { serverConfig, dbConfig, i18nConfig } from '~/config'
 import routes from '~/api'
 import i18n from 'i18n'
 
@@ -30,7 +30,7 @@ server.use(plugins.gzipResponse())
  */
 router.add(serverConfig?.endpoint, routes)
 
-/* istanbul ignore next */ 
+/* istanbul ignore next */
 router.get('/', (req, res, next) => {
     res.send(`${res.__('hello')} ${server.name}!`)
     next()
@@ -46,28 +46,28 @@ router.applyRoutes(server)
 /**
  * Connect to database
  */
-/* istanbul ignore next */ 
+/* istanbul ignore next */
 if(processMode !== 'test') {
     (async () => {
         try {
             await connect(dbConfig)
             console.clear()
-            await server.listen((serverConfig.port || 3000), () => 
+            await server.listen((serverConfig.port || 3000), () =>
                 console.log('\x1b[36m',`Server ${server.name} listen in ${processMode} mode`,'\x1b[0m'))
         } catch {
             throw new Error('mongodb connection failed!')
         }
     })()
-} 
+}
 
-/* istanbul ignore next */ 
-server.on('uncaughtException', (req, res, route, err) => 
+/* istanbul ignore next */
+server.on('uncaughtException', (req, res, route, err) =>
     console.error(err))
 
-/* istanbul ignore next */ 
+/* istanbul ignore next */
 if(processMode === 'development')
-    server.on('after', restify.plugins.metrics({ server: server }, (err, metrics) => 
-        console.info(metrics)))
+{server.on('after', restify.plugins.metrics({ server: server }, (err, metrics) =>
+    console.info(metrics)))}
 
 /**
  * Export for testing

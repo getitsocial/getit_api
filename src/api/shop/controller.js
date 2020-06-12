@@ -20,7 +20,7 @@ export const getNearShops = async ({ params }, res, next) => {
         const shops = await Shop.find({
             position: {
                 $geoIntersects: {
-                    $geometry: circleToPolygon([longitude, latitude], 100000, 32),
+                    $geometry: circleToPolygon([longitude, latitude], 20000, 32),
                 },
             },
             published: true,

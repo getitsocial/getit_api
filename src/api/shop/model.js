@@ -273,7 +273,9 @@ shopSchema.virtual('openingHours').get(function () {
 })
 
 shopSchema.virtual('isOpen').get(function () {
-
+    if (Object.keys(this.parsedOpeningHours).length === 0) {
+        return false
+    }
     moment.locale('de')
     const date = new Date()
     const day = [
